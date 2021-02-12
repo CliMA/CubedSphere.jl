@@ -12,7 +12,7 @@ function visualize_conformal_mapping(w; x_min, y_min, x_max, y_max, n_lines, n_s
     zs = cat(z₁, z₂, dims=1)
     ws = [w.(z) for z in zs]
 
-    fig = Figure(resolution=(1920, 1080))
+    fig = Figure(resolution=(3840, 2160))
     ax = fig[1, 1] = Axis(fig, xlabel="Re{w}", ylabel="Im{w}")
     [lines!(ax, real(z), imag(z), color=RGBAf0(0, 0, 0, 0.25)) for z in zs]
     [lines!(ax, real(w), imag(w), color="dodgerblue2") for w in ws]

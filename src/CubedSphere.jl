@@ -11,7 +11,7 @@ include("rancic_taylor_coefficients.jl")
 
 function __init__()
     @require CairoMakie="13f3f980-e62b-5c42-98c6-ff1f3baf88f0" begin
-        include("visualize_mapping.jl")
+        include("visualize_conformal_mapping.jl")
     end
 end
 
