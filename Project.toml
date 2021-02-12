@@ -5,3 +5,5 @@ version = "0.1.0"
 
 [deps]
 Elliptic = "b305315f-e792-5b7a-8f41-49f472929428"
+TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
