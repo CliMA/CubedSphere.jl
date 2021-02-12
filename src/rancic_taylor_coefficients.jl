@@ -1,5 +1,3 @@
-using TaylorSeries
-
 A_Rancic = [
     +0.00000000000000,
     +1.47713062600964,
