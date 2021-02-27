@@ -28,3 +28,6 @@ for R in rotations
 
     wireframe!(X′, Y′, Z′)
 end
+
+display(fig)
+
