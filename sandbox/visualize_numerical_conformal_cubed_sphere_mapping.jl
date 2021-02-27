@@ -30,4 +30,3 @@ for R in rotations
 end
 
 display(fig)
-
