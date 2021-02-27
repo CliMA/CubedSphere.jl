@@ -1,6 +1,6 @@
 module CubedSphere
 
-export sn, cn
+export sn, cn, conformal_cubed_sphere_mapping
 
 using Printf
 using Requires
