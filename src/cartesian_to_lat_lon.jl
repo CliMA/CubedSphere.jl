@@ -16,5 +16,5 @@ function cartesian_to_latitude(x, y, z)
 end
 
 function cartesian_to_longitude(x, y, z)
-    return atand(y / x)
+    return atand(y, x)
 end
