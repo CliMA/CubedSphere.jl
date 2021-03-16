@@ -12,15 +12,9 @@ This is a Julia translation of MATLAB code from MITgcm [1].
 cartesian_to_lat_lon(x, y, z) = cartesian_to_latitude(x, y, z), cartesian_to_longitude(x, y, z)
 
 function cartesian_to_latitude(x, y, z)
-    R_eq = √(x^2 + y^2)
-    R_eq == 0 && return atand(z * Inf) # You're at one of the poles!
-    return atand(z / R_eq)
+    return atand(z, hypot(x, y))
 end
 
 function cartesian_to_longitude(x, y, z)
-    x == 0 && return atand(y * Inf) # You're at the prime-meridian or anti-meridian!
-    λ = atand(y / x)
-    x < 0 && y >= 0 && return 180 + λ
-    x <= 0 && y < 0 && return λ - 180
-    return λ
+    return atand(y, x)
 end
