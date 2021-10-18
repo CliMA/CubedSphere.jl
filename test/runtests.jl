@@ -42,6 +42,8 @@ B_Rancic_correct = [
         end
     end
     @testset "Rančić et al. (1996) inverse mapping" begin
+        xv=collect(0:0.1:1)
+        yv=collect(0:0.1:1)
         errmax=0;
         tol = 1.e-11
         for x in xv, y in yv
@@ -52,3 +54,5 @@ B_Rancic_correct = [
     end
 
 end
+
+
