@@ -41,4 +41,14 @@ B_Rancic_correct = [
             @test CubedSphere.B_Rancic[k] ≈ B_Rancic_correct[k]
         end
     end
+    @testset "Rančić et al. (1996) inverse mapping" begin
+        errmax=0;
+        tol = 1.e-11
+        for x in xv, y in yv
+          err= (x,y) .- lamrofnoc_cubed_sphere_mapping(conformal_cubed_sphere_mapping(x,y)...)
+          errmax=max(errmax,sum(abs.(err)))
+        end
+        @test errmax < tol
+    end
+
 end
