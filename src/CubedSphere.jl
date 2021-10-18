@@ -1,6 +1,6 @@
 module CubedSphere
 
-export sn, cn, conformal_cubed_sphere_mapping, cartesian_to_lat_lon
+export sn, cn, conformal_cubed_sphere_mapping, cartesian_to_lat_lon, lamrofnoc_cubed_sphere_mapping
 
 using Printf
 using Requires
