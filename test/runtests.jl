@@ -47,7 +47,7 @@ B_Rancic_correct = [
         errmax=0;
         tol = 1.e-11
         for x in xv, y in yv
-          err= (x,y) .- lamrofnoc_cubed_sphere_mapping(conformal_cubed_sphere_mapping(x,y)...)
+          err= (x,y) .- conformal_cubed_sphere_inverse_mapping(conformal_cubed_sphere_mapping(x,y)...)
           errmax=max(errmax,sum(abs.(err)))
         end
         @test errmax < tol
