@@ -11,10 +11,6 @@ This is a Julia translation of MATLAB code from MITgcm [1].
 """
 cartesian_to_lat_lon(x, y, z) = cartesian_to_latitude(x, y, z), cartesian_to_longitude(x, y, z)
 
-function cartesian_to_latitude(x, y, z)
-    return atand(z, hypot(x, y))
-end
+cartesian_to_latitude(x, y, z) = atand(z, hypot(x, y))
 
-function cartesian_to_longitude(x, y, z)
-    return atand(y, x)
-end
+cartesian_to_longitude(x, y, z) = atand(y, x)
