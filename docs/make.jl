@@ -36,7 +36,7 @@ makedocs(
   checkdocs = :exports
 )
 
-deploydocs(        repo = "github.com/CliMA/CubedSphere.git",
+deploydocs(        repo = "github.com/CliMA/CubedSphere.jl.git",
                versions = ["stable" => "v^", "v#.#.#", "dev" => "dev"],
               forcepush = true,
               devbranch = "main",
