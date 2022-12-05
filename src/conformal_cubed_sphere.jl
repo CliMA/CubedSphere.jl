@@ -9,13 +9,14 @@ The input coordinates must lie within the range ``-1 ≤ x ≤ 1``,  ``-1 ≤ y 
 
 This numerical conformal mapping is described by Rančić et al. (1996).
 
-This is a Julia translation of MATLAB code from MITgcm [1] that is based on
+This is a Julia translation of [MATLAB code from MITgcm](http://wwwcvs.mitgcm.org/viewvc/MITgcm/MITgcm_contrib/high_res_cube/matlab-grid-generator/map_xy2xyz.m?view=markup) that is based on
 Fortran 77 code from Jim Purser & Misha Rančić.
 
-[1] http://wwwcvs.mitgcm.org/viewvc/MITgcm/MITgcm_contrib/high_res_cube/matlab-grid-generator/map_xy2xyz.m?view=markup
+References
+==========
 
-Rančić et al., (1996): Quarterly Journal of the Royal Meteorological Society, A global shallow-water model
-    using an expanded spherical cube - Gnomonic versus conformal coordinates
+- Rančić et al., (1996). A global shallow-water model using an expanded spherical cube - Gnomonic versus conformal
+  coordinates, _Quarterly Journal of the Royal Meteorological Society_.
 """
 function conformal_cubed_sphere_mapping(x, y)
     X = xᶜ = abs(x)
