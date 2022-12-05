@@ -1,7 +1,7 @@
 name = "CubedSphere"
 uuid = "7445602f-e544-4518-8976-18f8e8ae6cdb"
-authors = ["ali.hh.ramadhan@gmail.com <ali.hh.ramadhan@gmail.com>"]
-version = "0.2.0"
+authors = ["Climate Modeling Alliance and contributors"]
+version = "0.2.1"
 
 [deps]
 Elliptic = "b305315f-e792-5b7a-8f41-49f472929428"
@@ -13,5 +13,5 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 [compat]
 Elliptic = "1"
 Rotations = "1"
-TaylorSeries = "0.10"
+TaylorSeries = "0.10, 0.11, 0.12"
 julia = "1"
