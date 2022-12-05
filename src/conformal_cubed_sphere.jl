@@ -72,7 +72,7 @@ set of rules to be applied.
 
 The mapping is valid for the cube face quadrant defined by ``0 < x < 1`` and ``0 < y < 1``, where a full cube
 face has extent ``-1 < x < 1`` and ``-1 < y < 1``. The quadrant for the mapping is from a cube face that has
-"north-pole" at its center ``(x=0, y=0)`` i.e has `X, Y, Z = (0, 0, 1)` at its center. The valid ranges of `X`
+"north-pole" at its center ``(x=0, y=0)``. i.e., has `X, Y, Z = (0, 0, 1)` at its center. The valid ranges of `X`
 and `Y` for this mapping and convention are a quadrant defined be geodesics that connect the points A, B, C and D,
 on the shell of a sphere of radius ``R`` with `X`, `Y` coordinates as follows
 
@@ -85,14 +85,14 @@ D = (0, √2)
 """
 function conformal_cubed_sphere_inverse_mapping(X, Y, Z)
     H  = Z + 1
-    Xˢ = X/H
-    Yˢ = Y/H
-    ω  = Xˢ + im*Yˢ
+    Xˢ = X / H
+    Yˢ = Y / H
+    ω  = Xˢ + im * Yˢ
 
     ra = √3 - 1
     cb = -1 + im
     cc = ra * cb / 2
-    ω⁰ = (ω*cb + ra)/(1-ω*cc)
+    ω⁰ = (ω * cb + ra) / (1 - ω * cc)
     W⁰ = im*ω⁰^3*im
     Z  = Z_Rancic(W⁰)
     z  = (Z^0.25)*2
