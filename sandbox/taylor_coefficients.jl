@@ -1,4 +1,4 @@
-using GLMakie, Printf, FFTW, ProgressBars, SpecialFunctions, CubeSphere
+using GLMakie, Printf, FFTW, ProgressBars, SpecialFunctions, CubedSphere
 
 φ⁻ = -π/3
 φ⁺ = +π/3
@@ -155,6 +155,7 @@ A = rand(Ncoefficients)
 
 Niterations = 30
 for _ in ProgressBar(1:Niterations)
+    global A
     A = update_coefficients(A, r, Nφ)
 end
 
