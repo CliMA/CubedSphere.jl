@@ -1,16 +1,20 @@
 using GLMakie, Printf, FFTW, ProgressBars, SpecialFunctions, CubedSphere
 
-φ⁻ = -π/3
-φ⁺ = +π/3
+function find_angles(φ)
+    φ⁻ = -φ
+    φ⁺ = +φ
 
-w⁻ = cis(φ⁻)
-w⁺ = cis(φ⁺)
+    w⁻ = cis(φ⁻)
+    w⁺ = cis(φ⁺)
 
-w′⁻ = (1 - w⁻) / (1 + w⁻/2)
-w′⁺ = (1 - w⁺) / (1 + w⁺/2)
+    w′⁻ = (1 - w⁻) / (1 + w⁻/2)
+    w′⁺ = (1 - w⁺) / (1 + w⁺/2)
 
-φ′⁻ = angle(w′⁻)
-φ′⁺ = angle(w′⁺)
+    φ′⁻ = angle(w′⁻)
+    φ′⁺ = angle(w′⁺)
+
+    return φ′⁻, φ′⁺
+end
 
 # cbrt goes from W to w
 # cbrt′ goes from W′ to w′
@@ -22,6 +26,7 @@ function Base.cbrt(z::Complex)
 end
 
 function cbrt′(z::Complex)
+    φ′⁻, φ′⁺ = find_angles(π/3)
     r = abs(z)
     φ = angle(z) # ∈ [-π, +π]
 
@@ -32,7 +37,7 @@ function cbrt′(z::Complex)
     elseif φ′⁺ ≤ θ < 0
         θ += 2π/3
     end
-    return cbrt(r) * cis(θ)
+    return r^(1/3) * cis(θ)
 end
 
 """
@@ -102,21 +107,33 @@ function plot_transformation(A, r, Nφ; Lφ=π/2)
     w′ = @. (1 - w) / (1 + w/2)
     W′ = @. w′^3
 
-    w̃′ = @. cbrt′(W̃′)
+    w̃′ = @. cbrt′(W̃′, r)
     w̃  = @. (1 - w̃′) / (1 + w̃′/2)
     W̃  = @. w̃^3
 
-    fig = Figure(resolution=(1200, 1800), fontsize=30)
+    fig = Figure(resolution=(1200, 1200), fontsize=30)
 
     axz = Axis(fig[1, 1], title="z")
     axZ = Axis(fig[1, 2], title="Z")
-    axw = Axis(fig[2, 1], title="w")
-    axW = Axis(fig[2, 2], title="W")
-    axwp = Axis(fig[3, 1], title="w′")
-    axWp = Axis(fig[3, 2], title="W′")
+    axw = Axis(fig[1, 1], title="w")
+    axW = Axis(fig[1, 2], title="W")
+    axwp = Axis(fig[2, 1], title="w′")
+    axWp = Axis(fig[2, 2], title="W′")
 
-    lim = 2.5
-    for ax in (axz, axw, axZ, axW, axwp, axWp)
+    lim = 2
+    for ax in (axw, axW)
+        xlims!(ax, -lim, lim)
+        ylims!(ax, -lim, lim)
+    end
+
+    lim = 1
+    for ax in (axwp, axWp)
+        xlims!(ax, -lim, lim)
+        ylims!(ax, -lim, lim)
+    end
+
+    lim = 1.5
+    for ax in (axz, axZ)
         xlims!(ax, -lim, lim)
         ylims!(ax, -lim, lim)
     end
@@ -124,19 +141,23 @@ function plot_transformation(A, r, Nφ; Lφ=π/2)
     scatter!(axz, real.(z), imag.(z), linewidth=4)
     scatter!(axZ, real.(Z), imag.(Z))
 
-    scatter!(axw, real.(w), imag.(w), color=(:black, 0.4), linewidth=8, label="truth")
-    scatter!(axw, real.(w̃), imag.(w̃), color=:orange, linewidth=4, label="test")
+    scatter!(axw, real.(w), imag.(w), color=(:black, 0.5), linewidth=8, label=L"w")
+    scatter!(axw, real.(w̃), imag.(w̃), color=(:orange, 0.8), linewidth=4, label=L"w̃")
 
-    scatter!(axW, real.(W), imag.(W), color=(:black, 0.4), linewidth=8, label="truth")
-    scatter!(axW, real.(W̃), imag.(W̃), color=:orange, linewidth=4, label="test")
+    scatter!(axW, real.(W), imag.(W), color=(:black, 0.5), linewidth=8, label=L"W")
+    scatter!(axW, real.(W̃), imag.(W̃), color=(:orange, 0.8), linewidth=4, label=L"W̃")
 
-    axislegend(axW)
+    scatter!(axwp, real.(w′), imag.(w′), color=(:black, 0.5), linewidth=8, label=L"w′")
+    scatter!(axwp, real.(w̃′), imag.(w̃′), color=(:orange, 0.8), linewidth=4, label=L"w̃′")
 
-    scatter!(axwp, real.(w′), imag.(w′), color=(:black, 0.4), linewidth=8, label="truth")
-    scatter!(axwp, real.(w̃′), imag.(w̃′), color=:orange, linewidth=4, label="test")
+    scatter!(axWp, real.(W′), imag.(W′), color=(:black, 0.5), linewidth=8, label=L"W′")
+    scatter!(axWp, real.(W̃′), imag.(W̃′), color=(:orange, 0.8), linewidth=4, label=L"W̃′")
 
-    scatter!(axWp, real.(W′), imag.(W′), color=(:black, 0.4), linewidth=8, label="truth")
-    scatter!(axWp, real.(W̃′), imag.(W̃′), color=:orange, linewidth=4, label="test")
+    for ax in [axw, axW, axwp, axWp]
+        axislegend(ax)
+    end
+
+    save("consistency.png", fig)
 
     display(fig)
 end
