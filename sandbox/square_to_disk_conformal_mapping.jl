@@ -1,4 +1,5 @@
 using GLMakie
+using Elliptic
 using CubedSphere
 
 """
@@ -29,13 +30,16 @@ function visualize_conformal_mapping(w; x_min, y_min, x_max, y_max, n_lines, n_s
     display(fig)
 end
 
+# maps square (±Ke, ±Ke) to circle of unit radius
 w(z) = (1 - cn(z, 1/2)) / sn(z, 1/2)
 
+Ke = F(π/2, 1/2) # ≈ 1.854
+
 visualize_conformal_mapping(w;
-                            x_min = -1.85,
-                            y_min = -1.85,
-                            x_max =  1.85,
-                            y_max =  1.85,
-                            n_lines = 41,
+                            x_min = -Ke,
+                            y_min = -Ke,
+                            x_max =  Ke,
+                            y_max =  Ke,
+                            n_lines = 21,
                             n_samples = 1000,
                             filepath = "square_to_disk_conformal_mapping.png")
