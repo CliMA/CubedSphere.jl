@@ -15,6 +15,9 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 Elliptic = "1"
+FFTW = "1"
 Rotations = "1"
+ProgressBars = "1"
+SpecialFunctions = "2"
 TaylorSeries = "0.10, 0.11, 0.12"
 julia = "1"
