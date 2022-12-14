@@ -33,7 +33,7 @@ end
 # maps square (±Ke, ±Ke) to circle of unit radius
 w(z) = (1 - cn(z, 1/2)) / sn(z, 1/2)
 
-Ke = F(π/2, 1/2) # ≈ 1.854
+Ke = Elliptic.F(π/2, 1/2) # ≈ 1.854
 
 visualize_conformal_mapping(w;
                             x_min = -Ke,
