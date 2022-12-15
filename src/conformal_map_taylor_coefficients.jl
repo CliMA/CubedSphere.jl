@@ -168,5 +168,5 @@ function find_taylor_coefficients(r = 1 - 1e-7; maximum_coefficients=256, Nitera
     B_series.coeffs[1] !== 0.0 && error("coefficient that corresponds to W^0 is non-zero; something went wrong")
     B_coefficients = B_series.coeffs[2:end] # don't return coefficient for 0-th power
 
-    return A_coefficients, A_coefficients
+    return A_coefficients, B_coefficients
 end
