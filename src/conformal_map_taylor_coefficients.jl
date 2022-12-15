@@ -46,9 +46,16 @@ end
 Return the required number of points we need to consider around the circle of
 radius `r` to compute the conformal map series coefficients up to `decimals`
 points. The number of points is computed based on the estimate of eq. (B9) in
-the paper by Rančić et al. (1996).
-
-Note: the returned number of points is a power of 2 so that the FFTs are efficient.
+the paper by Rančić et al. (1996). That is, is the smallest integer ``N`` (which
+is chosen to be a power of 2 so that the FFTs are efficient) for which
+```math
+N - \\frac{7}{12} \\frac{\\mathrm{log}_{10}(N)}{\\mathrm{log}_{10}(r)} - \\frac{r + \\mathrm{log}_{10}(A₁ / C)}{-4 \\mathrm{log}_{10}(r)} > 0
+```
+where ``r`` is the number of `decimals` we are aiming for and
+```math
+C = \\frac{\\sqrt{3} \\Gamma(1/3) A₁^{1/3} }{ 256^{1/3} π}
+```
+with ``A₁`` an estimate of the ``Z^1`` Taylor series coefficient of ``W(Z)``.
 """
 function find_N(r; decimals=15)
     A₁ = 1.4771 # an approximation of the first coefficient
