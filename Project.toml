@@ -21,3 +21,12 @@ ProgressBars = "1"
 SpecialFunctions = "2"
 TaylorSeries = "0.10, 0.11, 0.12"
 julia = "1"
+
+[extras]
+Coverage = "a2441757-f6aa-5fb2-8edb-039e3f45d037"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test", "Documenter", "Coverage", "Printf"]

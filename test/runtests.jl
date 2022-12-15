@@ -1,5 +1,7 @@
 using Test
 using CubedSphere
+using Documenter
+
 
 B_Rancic_correct = [
     0.00000000000000,
@@ -57,4 +59,8 @@ B_Rancic_correct = [
         @test errmax < tol
     end
 
+end
+
+@time @testset "Doctests" begin
+    doctest(CubedSphere)
 end
