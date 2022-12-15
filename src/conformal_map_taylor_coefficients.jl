@@ -92,14 +92,14 @@ end
 """
     find_taylor_coefficients(r = 1 - 1e-7; maximum_coefficients=256, Niterations=30)
 
-Return the Taylor coefficients for the conformal map ``Z \to W`` and its inverse,
-where ``Z = z^4`` and ``W = w^3``. In particular, it returns the coefficients
-of the Taylor series
+Return the Taylor coefficients for the conformal map ``Z \\to W`` and its inverse,
+``Z \\to W``, where ``Z = z^4`` and ``W = w^3``. In particular, it returns the
+coefficients ``A_k`` of the Taylor series
 ```math
 W(Z) = \\sum_{k=1}^\\infty A_k Z^k
 ```
 
-and its inverse
+and also coefficients ``B_k`` the inverse Taylor series
 
 ```math
 Z(W) = \\sum_{k=1}^\\infty A_k Z^k
