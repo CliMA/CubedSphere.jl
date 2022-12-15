@@ -62,7 +62,7 @@ function find_N(r; decimals=15)
     return N
 end
 
-function update_coefficients!(A, r, Nφ)
+function _update_coefficients!(A, r, Nφ)
     Ncoefficients = length(A)
 
     Lφ = π/2
@@ -84,7 +84,7 @@ function update_coefficients!(A, r, Nφ)
     g̃ = fft(W̃) ./ (Nφ * exp.(im * k * 4φ[1]))
     g̃ = g̃[2:Ncoefficients+1] # exclude coefficient for 0th power
 
-    A = [real(g̃[k] / r^(4k)) for k in 1:Ncoefficients]
+    A .= [real(g̃[k] / r^(4k)) for k in 1:Ncoefficients]
 
     return nothing
 end
@@ -108,6 +108,36 @@ Z(W) = \\sum_{k=1}^\\infty A_k Z^k
 The algorithm to obtain the coefficients follows the procedure described by
 Rančić et al. (1996) in their Appendix B.
 
+Example
+=======
+```doctest
+julia> using CubedSphere
+
+julia> using CubedSphere: find_taylor_coefficients
+
+julia> A, B = find_taylor_coefficients(1-1e-4);
+[ Info: Computing the first 256 coefficients in the Taylor series
+[ Info: using 32768 function evaluations on a circle with radius 0.9999.
+100.0%┣█████████████████████████████████████████████████████████████████████████████████████┫ 30/30 [00:02<00:00, 12it/s]
+
+julia> A[1:10]
+10-element Vector{Float64}:
+  1.4771306289227293
+ -0.38183510187954744
+ -0.05573057838030266
+ -0.008958833150428929
+ -0.007913155711663402
+ -0.004866251689037029
+ -0.0032925152429762817
+ -0.0023548122712604425
+ -0.0017587029515141474
+ -0.0013568087584721995
+```
+
+!!! info "Reproducing Rančić et al., (1996) coefficient table"
+    To reproduce the coefficient tabley by Rančić et al., (1996) you need to
+    use the default values, i.e., ``r = 1 - 10^{-7}``.
+
 References
 ==========
 
@@ -127,8 +157,7 @@ function find_taylor_coefficients(r = 1 - 1e-7; maximum_coefficients=256, Nitera
     A_coefficients = rand(Ncoefficients)
 
     for _ in ProgressBar(1:Niterations)
-        global A
-        update_coefficients!(A_coefficients, r, Nφ)
+        _update_coefficients!(A_coefficients, r, Nφ)
     end
 
     # convert to Taylor series; add coefficient for 0-th power
@@ -137,7 +166,7 @@ function find_taylor_coefficients(r = 1 - 1e-7; maximum_coefficients=256, Nitera
     B_series = inverse(A_series) # This is the inverse Taylor series
 
     B_series.coeffs[1] !== 0.0 && error("coefficient that corresponds to W^0 is non-zero; something went wrong")
-    B_coefficients = B_series.coeffs[2:end]
+    B_coefficients = B_series.coeffs[2:end] # don't return coefficient for 0-th power
 
-    return A_coefficients, B_coefficients
+    return A_coefficients, A_coefficients
 end
