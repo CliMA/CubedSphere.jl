@@ -53,9 +53,11 @@ N - \\frac{7}{12} \\frac{\\mathrm{log}_{10}(N)}{\\mathrm{log}_{10}(r)} - \\frac{
 ```
 where ``r`` is the number of `decimals` we are aiming for and
 ```math
-C = \\frac{\\sqrt{3} \\Gamma(1/3) A₁^{1/3} }{ 256^{1/3} π}
+C = \\frac{\\sqrt{3} \\Gamma(1/3) A₁^{1/3}}{256^{1/3} π}
 ```
 with ``A₁`` an estimate of the ``Z^1`` Taylor series coefficient of ``W(Z)``.
+
+For ``A₁ ≈ 1.4771`` we get ``C ≈ 0.265``.
 """
 function find_N(r; decimals=15)
     A₁ = 1.4771 # an approximation of the first coefficient
