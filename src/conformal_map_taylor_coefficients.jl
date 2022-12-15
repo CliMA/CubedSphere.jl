@@ -109,7 +109,7 @@ W(Z) = \\sum_{k=1}^\\infty A_k Z^k
 and also coefficients ``B_k`` the inverse Taylor series
 
 ```math
-Z(W) = \\sum_{k=1}^\\infty A_k Z^k
+Z(W) = \\sum_{k=1}^\\infty B_k Z^k
 ```
 
 The algorithm to obtain the coefficients follows the procedure described by
