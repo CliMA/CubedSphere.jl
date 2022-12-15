@@ -7,6 +7,7 @@ using TaylorSeries
 
 include("complex_jacobi_elliptic.jl")
 include("rancic_taylor_coefficients.jl")
+include("conformal_map_taylor_coefficients.jl")
 include("conformal_cubed_sphere.jl")
 include("cartesian_to_lat_lon.jl")
 
