@@ -1,8 +1,9 @@
-pushfirst!(LOAD_PATH, joinpath(@__DIR__, "..")) # add ParameterEstimocean to environment stack
+pushfirst!(LOAD_PATH, joinpath(@__DIR__, "..")) # add CubedSphere.jl to environment stack
 
 using
   Documenter,
   Literate,
+  CairoMakie,
   CubedSphere
 
 #####
@@ -17,6 +18,7 @@ format = Documenter.HTML(
 
 pages = [
     "Home" => "index.md",
+    "Conformal Cubed Sphere" => "conformal_cubed_sphere.md",
     "Library" => [ 
         "Contents"       => "library/outline.md",
         "Public"         => "library/public.md",
