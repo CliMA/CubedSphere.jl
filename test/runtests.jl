@@ -58,6 +58,8 @@ B_Rancic_correct = [
         @test ξ ≈ ξ′ && η ≈ η′
     end
 
+    @test_throws "(x, y) must lie within [-1, 1] x [-1, 1]" conformal_cubed_sphere_mapping(2, 0.5)
+    @test_throws "(x, y) must lie within [-1, 1] x [-1, 1]" conformal_cubed_sphere_mapping(0.5, -2)
 end
 
 @time @testset "Doctests" begin

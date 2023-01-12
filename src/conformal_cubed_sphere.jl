@@ -43,6 +43,9 @@ References
   coordinates, _Quarterly Journal of the Royal Meteorological Society_.
 """
 function conformal_cubed_sphere_mapping(x, y)
+
+    (abs(x) > 1 || abs(y) > 1) && error("(x, y) must lie within [-1, 1] x [-1, 1]")
+
     X = xᶜ = abs(x)
     Y = yᶜ = abs(y)
 
