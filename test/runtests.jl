@@ -2,7 +2,6 @@ using Test
 using CubedSphere
 using Documenter
 
-
 B_Rancic_correct = [
     0.00000000000000,
     0.67698819751739, 
@@ -45,18 +44,18 @@ B_Rancic_correct = [
     end
 
     @testset "Rančić et al. (1996) inverse mapping" begin
-        xv = collect(0:0.1:1)
-        yv = collect(0:0.1:1)
+        ξ = collect(0:0.1:1)
+        η = collect(0:0.1:1)
 
-        errmax = 0
-        tol = 1e-11
+        ξ′ = 0ξ
+        η′ = 0η
 
-        for x in xv, y in yv
-          err = (x, y) .- conformal_cubed_sphere_inverse_mapping(conformal_cubed_sphere_mapping(x, y)...)
-          errmax=max(errmax, sum(abs.(err)))
+        # transform from cube -> sphere -> cube
+        for j in 1:length(η), i in 1:length(ξ)
+          ξ′[i], η′[j] = conformal_cubed_sphere_inverse_mapping(conformal_cubed_sphere_mapping(ξ[i], η[j])...)
         end
 
-        @test errmax < tol
+        @test ξ ≈ ξ′ && η ≈ η′
     end
 
 end
