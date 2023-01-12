@@ -3,11 +3,11 @@
 
 Conformal mapping from a face of a cube onto the equivalent sector of a sphere with unit radius.
 
-Map the north-pole face of a cube with coordinates `(x, y)` onto the equivalent sector of the
-sphere with coordinates `(X, Y, Z)`.
+Map the north-pole face of a cube with coordinates ``(x, y)`` onto the equivalent sector of the
+sphere with coordinates ``(X, Y, Z)``.
 
 The cube's face oriented normal to ``z``-axis and its coordinates must lie within the
-range ``-1 ≤ x ≤ 1``,  ``-1 ≤ y ≤ 1`` with its center at ``(x, y) = (0, 0)``. The coordinates
+range ``-1 ≤ x ≤ 1``, ``-1 ≤ y ≤ 1`` with its center at ``(x, y) = (0, 0)``. The coordinates
 ``X, Y`` increase in the same direction as ``x, y``.
 
 The numerical conformal mapping used here is described by Rančić et al. (1996).
