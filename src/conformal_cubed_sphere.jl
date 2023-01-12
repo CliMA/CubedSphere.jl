@@ -64,7 +64,7 @@ end
 """
     conformal_cubed_sphere_inverse_mapping(X, Y, Z)
 
-Inverse mapping for conformal cube sphere for quadrant of north-pole face in which `X` and `Y` are both
+Inverse mapping for conformal cube sphere for quadrant of North-pole face in which `X` and `Y` are both
 positive. All other mappings to other cube face coordinates can be recovered from rotations of this map.
 There a 3 other quadrants for the north-pole face and five other faces for a total of twenty-four quadrants.
 Because of symmetry only the reverse for a single quadrant is needed. Because of branch cuts and the complex
@@ -94,9 +94,9 @@ function conformal_cubed_sphere_inverse_mapping(X, Y, Z)
     cb = -1 + im
     cc = ra * cb / 2
     ω⁰ = (ω * cb + ra) / (1 - ω * cc)
-    W⁰ = im*ω⁰^3*im
+    W⁰ = im * ω⁰^3 * im
     Z  = Z_Rancic(W⁰)
-    z  = (Z^0.25)*2
+    z  = 2 * Z^(1/4)
     x, y = reim(z)
 
     kxy = abs(y) > abs(x)
@@ -107,13 +107,15 @@ function conformal_cubed_sphere_inverse_mapping(X, Y, Z)
 
     xf = x
     yf = y
-    ( X < Y ) && ( xf = y  )
-    ( X < Y ) && ( yf = x  )
+    
+    ( X < Y ) && ( xf = y )
+    ( X < Y ) && ( yf = x )
+
     x = xf
     y = yf
 
     return x, y
 end
 
-W_Rancic(Z) = sum(A_Rancic[k] * Z^(k-1) for k in 1:length(A_Rancic))
-Z_Rancic(W) = sum(B_Rancic[k] * W^(k-1) for k in 1:length(B_Rancic))
+W_Rancic(Z) = sum(A_Rancic[k] * Z^(k-1) for k in length(A_Rancic):-1:1)
+Z_Rancic(W) = sum(B_Rancic[k] * W^(k-1) for k in length(B_Rancic):-1:1)
