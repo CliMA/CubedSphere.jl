@@ -1,5 +1,5 @@
 using Test
-using CubedSphere
+using CubedSpheres
 using Documenter
 
 B_Rancic_correct = [
@@ -36,10 +36,10 @@ B_Rancic_correct = [
     0.00067885087750
 ]
 
-@testset "CubedSphere" begin
+@testset "CubedSpheres" begin
     @testset "Rančić et al. (1996) Taylor coefficients" begin
         for k in 1:length(B_Rancic_correct)
-            @test CubedSphere.B_Rancic[k] ≈ B_Rancic_correct[k]
+            @test CubedSpheres.B_Rancic[k] ≈ B_Rancic_correct[k]
         end
     end
 
@@ -63,5 +63,5 @@ B_Rancic_correct = [
 end
 
 @time @testset "Doctests" begin
-    doctest(CubedSphere)
+    doctest(CubedSpheres)
 end

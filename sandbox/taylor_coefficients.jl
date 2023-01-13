@@ -1,4 +1,4 @@
-using GLMakie, Printf, FFTW, ProgressBars, SpecialFunctions, CubedSphere
+using GLMakie, Printf, FFTW, ProgressBars, SpecialFunctions, CubedSpheres
 
 function find_angles(φ)
     φ⁻ = -φ
@@ -183,7 +183,7 @@ end
 @info "After $Niterations iterations we have:"
 
 for (k, Aₖ) in enumerate(A[1:30])
-    @printf("k = %2i, A ≈ %+.14f, A_Rancic = %+.14f, |A - A_Rancic| = %.2e \n", k, real(Aₖ), CubedSphere.A_Rancic[k+1], abs(CubedSphere.A_Rancic[k+1] - real(Aₖ)))
+    @printf("k = %2i, A ≈ %+.14f, A_Rancic = %+.14f, |A - A_Rancic| = %.2e \n", k, real(Aₖ), CubedSpheres.A_Rancic[k+1], abs(CubedSpheres.A_Rancic[k+1] - real(Aₖ)))
 end
 
 plot_transformation(A, r, Nφ)
