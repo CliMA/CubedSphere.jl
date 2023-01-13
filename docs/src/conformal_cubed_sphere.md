@@ -1,4 +1,4 @@
-# CubedSpheres.jl Documentation
+# CubedSphere.jl Documentation
 
 ## Conformal cubed sphere mapping
 
@@ -12,12 +12,12 @@ We can visualize how this mapping looks like.
 using Rotations
 using CairoMakie
 CairoMakie.activate!(type = "svg")
-using CubedSpheres
+using CubedSphere
 ```
 
 ```@example 1
 using CairoMakie
-using CubedSpheres
+using CubedSphere
 
 N = 16
 

@@ -10,7 +10,7 @@ Examples
 ========
 
 ```@jlddoctest
-julia> using CubedSpheres
+julia> using CubedSphere
 
 julia> cartesian_to_lat_lon(0, 0, 1)
 (90.0, 0.0)

@@ -1,6 +1,6 @@
 using GLMakie
 using Elliptic
-using CubedSpheres
+using CubedSphere
 
 """
     visualize_conformal_mapping(w; x_min, y_min, x_max, y_max, n_lines, n_samples, filepath="mapping.png")

@@ -120,9 +120,9 @@ Rančić et al. (1996) in their Appendix B.
 Example
 =======
 ```doctest
-julia> using CubedSpheres
+julia> using CubedSphere
 
-julia> using CubedSpheres: find_taylor_coefficients
+julia> using CubedSphere: find_taylor_coefficients
 
 julia> A, B = find_taylor_coefficients(1-1e-4);
 [ Info: Computing the first 256 coefficients in the Taylor series
