@@ -1,9 +1,10 @@
 """
     cartesian_to_lat_lon(x, y, z)
 
-Convert 3D coordinates `(x, y, z)` on the unit sphere to latitude-longitude `(latitude, longitude)`
-in degrees. The equatorial plane falls at ``z = 0``  and longitude is measured anti-clockwise (eastward)
-from ``x``-axis (``y = 0``) about the ``z``-axis.
+Convert 3D cartesian coordinates `(x, y, z)` on the unit sphere to latitude-longitude; method returns
+a tuple `(latitude, longitude)` in degrees. The equatorial plane falls at ``z = 0``, latitude is the
+angle measured from the equatorial plane, and longitude is measured anti-clockwise (eastward) from
+``x``-axis (``y = 0``) about the ``z``-axis.
 
 Examples
 ========
