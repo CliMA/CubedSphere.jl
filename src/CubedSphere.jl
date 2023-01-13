@@ -1,4 +1,4 @@
-module CubedSphere
+module CubedSpheres
 
 export sn, cn, conformal_cubed_sphere_mapping, conformal_cubed_sphere_inverse_mapping, cartesian_to_lat_lon
 

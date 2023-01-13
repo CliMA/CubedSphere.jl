@@ -1,10 +1,10 @@
-pushfirst!(LOAD_PATH, joinpath(@__DIR__, "..")) # add CubedSphere.jl to environment stack
+pushfirst!(LOAD_PATH, joinpath(@__DIR__, "..")) # add CubedSpheres.jl to environment stack
 
 using
   Documenter,
   Literate,
   CairoMakie,
-  CubedSphere
+  CubedSpheres
 
 #####
 ##### Build and deploy docs
@@ -13,7 +13,7 @@ using
 format = Documenter.HTML(
   collapselevel = 2,
      prettyurls = get(ENV, "CI", nothing) == "true",
-      canonical = "https://clima.github.io/ParameterEstimoceanDocumentation/dev/",
+      canonical = "https://clima.github.io/CubedSpheres.jl/stable/",
 )
 
 pages = [
@@ -28,8 +28,8 @@ pages = [
 ]
 
 makedocs(
-   sitename = "CubedSphere.jl",
-    modules = [CubedSphere],
+   sitename = "CubedSpheres.jl",
+    modules = [CubedSpheres],
      format = format,
       pages = pages,
     doctest = true,
@@ -38,7 +38,7 @@ makedocs(
   checkdocs = :exports
 )
 
-deploydocs(        repo = "github.com/CliMA/CubedSphere.jl.git",
+deploydocs(        repo = "github.com/CliMA/CubedSpheres.jl.git",
                versions = ["stable" => "v^", "v#.#.#", "dev" => "dev"],
               forcepush = true,
               devbranch = "main",

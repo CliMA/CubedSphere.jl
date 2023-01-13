@@ -1,10 +1,10 @@
 # Private types and functions
 
-Documentation for `CubedSphere.jl`'s internal interface.
+Documentation for `CubedSpheres.jl`'s internal interface.
 
-## CubedSphere
+## CubedSpheres
 
 ```@autodocs
-Modules = [CubedSphere]
+Modules = [CubedSpheres]
 Public = false
 ```
