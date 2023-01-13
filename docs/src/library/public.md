@@ -1,12 +1,12 @@
 # Public Documentation
 
-Documentation for `CubedSpheres.jl`'s public interface.
+Documentation for `CubedSphere.jl`'s public interface.
 
 See the Internals section of the manual for internal package docs covering all submodules.
 
-## CubedSpheres
+## CubedSphere
 
 ```@autodocs
-Modules = [CubedSpheres]
+Modules = [CubedSphere]
 Private = false
 ```

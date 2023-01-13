@@ -21,7 +21,7 @@ Examples
 The center of the cube's face ``(x, y) = (0, 0)`` is mapped onto ``(X, Y, Z) = (0, 0, 1)``
 
 ```jldoctest
-julia> using CubedSpheres
+julia> using CubedSphere
 
 julia> conformal_cubed_sphere_mapping(0, 0)
 (0, 0, 1.0)
@@ -30,7 +30,7 @@ julia> conformal_cubed_sphere_mapping(0, 0)
 and the edge of the cube's face at ``(x, y) = (1, 1)`` is mapped onto ``(X, Y, Z) = (√3/3, √3/3, √3/3)``
 
 ```jldoctest
-julia> using CubedSpheres
+julia> using CubedSphere
 
 julia> conformal_cubed_sphere_mapping(1, 1)
 (0.5773502691896256, 0.5773502691896256, 0.5773502691896257)
