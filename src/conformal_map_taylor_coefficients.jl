@@ -114,8 +114,19 @@ and also coefficients ``B_k`` the inverse Taylor series
 Z(W) = \\sum_{k=1}^\\infty B_k Z^k
 ```
 
-The algorithm to obtain the coefficients follows the procedure described by
-Rančić et al. (1996) in their Appendix B.
+The algorithm to obtain the coefficients follows the procedure described in the
+Appendix of the paper by Rančić et al. (1996).
+
+Arguments
+=========
+
+* `r` (positional): the radius about the center and the edge of the cube used in the
+  algorithm described by Rančić et al. (1996). `r` must be less than 1; default: 1 - 10``^{-7}``.
+
+* `maximum_coefficients` (keyword): the truncation for the Taylor series; default: 256.
+
+* `Niterations` (keyword): the number of update iterations we perform on the
+  Taylor coefficients ``A_k``; default: 30.
 
 Example
 =======
@@ -144,8 +155,8 @@ julia> A[1:10]
 ```
 
 !!! info "Reproducing Rančić et al., (1996) coefficient table"
-    To reproduce the coefficient tabley by Rančić et al., (1996) you need to
-    use the default values, i.e., ``r = 1 - 10^{-7}``.
+    To reproduce the coefficient tabulated by Rančić et al., (1996) use
+    the defaults, i.e., ``r = 1 - 10^{-7}``.
 
 References
 ==========
@@ -154,7 +165,7 @@ References
   coordinates, _Quarterly Journal of the Royal Meteorological Society_.
 """
 function find_taylor_coefficients(r = 1 - 1e-7; maximum_coefficients=256, Niterations=30)
-    r ≥ 1 && error("r has to be less than 1")
+    (r < 0 || r ≥ 1) && error("r needs to be within 0 < r < 1")
 
     Nφ = find_N(r; decimals=15)
     Ncoefficients = Int(Nφ/2) - 2 > maximum_coefficients ? maximum_coefficients : Int(Nφ/2) - 2
