@@ -12,3 +12,4 @@
 Tools for generating cubed sphere grids and solving partial differential equations on the sphere.
 
 <img width="800" src="https://user-images.githubusercontent.com/7112768/212180356-3ffc036d-47c4-467b-9f58-5c2beafe67ef.png">
+(A visualization of the conformal transform that maps the faces of a cube onto the sphere.)
