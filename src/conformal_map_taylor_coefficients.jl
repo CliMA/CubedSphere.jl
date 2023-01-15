@@ -90,8 +90,8 @@ function _update_coefficients!(A, r, Nφ)
     W̃  = @. w̃^3
 
     k = collect(fftfreq(Nφ, Nφ))
-    g̃ = fft(W̃) ./ (Nφ * cis.(k * 4φ[1]))
-    g̃ = g̃[2:Ncoefficients+1] # exclude coefficient for 0th power
+    g̃ = fft(W̃) ./ (Nφ * cis.(k * 4φ[1])) # divide with Nϕ exp(ikπ) to account for FFT's normalization
+    g̃ = g̃[2:Ncoefficients+1]             # drop coefficient for 0-th power
 
     A .= [real(g̃[k] / r^(4k)) for k in 1:Ncoefficients]
 
