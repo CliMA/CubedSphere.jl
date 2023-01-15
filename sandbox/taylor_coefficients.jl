@@ -79,12 +79,16 @@ function plot_transformation(A, r, Nφ; Lφ=π/2)
 end
 
 r = 1 - 1e-7
+
 Nφ = find_N(r; decimals=15)
+
 maximum_coefficients = 512
+
 Ncoefficients = Int(Nφ/2) - 2 > maximum_coefficients ? maximum_coefficients : Int(Nφ/2) - 2
+
 Niterations = 30
 
-A, B = find_taylor_coefficients(r; maximum_coefficients, Niterations);
+A, B = find_taylor_coefficients(r; maximum_coefficients, Niterations)
 
 @info "After $Niterations iterations we have:"
 
