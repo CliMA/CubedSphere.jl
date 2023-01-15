@@ -12,7 +12,7 @@ sector that includes the North Pole, that is, the face of the cube is oriented n
 face is parametrized with orthogonal coordinates ``(x, y) \in [-1, 1] \times [-1, 1]`` with ``(x, y) = (0, 0)`` being
 in the center of the cube's face, that is on the ``z`` axis.
 
-We can visualize how this mapping looks like.
+We can visualize how the mapping.
 
 ```@setup 1
 using Rotations
@@ -54,11 +54,12 @@ colgap!(fig.layout, 40)
 current_figure()
 ```
 
-Above, we plotted the resulting mapping from the cube's face onto the sphere both in a
-2D projection (e.g., overlooking the sphere down to its North Pole) and in 3D space.
+Above, we plotted the mapping from the cube's face onto the sphere both in a 2D
+projection (e.g., overlooking the sphere down to its North Pole) and in 3D space.
 
-We can then use [Rotations.jl](https://github.com/JuliaGeometry/Rotations.jl) to rotate the face of the
-sphere that includes the North Pole and this way obtain all six faces of the sphere.
+We can then use [Rotations.jl](https://github.com/JuliaGeometry/Rotations.jl) to rotate
+the face of the sphere that includes the North Pole and this way obtain all six faces of
+the sphere.
 
 ```@example 1
 using Rotations
