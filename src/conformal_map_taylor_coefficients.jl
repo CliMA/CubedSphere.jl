@@ -78,10 +78,10 @@ function _update_coefficients!(A, r, Nφ)
     dφ = Lφ / Nφ
     φ = range(-Lφ/2 + dφ/2, stop=Lφ/2 - dφ/2, length=Nφ)
 
-    z = @. r * exp(im * φ)
+    z = @. r * cis(φ)
 
     W̃′ = 0z
-    for k = 1:Ncoefficients
+    for k = Ncoefficients:-1:1
         @. W̃′ += A[k] * (1 - z)^(4k)
     end
 
@@ -90,7 +90,7 @@ function _update_coefficients!(A, r, Nφ)
     W̃  = @. w̃^3
 
     k = collect(fftfreq(Nφ, Nφ))
-    g̃ = fft(W̃) ./ (Nφ * exp.(im * k * 4φ[1]))
+    g̃ = fft(W̃) ./ (Nφ * cis.(k * 4φ[1]))
     g̃ = g̃[2:Ncoefficients+1] # exclude coefficient for 0th power
 
     A .= [real(g̃[k] / r^(4k)) for k in 1:Ncoefficients]

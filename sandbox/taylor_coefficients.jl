@@ -8,13 +8,13 @@ function plot_transformation(A, r, Nφ; Lφ=π/2)
     dφ = Lφ / Nφ
     φ = range(-Lφ/2 + dφ/2, stop=Lφ/2 - dφ/2, length=Nφ)
 
-    z = @. r * exp(im * φ)
+    z = @. r * cis(φ)
     Z = @. z^4
 
     W  = zeros(eltype(z), size(z))
     W̃′ = zeros(eltype(z), size(z))
 
-    for k = 1:length(A)
+    for k = length(A):-1:1
         @. W  += A[k] * z^(4k)
         @. W̃′ += A[k] * (1 - z)^(4k)
     end
@@ -82,7 +82,7 @@ r = 1 - 1e-7
 
 Nφ = find_N(r; decimals=15)
 
-maximum_coefficients = 512
+maximum_coefficients = 128
 
 Ncoefficients = Int(Nφ/2) - 2 > maximum_coefficients ? maximum_coefficients : Int(Nφ/2) - 2
 
