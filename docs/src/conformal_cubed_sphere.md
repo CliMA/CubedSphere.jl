@@ -12,7 +12,7 @@ sector that includes the North Pole, that is, the face of the cube is oriented n
 face is parametrized with orthogonal coordinates ``(x, y) \in [-1, 1] \times [-1, 1]`` with ``(x, y) = (0, 0)`` being
 in the center of the cube's face, that is on the ``z`` axis.
 
-We can visualize how the mapping.
+We can visualize the mapping.
 
 ```@setup 1
 using Rotations
