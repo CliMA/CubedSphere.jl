@@ -99,11 +99,15 @@ function _update_coefficients!(A, r, Nφ)
 end
 
 """
-    find_taylor_coefficients(r = 1 - 1e-7; maximum_coefficients=256, Niterations=30)
+    find_taylor_coefficients(r = 1 - 1e-7;
+                             Niterations = 30,
+                             maximum_coefficients = 256,
+                             Nevaluations = find_N(r; decimals=15))
 
-Return the Taylor coefficients for the conformal map ``Z \\to W`` and its inverse,
-``Z \\to W``, where ``Z = z^4`` and ``W = w^3``. In particular, it returns the
+Return the Taylor coefficients for the conformal map ``Z \\to W`` and also of the
+inverse map, ``W \\to Z``, where ``Z = z^4`` and ``W = w^3``. In particular, it returns the
 coefficients ``A_k`` of the Taylor series
+
 ```math
 W(Z) = \\sum_{k=1}^\\infty A_k Z^k
 ```
@@ -128,35 +132,38 @@ Arguments
 * `Niterations` (keyword): the number of update iterations we perform on the
   Taylor coefficients ``A_k``; default: 30.
 
+* `Nevaluations` (keyword): the number of function evaluations in over the circle of radius `r`;
+  default `find_N(r; decimals=15)`; see [`find_N`](@ref).
+
 Example
-=======
-```doctest
+
+```@example
 julia> using CubedSphere
 
 julia> using CubedSphere: find_taylor_coefficients
 
 julia> A, B = find_taylor_coefficients(1-1e-4);
-[ Info: Computing the first 256 coefficients in the Taylor series
+[ Info: Computing the first 256 coefficients of the Taylor serieses
 [ Info: using 32768 function evaluations on a circle with radius 0.9999.
-100.0%┣█████████████████████████████████████████████████████████████████████████████████████┫ 30/30 [00:02<00:00, 12it/s]
+100.0%┣████████████████████████████████████████████┫ 30/30 [00:02<00:00, 12it/s]
 
 julia> A[1:10]
 10-element Vector{Float64}:
   1.4771306289227293
- -0.38183510187954744
- -0.05573057838030266
- -0.008958833150428929
- -0.007913155711663402
- -0.004866251689037029
- -0.0032925152429762817
- -0.0023548122712604425
- -0.0017587029515141474
- -0.0013568087584721995
+ -0.3818351018795475
+ -0.05573057838030261
+ -0.008958833150428962
+ -0.007913155711663374
+ -0.004866251689037038
+ -0.0032925152429762843
+ -0.0023548122712604494
+ -0.0017587029515141275
+ -0.0013568087584722149
 ```
 
 !!! info "Reproducing Rančić et al., (1996) coefficient table"
-    To reproduce the coefficient tabulated by Rančić et al., (1996) use
-    the defaults, i.e., ``r = 1 - 10^{-7}``.
+    To reproduce the coefficients tabulated by Rančić et al., (1996) use
+    the default values, i.e., ``r = 1 - 10^{-7}``.
 
 References
 ==========
@@ -164,20 +171,23 @@ References
 - Rančić et al., (1996). A global shallow-water model using an expanded spherical cube - Gnomonic versus conformal
   coordinates, _Quarterly Journal of the Royal Meteorological Society_.
 """
-function find_taylor_coefficients(r = 1 - 1e-7; maximum_coefficients=256, Niterations=30)
+function find_taylor_coefficients(r = 1 - 1e-7;
+                                  Niterations = 30,
+                                  maximum_coefficients = 256,
+                                  Nevaluations = find_N(r; decimals=15))
+
     (r < 0 || r ≥ 1) && error("r needs to be within 0 < r < 1")
 
-    Nφ = find_N(r; decimals=15)
-    Ncoefficients = Int(Nφ/2) - 2 > maximum_coefficients ? maximum_coefficients : Int(Nφ/2) - 2
+    Ncoefficients = Int(Nevaluations/2) - 2 > maximum_coefficients ? maximum_coefficients : Int(Nevaluations/2) - 2
 
-    @info "Computing the first $Ncoefficients coefficients in the Taylor series"
-    @info "using $Nφ function evaluations on a circle with radius $r."
+    @info "Computing the first $Ncoefficients coefficients of the Taylor serieses"
+    @info "using $Nevaluations function evaluations on a circle with radius $r."
 
     # initialize coefficients
     A_coefficients = rand(Ncoefficients)
 
     for _ in ProgressBar(1:Niterations)
-        _update_coefficients!(A_coefficients, r, Nφ)
+        _update_coefficients!(A_coefficients, r, Nevaluations)
     end
 
     # convert to Taylor series; add coefficient for 0-th power
