@@ -38,7 +38,7 @@ B_Rancic_correct = [
 
 @testset "CubedSphere" begin
     @testset "Rančić et al. (1996) Taylor coefficients" begin
-        for k in 1:length(B_Rancic_correct)
+        for k in eachindex(B_Rancic_correct)
             @test CubedSphere.B_Rancic[k] ≈ B_Rancic_correct[k]
         end
     end
@@ -51,15 +51,15 @@ B_Rancic_correct = [
         η′ = 0η
 
         # transform from cube -> sphere -> cube
-        for j in 1:length(η), i in 1:length(ξ)
+        for j in eachindex(η), i in eachinde(ξ)
             ξ′[i], η′[j] = conformal_cubed_sphere_inverse_mapping(conformal_cubed_sphere_mapping(ξ[i], η[j])...)
         end
 
         @test ξ ≈ ξ′ && η ≈ η′
     end
 
-    @test_throws "(x, y) must lie within [-1, 1] x [-1, 1]" conformal_cubed_sphere_mapping(2, 0.5)
-    @test_throws "(x, y) must lie within [-1, 1] x [-1, 1]" conformal_cubed_sphere_mapping(0.5, -2)
+    @test_throws ArgumentError "(x, y) must lie within [-1, 1] x [-1, 1]" conformal_cubed_sphere_mapping(2, 0.5)
+    @test_throws ArgumentError "(x, y) must lie within [-1, 1] x [-1, 1]" conformal_cubed_sphere_mapping(0.5, -2)
 end
 
 @time @testset "Doctests" begin
