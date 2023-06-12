@@ -51,7 +51,7 @@ B_Rancic_correct = [
         η′ = 0η
 
         # transform from cube -> sphere -> cube
-        for j in eachindex(η), i in eachinde(ξ)
+        for j in eachindex(η), i in eachindex(ξ)
             ξ′[i], η′[j] = conformal_cubed_sphere_inverse_mapping(conformal_cubed_sphere_mapping(ξ[i], η[j])...)
         end
 
