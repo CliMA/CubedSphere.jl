@@ -13,7 +13,7 @@ using
 format = Documenter.HTML(
   collapselevel = 2,
      prettyurls = get(ENV, "CI", nothing) == "true",
-      canonical = "https://clima.github.io/ParameterEstimoceanDocumentation/dev/",
+      canonical = "https://clima.github.io/CubedSphere.jl/stable/",
 )
 
 pages = [
