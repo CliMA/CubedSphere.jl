@@ -165,7 +165,7 @@ julia> A[1:10]
  -0.0013568087584722149
 ```
 
-!!! info "Reproducing [Rancic-etal-1996](@citet) coefficient table"
+!!! info "Reproducing coefficient table by Rančić et al. (1996)"
     To reproduce the coefficients tabulated by [Rancic-etal-1996](@citet) use
     the default values, i.e., ``r = 1 - 10^{-7}``.
 
