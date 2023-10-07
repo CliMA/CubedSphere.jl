@@ -146,7 +146,7 @@ julia> using CubedSphere
 
 julia> using CubedSphere: find_taylor_coefficients
 
-julia> A, B = find_taylor_coefficients(1-1e-4);
+julia> A, B = find_taylor_coefficients(1 - 1e-4);
 [ Info: Computing the first 256 coefficients of the Taylor serieses
 [ Info: using 32768 function evaluations on a circle with radius 0.9999.
 100.0%┣████████████████████████████████████████████┫ 30/30 [00:02<00:00, 12it/s]
@@ -159,7 +159,7 @@ julia> A[1:10]
  -0.008958833150428962
  -0.007913155711663374
  -0.004866251689037038
- -0.0032925152429762843
+ -0.003292515242976284
  -0.0023548122712604494
  -0.0017587029515141275
  -0.0013568087584722149
