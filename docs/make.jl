@@ -2,6 +2,7 @@ pushfirst!(LOAD_PATH, joinpath(@__DIR__, "..")) # add CubedSphere.jl to environm
 
 using
   Documenter,
+  DocumenterCitations,
   Literate,
   CairoMakie,
   CubedSphere
@@ -19,6 +20,7 @@ format = Documenter.HTML(
 pages = [
     "Home" => "index.md",
     "Conformal Cubed Sphere" => "conformal_cubed_sphere.md",
+    "References" => "references.md",
     "Library" => [ 
         "Contents"       => "library/outline.md",
         "Public"         => "library/public.md",
@@ -27,13 +29,15 @@ pages = [
         ],
 ]
 
+bib = CitationBibliography(joinpath(@__DIR__, "src", "references.bib"))
+
 makedocs(
    sitename = "CubedSphere.jl",
     modules = [CubedSphere],
+    plugins = [bib],
      format = format,
       pages = pages,
     doctest = true,
-     strict = true,
       clean = true,
   checkdocs = :exports
 )

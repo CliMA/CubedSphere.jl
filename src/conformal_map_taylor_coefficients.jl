@@ -46,7 +46,7 @@ end
 Return the required number of points we need to consider around the circle of
 radius `r` to compute the conformal map series coefficients up to `decimals`
 points. The number of points is computed based on the estimate of eq. (B9) in
-the paper by Rančić et al. (1996). That is, is the smallest integer ``N`` (which
+the paper by [Rancic-etal-1996](@citet). That is, is the smallest integer ``N`` (which
 is chosen to be a power of 2 so that the FFTs are efficient) for which
 ```math
 N - \\frac{7}{12} \\frac{\\mathrm{log}_{10}(N)}{\\mathrm{log}_{10}(r)} - \\frac{r + \\mathrm{log}_{10}(A₁ / C)}{-4 \\mathrm{log}_{10}(r)} > 0
@@ -58,6 +58,10 @@ C = \\frac{\\sqrt{3} \\Gamma(1/3) A₁^{1/3}}{256^{1/3} π}
 with ``A₁`` an estimate of the ``Z^1`` Taylor series coefficient of ``W(Z)``.
 
 For ``A₁ ≈ 1.4771`` we get ``C ≈ 0.265``.
+
+# References
+
+* [Rancic-etal-1996](@cite) Rančić et al., *Q. J. R. Meteorol.*, (1996).
 """
 function find_N(r; decimals=15)
     A₁ = 1.4771 # an approximation of the first coefficient
@@ -119,13 +123,13 @@ Z(W) = \\sum_{k=1}^\\infty B_k Z^k
 ```
 
 The algorithm to obtain the coefficients follows the procedure described in the
-Appendix of the paper by Rančić et al. (1996).
+Appendix of the paper by [Rancic-etal-1996](@citet)
 
 Arguments
 =========
 
 * `r` (positional): the radius about the center and the edge of the cube used in the
-  algorithm described by Rančić et al. (1996). `r` must be less than 1; default: 1 - 10``^{-7}``.
+  algorithm described by [Rancic-etal-1996](@citet). `r` must be less than 1; default: 1 - 10``^{-7}``.
 
 * `maximum_coefficients` (keyword): the truncation for the Taylor series; default: 256.
 
@@ -161,15 +165,13 @@ julia> A[1:10]
  -0.0013568087584722149
 ```
 
-!!! info "Reproducing Rančić et al., (1996) coefficient table"
-    To reproduce the coefficients tabulated by Rančić et al., (1996) use
+!!! info "Reproducing [Rancic-etal-1996](@citet) coefficient table"
+    To reproduce the coefficients tabulated by [Rancic-etal-1996](@citet) use
     the default values, i.e., ``r = 1 - 10^{-7}``.
 
-References
-==========
+# References
 
-- Rančić et al., (1996). A global shallow-water model using an expanded spherical cube - Gnomonic versus conformal
-  coordinates, _Quarterly Journal of the Royal Meteorological Society_.
+* [Rancic-etal-1996](@cite) Rančić et al., *Q. J. R. Meteorol.*, (1996).
 """
 function find_taylor_coefficients(r = 1 - 1e-7;
                                   Niterations = 30,
