@@ -14,7 +14,7 @@ The cube's face oriented normal to ``z``-axis and its coordinates must lie withi
 range ``-1 ≤ x ≤ 1``, ``-1 ≤ y ≤ 1`` with its center at ``(x, y) = (0, 0)``. The coordinates
 ``X, Y`` increase in the same direction as ``x, y``.
 
-The numerical conformal mapping used here is described by Rančić et al. (1996).
+The numerical conformal mapping used here is described by [Rancic-etal-1996](@citet).
 
 This is a Julia translation of [MATLAB code from MITgcm](http://wwwcvs.mitgcm.org/viewvc/MITgcm/MITgcm_contrib/high_res_cube/matlab-grid-generator/map_xy2xyz.m?view=markup) that is based on
 Fortran 77 code from Jim Purser & Misha Rančić.
@@ -40,11 +40,9 @@ julia> conformal_cubed_sphere_mapping(1, 1)
 (0.5773502691896256, 0.5773502691896256, 0.5773502691896257)
 ```
 
-References
-==========
+# References
 
-- Rančić et al., (1996). A global shallow-water model using an expanded spherical cube - Gnomonic versus conformal
-  coordinates, _Quarterly Journal of the Royal Meteorological Society_.
+* [Rancic-etal-1996](@cite) Rančić et al., *Q. J. R. Meteorol.*, (1996).
 """
 function conformal_cubed_sphere_mapping(x, y; W_map=W_Rancic)
 
