@@ -1,5 +1,9 @@
+
+W_Rancic(Z) = sum(A_Rancic[k] * Z^(k-1) for k in length(A_Rancic):-1:1)
+Z_Rancic(W) = sum(B_Rancic[k] * W^(k-1) for k in length(B_Rancic):-1:1)
+
 """
-    conformal_cubed_sphere_mapping(x, y)
+    conformal_cubed_sphere_mapping(x, y; W_map=W_Rancic)
 
 Conformal mapping from a face of a cube onto the equivalent sector of a sphere with unit radius.
 
@@ -42,7 +46,7 @@ References
 - Rančić et al., (1996). A global shallow-water model using an expanded spherical cube - Gnomonic versus conformal
   coordinates, _Quarterly Journal of the Royal Meteorological Society_.
 """
-function conformal_cubed_sphere_mapping(x, y)
+function conformal_cubed_sphere_mapping(x, y; W_map=W_Rancic)
 
     (abs(x) > 1 || abs(y) > 1) && throw(ArgumentError("(x, y) must lie within [-1, 1] x [-1, 1]"))
 
@@ -58,7 +62,7 @@ function conformal_cubed_sphere_mapping(x, y)
     kxy && (yᶜ = 1 - X)
 
     Z = ((xᶜ + im * yᶜ) / 2)^4
-    W = W_Rancic(Z)
+    W = W_map(Z)
 
     im³ = im^(1/3)
     ra = √3 - 1
@@ -89,7 +93,7 @@ function conformal_cubed_sphere_mapping(x, y)
 end
 
 """
-    conformal_cubed_sphere_inverse_mapping(X, Y, Z)
+    conformal_cubed_sphere_inverse_mapping(X, Y, Z; Z_map=Z_Rancic)
 
 Inverse mapping for conformal cube sphere for quadrant of North-pole face in which `X` and `Y` are both
 positive. All other mappings to other cube face coordinates can be recovered from rotations of this map.
@@ -111,7 +115,7 @@ C = (√3/3, √3/3)
 D = (0, √2)
 ```
 """
-function conformal_cubed_sphere_inverse_mapping(X, Y, Z)
+function conformal_cubed_sphere_inverse_mapping(X, Y, Z; Z_map=Z_Rancic)
     H  = Z + 1
     Xˢ = X / H
     Yˢ = Y / H
@@ -122,7 +126,7 @@ function conformal_cubed_sphere_inverse_mapping(X, Y, Z)
     cc = ra * cb / 2
     ω⁰ = (ω * cb + ra) / (1 - ω * cc)
     W⁰ = im * ω⁰^3 * im
-    Z  = Z_Rancic(W⁰)
+    Z  = Z_map(W⁰)
     z  = 2 * Z^(1/4)
     x, y = reim(z)
 
@@ -134,7 +138,7 @@ function conformal_cubed_sphere_inverse_mapping(X, Y, Z)
 
     xf = x
     yf = y
-    
+
     ( X < Y ) && ( xf = y )
     ( X < Y ) && ( yf = x )
 
@@ -143,6 +147,3 @@ function conformal_cubed_sphere_inverse_mapping(X, Y, Z)
 
     return x, y
 end
-
-W_Rancic(Z) = sum(A_Rancic[k] * Z^(k-1) for k in length(A_Rancic):-1:1)
-Z_Rancic(W) = sum(B_Rancic[k] * W^(k-1) for k in length(B_Rancic):-1:1)
