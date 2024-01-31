@@ -27,7 +27,7 @@ function plot_transformation(A, r, Nφ; Lφ=π/2)
     w̃  = @. (1 - w̃′) / (1 + w̃′/2)
     W̃  = @. w̃^3
 
-    fig = Figure(resolution=(1200, 1800), fontsize=30)
+    fig = Figure(size=(1200, 1800), fontsize=30)
 
     axz  = Axis(fig[1, 1], title="z")
     axZ  = Axis(fig[1, 2], title="Z")
@@ -78,9 +78,9 @@ function plot_transformation(A, r, Nφ; Lφ=π/2)
     return fig
 end
 
-r = 1 - 1e-7
+r = 1 - 1e-6
 
-Nφ = find_N(r; decimals=15)
+Nφ = find_N(r; decimals=10)
 
 maximum_coefficients = 128
 
