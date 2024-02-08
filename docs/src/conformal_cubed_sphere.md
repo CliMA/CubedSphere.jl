@@ -78,7 +78,7 @@ ax3D = Axis3(fig[1, 2],
 # one(RotMatrix{3}) is the identity
 rotations = (RotY(π/2), RotX(-π/2), one(RotMatrix{3}), RotY(-π/2), RotX(π/2), RotX(π))
 
-# to enhance visibility we use smaller alpha value for panels that are behind
+# to enhance visibility in 3D plot we use smaller alpha for panels that are behind
    alphas = (   0.1,       0.1,             1,              1,          1,      0.1  )
 
 for (R, alpha) in zip(rotations, alphas)
