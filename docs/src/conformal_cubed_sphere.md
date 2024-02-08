@@ -38,7 +38,7 @@ for (j, y′) in enumerate(y), (i, x′) in enumerate(x)
     X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x′, y′)
 end
 
-fig = Figure(resolution = (1000, 500))
+fig = Figure(resolution = (800, 400))
 
 ax2D = Axis(fig[1, 1],
             aspect = 1,
@@ -66,7 +66,7 @@ sphere that includes the North Pole and obtain all six faces of the sphere.
 ```@example 1
 using Rotations
 
-fig = Figure(resolution = (1000, 500))
+fig = Figure(resolution = (800, 400))
 
 ax2D = Axis(fig[1, 1],
             aspect = 1,
