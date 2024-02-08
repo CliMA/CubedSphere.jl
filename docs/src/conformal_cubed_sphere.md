@@ -71,6 +71,9 @@ We can then use [Rotations.jl](https://github.com/JuliaGeometry/Rotations.jl) to
 ```@example 1
 using Rotations
 
+colors = [:purple, :red, :orange, :cyan, :green, :blue]
+alphas = [1, 1, 0.1125, 0.1125, 1, 0.1125]
+
 fig = Figure(resolution = (1500, 750))
 
 ax2D = Axis(fig[1, 1]; aspect = 1, title = "Cubed Sphere", axis_kwargs_2D...)
@@ -82,8 +85,6 @@ for ax in [ax2D, ax3D]
 end
 
 rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
-colors = [:purple, :red, :orange, :cyan, :green, :blue]
-alphas = [1, 1, 0.1125, 0.1125, 1, 0.1125]
 
 for (i, R) in enumerate(rotations)
 
