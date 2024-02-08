@@ -2,7 +2,7 @@
 
 ## Conformal cubed sphere mapping
 
-The conformal method for projecting the cube on the sphere was first described the paper by [Rancic-etal-1996](@citet).
+The conformal method for projecting the cube on the sphere was first described by [Rancic-etal-1996](@citet).
 
 > Rančić et al., (1996). A global shallow-water model using an expanded spherical cube - Gnomonic versus conformal coordinates, _Quarterly Journal of the Royal Meteorological Society_, **122 (532)**, 959-982. doi:[10.1002/qj.49712253209](https://doi.org/10.1002/qj.49712253209)
 
