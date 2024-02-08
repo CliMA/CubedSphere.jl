@@ -38,24 +38,17 @@ for (j, y′) in enumerate(y), (i, x′) in enumerate(x)
     X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x′, y′)
 end
 
-axis_kwargs_2D = (xlabelsize = 22.5, ylabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5, 
-                  xticklabelpad = 10, yticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold, 
-                  xlabel = "x", ylabel = "y")
+fig = Figure(resolution = (1000, 500))
 
-axis_kwargs_3D = (xlabelsize = 22.5, ylabelsize = 22.5, zlabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5,
-                  zticklabelsize = 17.5, xticklabelpad = 10, yticklabelpad = 10, zticklabelpad = 10, titlesize = 27.5,
-                  titlegap = 15, titlefont = :bold, xlabel = "x", ylabel = "y", zlabel = "z")
-
-color = :blue
-    
-fig = Figure(resolution = (1500, 750))
-
-ax2D = Axis(fig[1, 1]; aspect = 1, title = "Cubed Sphere Panel", axis_kwargs_2D...)
-ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = "Cubed Sphere Panel", 
-             axis_kwargs_3D...)
+ax2D = Axis(fig[1, 1],
+            aspect = 1,
+            title = "Cubed Sphere Panel")
+ax3D = Axis3(fig[1, 2],
+             aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
+             title = "Cubed Sphere Panel")
 
 for ax in [ax2D, ax3D]
-    wireframe!(ax, X, Y, Z, color = color)
+    wireframe!(ax, X, Y, Z)
 end
 
 colsize!(fig.layout, 1, Auto(0.8))
@@ -64,30 +57,31 @@ colgap!(fig.layout, 40)
 current_figure()
 ```
 
-Above, we plotted the mapping from the cube's face onto the sphere both in a 2D projection (e.g., overlooking the sphere down to its North Pole) and in 3D space.
+Above, we plotted the mapping from the cube's face onto the sphere both in a 2D projection (e.g., overlooking
+the sphere down to its North Pole) and in 3D space.
 
-We can then use [Rotations.jl](https://github.com/JuliaGeometry/Rotations.jl) to rotate the face of the sphere that includes the North Pole and this way obtain all six faces of the sphere.
+We can then use [Rotations.jl](https://github.com/JuliaGeometry/Rotations.jl) to rotate the face of the
+sphere that includes the North Pole and obtain all six faces of the sphere.
 
 ```@example 1
 using Rotations
 
-colors = [:purple, :red, :orange, :cyan, :green, :blue]
-alphas = [1, 1, 0.1125, 0.1125, 1, 0.1125]
+fig = Figure(resolution = (1000, 500))
 
-fig = Figure(resolution = (1500, 750))
+ax2D = Axis(fig[1, 1],
+            aspect = 1,
+            title = "Cubed Sphere")
+ax3D = Axis3(fig[1, 2],
+             aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
+             title = "Cubed Sphere")
 
-ax2D = Axis(fig[1, 1]; aspect = 1, title = "Cubed Sphere", axis_kwargs_2D...)
-ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = "Cubed Sphere", 
-             axis_kwargs_3D...)
+# one(RotMatrix{3}) is the identity
+rotations = (RotY(π/2), RotX(-π/2), one(RotMatrix{3}), RotY(-π/2), RotX(π/2), RotX(π))
 
-for ax in [ax2D, ax3D]
-    wireframe!(ax, X, Y, Z, color = colors[1], alpha = alphas[1])
-end
+# to enhance visibility we use smaller alpha value for panels that are behind
+   alphas = (   0.1,       0.1,             1,              1,          1,      0.1  )
 
-rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
-
-for (i, R) in enumerate(rotations)
-
+for (R, alpha) in zip(rotations, alphas)
     X′ = similar(X)
     Y′ = similar(Y)
     Z′ = similar(Z)
@@ -95,10 +89,9 @@ for (i, R) in enumerate(rotations)
     for I in CartesianIndices(X)
         X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
     end
-    
-    wireframe!(ax2D, X′, Y′, Z′, color = colors[i+1])
-    wireframe!(ax3D, X′, Y′, Z′, color = colors[i+1], alpha = alphas[i+1])
-    
+
+    wireframe!(ax2D, X′, Y′, Z′)
+    wireframe!(ax3D, X′, Y′, Z′; alpha)
 end
 
 colsize!(fig.layout, 1, Auto(0.8))
