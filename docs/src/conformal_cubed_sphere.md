@@ -40,11 +40,14 @@ end
 
 fig = Figure(resolution = (800, 400))
 
-ax2D = Axis(fig[1, 1], aspect = 1)
-ax3D = Axis3(fig[1, 2], aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)))
+ax2D = Axis(fig[1, 1],
+            aspect = 1,
+            title = "Cubed Sphere Panel")
+ax3D = Axis3(fig[1, 2],
+             aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
+             title = "Cubed Sphere Panel")
 
 for ax in [ax2D, ax3D]
-    hidedecorations!(ax)
     wireframe!(ax, X, Y, Z)
 end
 
@@ -54,39 +57,41 @@ colgap!(fig.layout, 40)
 current_figure()
 ```
 
-Above, we plotted the mapping from the cube's face onto the sphere both in a 2D
-projection (e.g., overlooking the sphere down to its North Pole) and in 3D space.
+Above, we plotted the mapping from the cube's face onto the sphere both in a 2D projection (e.g., overlooking
+the sphere down to its North Pole) and in 3D space.
 
-We can then use [Rotations.jl](https://github.com/JuliaGeometry/Rotations.jl) to rotate
-the face of the sphere that includes the North Pole and this way obtain all six faces of
-the sphere.
+We can then use [Rotations.jl](https://github.com/JuliaGeometry/Rotations.jl) to rotate the face of the
+sphere that includes the North Pole and obtain all six faces of the sphere.
 
 ```@example 1
 using Rotations
 
 fig = Figure(resolution = (800, 400))
 
-ax2D = Axis(fig[1, 1], aspect = 1)
-ax3D = Axis3(fig[1, 2], aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)))
+ax2D = Axis(fig[1, 1],
+            aspect = 1,
+            title = "Cubed Sphere")
+ax3D = Axis3(fig[1, 2],
+             aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
+             title = "Cubed Sphere")
 
-for ax in [ax2D, ax3D]
-    wireframe!(ax, X, Y, Z)
-end
+# one(RotMatrix{3}) is the identity
+rotations = (RotY(π/2), RotX(-π/2), one(RotMatrix{3}), RotY(-π/2), RotX(π/2), RotX(π))
 
-rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
+# to enhance visibility in 3D plot we use smaller alpha for panels that are behind
+   alphas = (   0.1,       0.1,             1,              1,          1,      0.1  )
 
-for R in rotations
+for (rotation, alpha) in zip(rotations, alphas)
     X′ = similar(X)
     Y′ = similar(Y)
     Z′ = similar(Z)
 
     for I in CartesianIndices(X)
-        X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
+        X′[I], Y′[I], Z′[I] = rotation * [X[I], Y[I], Z[I]]
     end
 
-    for ax in [ax2D, ax3D]
-        wireframe!(ax, X′, Y′, Z′)
-    end
+    wireframe!(ax2D, X′, Y′, Z′)
+    wireframe!(ax3D, X′, Y′, Z′; alpha)
 end
 
 colsize!(fig.layout, 1, Auto(0.8))
