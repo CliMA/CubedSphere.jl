@@ -81,13 +81,13 @@ rotations = (RotY(π/2), RotX(-π/2), one(RotMatrix{3}), RotY(-π/2), RotX(π/2)
 # to enhance visibility in 3D plot we use smaller alpha for panels that are behind
    alphas = (   0.1,       0.1,             1,              1,          1,      0.1  )
 
-for (R, alpha) in zip(rotations, alphas)
+for (rotation, alpha) in zip(rotations, alphas)
     X′ = similar(X)
     Y′ = similar(Y)
     Z′ = similar(Z)
 
     for I in CartesianIndices(X)
-        X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
+        X′[I], Y′[I], Z′[I] = rotation * [X[I], Y[I], Z[I]]
     end
 
     wireframe!(ax2D, X′, Y′, Z′)
