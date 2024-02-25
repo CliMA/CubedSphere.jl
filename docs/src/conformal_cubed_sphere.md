@@ -2,7 +2,7 @@
 
 ## Conformal cubed sphere mapping
 
-The conformal method for projecting the cube on the sphere was first described the paper by [Rancic-etal-1996](@citet).
+The conformal method for projecting the cube on the sphere was first described by [Rancic-etal-1996](@citet).
 
 > Rančić et al., (1996). A global shallow-water model using an expanded spherical cube - Gnomonic versus conformal coordinates, _Quarterly Journal of the Royal Meteorological Society_, **122 (532)**, 959-982. doi:[10.1002/qj.49712253209](https://doi.org/10.1002/qj.49712253209)
 
@@ -75,11 +75,11 @@ ax3D = Axis3(fig[1, 2],
              aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
              title = "Cubed Sphere")
 
-# one(RotMatrix{3}) is the identity
-rotations = (RotY(π/2), RotX(-π/2), one(RotMatrix{3}), RotY(-π/2), RotX(π/2), RotX(π))
+identity = one(RotMatrix{3})
+rotations = (RotY(π/2), RotX(-π/2), identity, RotY(-π/2), RotX(π/2), RotX(π))
 
-# to enhance visibility in 3D plot we use smaller alpha for panels that are behind
-   alphas = (   0.1,       0.1,             1,              1,          1,      0.1  )
+# to enhance visibility in 3D plot use smaller alpha for panels that are at the back
+   alphas = (   0.1,       0.1,         1,        1,          1,       0.1  )
 
 for (rotation, alpha) in zip(rotations, alphas)
     X′ = similar(X)

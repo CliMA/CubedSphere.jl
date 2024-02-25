@@ -94,7 +94,7 @@ function _update_coefficients!(A, r, Nφ)
     W̃  = @. w̃^3
 
     k = collect(fftfreq(Nφ, Nφ))
-    g̃ = fft(W̃) ./ (Nφ * cis.(k * 4φ[1])) # divide with Nϕ exp(ikπ) to account for FFT's normalization
+    g̃ = fft(W̃) ./ (Nφ * cis.(k * 4φ[1])) # divide with Nϕ * exp(-ikπ) to account for FFT's normalization
     g̃ = g̃[2:Ncoefficients+1]             # drop coefficient for 0-th power
 
     A .= [real(g̃[k] / r^(4k)) for k in 1:Ncoefficients]
@@ -188,8 +188,21 @@ function find_taylor_coefficients(r = 1 - 1e-7;
     # initialize coefficients
     A_coefficients = rand(Ncoefficients)
 
-    for _ in ProgressBar(1:Niterations)
+    A_coefficients[1:min(maximum_coefficients, 30)] = CubedSphere.A_Rancic[2:min(maximum_coefficients, 30)+1]
+    A_coefficients_old = deepcopy(A_coefficients)
+
+    for iteration in ProgressBar(1:Niterations)
         _update_coefficients!(A_coefficients, r, Nevaluations)
+
+        rel_error = (abs.(A_coefficients - A_coefficients_old) ./ abs.(A_coefficients))[1:maximum_coefficients]
+
+        A_coefficients_old .= A_coefficients
+
+        if all(rel_error .< 1e-15)
+            iteration_str = iteration == 1 ? "iteration" : "iterations"
+            @info "Algorithm converged after $iteration $iteration_str"
+            break
+        end
     end
 
     # convert to Taylor series; add coefficient for 0-th power
