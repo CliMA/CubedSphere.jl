@@ -38,7 +38,7 @@ for (j, y′) in enumerate(y), (i, x′) in enumerate(x)
     X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x′, y′)
 end
 
-fig = Figure(resolution = (800, 400))
+fig = Figure(size = (800, 400))
 
 ax2D = Axis(fig[1, 1],
             aspect = 1,
