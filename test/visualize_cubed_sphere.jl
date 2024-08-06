@@ -183,32 +183,39 @@ function visualize_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hi
 
 end
 
-Nx, Ny = 16, 16
-axis_kwargs_2D = (xlabelsize = 22.5, ylabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5, 
-                  xticklabelpad = 10, yticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold, 
-                  xlabel = "x", ylabel = "y")
-axis_kwargs_3D = (xlabelsize = 22.5, ylabelsize = 22.5, zlabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5,
-                  zticklabelsize = 17.5, xticklabelpad = 10, yticklabelpad = 10, zticklabelpad = 10, titlesize = 27.5,
-                  titlegap = 15, titlefont = :bold, xlabel = "x", ylabel = "y", zlabel = "z")
-hide_decorations = false
-color = :blue
-colors = [:purple, :red, :orange, :cyan, :green, :blue]
-alphas = [1, 1, 0.1125, 0.1125, 1, 0.1125]
+function test_visualize_cubed_sphere_2D_3D()
 
-fig = visualize_cubed_sphere_panel_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, color)
-save("cubed_sphere_panel_2D.png", fig)
+    Nx, Ny = 16, 16
+    axis_kwargs_2D = (xlabelsize = 22.5, ylabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5,
+                      xticklabelpad = 10, yticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold,
+                      xlabel = "x", ylabel = "y")
+    axis_kwargs_3D = (xlabelsize = 22.5, ylabelsize = 22.5, zlabelsize = 22.5, xticklabelsize = 17.5,
+                      yticklabelsize = 17.5, zticklabelsize = 17.5, xticklabelpad = 10, yticklabelpad = 10,
+                      zticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold, xlabel = "x",
+                      ylabel = "y", zlabel = "z")
+    hide_decorations = false
+    color = :blue
+    colors = [:purple, :red, :orange, :cyan, :green, :blue]
+    alphas = [1, 1, 0.1125, 0.1125, 1, 0.1125]
 
-fig = visualize_cubed_sphere_panel_3D(Nx, Ny, axis_kwargs_3D, hide_decorations, color)
-save("cubed_sphere_panel_3D.png", fig)
+    fig = visualize_cubed_sphere_panel_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, color)
+    save("cubed_sphere_panel_2D.png", fig)
 
-fig = visualize_cubed_sphere_panel_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hide_decorations, color)
-save("cubed_sphere_panel_2D_3D.png", fig)
+    fig = visualize_cubed_sphere_panel_3D(Nx, Ny, axis_kwargs_3D, hide_decorations, color)
+    save("cubed_sphere_panel_3D.png", fig)
 
-fig = visualize_cubed_sphere_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, colors)
-save("cubed_sphere_2D.png", fig)
+    fig = visualize_cubed_sphere_panel_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hide_decorations, color)
+    save("cubed_sphere_panel_2D_3D.png", fig)
 
-fig = visualize_cubed_sphere_3D(Nx, Ny, axis_kwargs_3D, hide_decorations, colors, alphas)
-save("cubed_sphere_3D.png", fig)
+    fig = visualize_cubed_sphere_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, colors)
+    save("cubed_sphere_2D.png", fig)
 
-fig = visualize_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hide_decorations, colors, alphas)
-save("cubed_sphere_2D_3D.png", fig)
+    fig = visualize_cubed_sphere_3D(Nx, Ny, axis_kwargs_3D, hide_decorations, colors, alphas)
+    save("cubed_sphere_3D.png", fig)
+
+    fig = visualize_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hide_decorations, colors, alphas)
+    save("cubed_sphere_2D_3D.png", fig)
+
+end
+
+test_visualize_cubed_sphere_2D_3D()
