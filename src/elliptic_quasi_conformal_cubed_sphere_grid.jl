@@ -9,7 +9,6 @@ using Printf
 
 
 function compute_deviation_from_orthogonality_at_point(X, Y, i, j)
-
     x1 = X[i, j]
     y1 = Y[i, j]
     x2 = X[i+1, j]
@@ -36,12 +35,10 @@ function compute_deviation_from_orthogonality_at_point(X, Y, i, j)
                                              + abs(angle4 - π/2))
 
     return deviation_from_orthogonality_at_point
-
 end
 
 
 function compute_deviation_from_orthogonality(X, Y)
-
     Nx, Ny = size(X)
     deviation_from_orthogonality = zeros(Nx, Ny)
 
@@ -52,12 +49,10 @@ function compute_deviation_from_orthogonality(X, Y)
     end
 
     return deviation_from_orthogonality
-
 end
 
 
 function compute_deviation_from_isotropy_at_point(X, Y, i, j)
-
     x1 = X[i, j]
     y1 = Y[i, j]
     x2 = X[i+1, j]
@@ -78,12 +73,10 @@ function compute_deviation_from_isotropy_at_point(X, Y, i, j)
     abs(norm(v1) - norm(v2)) + abs(norm(v2) - norm(v3)) + abs(norm(v3) - norm(v4)) + abs(norm(v4) - norm(v1)))
 
     return deviation_from_isotropy_at_point
-
 end
 
 
 function compute_deviation_from_isotropy(X, Y)
-
     Nx, Ny = size(X)
     deviation_from_isotropy = zeros(Nx, Ny)
 
@@ -94,12 +87,10 @@ function compute_deviation_from_isotropy(X, Y)
     end
 
     return deviation_from_isotropy
-
 end
 
 
 function compute_cell_area(X, Y, i, j)
-
     x1 = X[i,   j]
     y1 = Y[i,   j]
     x2 = X[i+1, j]
@@ -126,14 +117,12 @@ function compute_cell_area(X, Y, i, j)
     cell_area = s1 + s3
 
     return cell_area
-
 end
 
 
 function compute_cell_areas(X, Y)
-
     Nx, Ny = size(X)
-    cell_areas = zeros(Nx, Ny)
+    cell_areas = zeros(Nx-1, Ny-1)
 
     for i in 1:Nx-1
         for j in 1:Ny-1
@@ -142,12 +131,10 @@ function compute_cell_areas(X, Y)
     end
 
     return cell_areas
-
 end
 
 
 function conformal_cubed_sphere_coordinates(Nx, Ny)
-    
     x = range(-1, 1, length = Nx)
     y = range(-1, 1, length = Ny)
     
@@ -160,12 +147,10 @@ function conformal_cubed_sphere_coordinates(Nx, Ny)
     end
     
     return x, y, X, Y, Z
-    
 end
 
 
 function derivative(y, x)
-
     N = length(x)
     dydx = zeros(N)
     
@@ -178,12 +163,10 @@ function derivative(y, x)
             dydx[i] = (y[i+1] - y[i-1])/(x[i+1] - x[i-1])
         end
     end
-    
 end
 
 
 function derivatives(u, x, y)
-
     Nx, Ny = size(u)
 
     dudx = zeros(Nx, Ny)
@@ -214,7 +197,6 @@ function derivatives(u, x, y)
     end
     
     return dudx, dudy
-    
 end
 
 
@@ -222,7 +204,6 @@ function specify_orthogonality_enforcing_control_function_components!(a_P, a_Q, 
                                                                       X_xy, X_yy, Y_xx, Y_xy, Y_yy, S_x, S_y,
                                                                       boundary_identifiers, boundary_type,
                                                                       initialization, ξ, η, P, Q)
-    
     ω_P = 0.05
     ω_Q = 0.05
     
@@ -278,13 +259,11 @@ function specify_orthogonality_enforcing_control_function_components!(a_P, a_Q, 
         P = a_P * P * exp(-b_P * ξ)
         Q = a_Q * Q * exp(-b_Q * ξ)
     end
-
 end 
 
 
 function elliptic_quasi_conformal_cubed_sphere_coordinates(Nx, Ny, θ; return_model_diagnostics = false,
                                                            display_outcome = true)
-    
     x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
     
     θ_x = θ[1]
@@ -408,7 +387,6 @@ function elliptic_quasi_conformal_cubed_sphere_coordinates(Nx, Ny, θ; return_mo
     time_start = now()
     
     for iteration in 1:nIterations
-    
         X_x, X_y = derivatives(X, x, y) 
         Y_x, Y_y = derivatives(Y, x, y)
         X_xx, X_xy = derivatives(X_x, x, y)
@@ -420,7 +398,6 @@ function elliptic_quasi_conformal_cubed_sphere_coordinates(Nx, Ny, θ; return_mo
         
         for j = 2:Ny-1
             for i = 2:Nx-1
-            
                 if ((boundary_types[i, j] == south) || (boundary_types[i, j] == east) || (boundary_types[i, j] == north) 
                     || (boundary_types[i, j] == west))
                         specify_orthogonality_enforcing_control_function_components!(
@@ -445,7 +422,6 @@ function elliptic_quasi_conformal_cubed_sphere_coordinates(Nx, Ny, θ; return_mo
                 
                 X[i, j] = X[i, j] - ω_x * Residual_X[i, j]/(2(α/Δξ^2 + γ/Δη^2))
                 Y[i, j] = Y[i, j] - ω_y * Residual_Y[i, j]/(2(α/Δξ^2 + γ/Δη^2))
-                
             end
         end
         
@@ -456,7 +432,6 @@ function elliptic_quasi_conformal_cubed_sphere_coordinates(Nx, Ny, θ; return_mo
             iteration_final = iteration
             break
         end
-    
     end
     
     for j in 1:Ny
@@ -480,28 +455,96 @@ function elliptic_quasi_conformal_cubed_sphere_coordinates(Nx, Ny, θ; return_mo
     end
 
     if return_model_diagnostics
-
         deviation_from_orthogonality = compute_deviation_from_orthogonality(X, Y)
         deviation_from_isotropy = compute_deviation_from_isotropy(X, Y)
         cell_areas = compute_cell_areas(X, Y)
-        minimum_to_maximum_cell_area_ratio = minimum(cell_areas[1:Nx-1,1:Ny-1])/maximum(cell_areas[1:Nx-1,1:Ny-1])
+        minimum_to_maximum_cell_area_ratio = minimum(cell_areas)/maximum(cell_areas)
 
         model_diagnostics = vcat(deviation_from_orthogonality[:], deviation_from_isotropy[:],
                                  minimum_to_maximum_cell_area_ratio)
 
         return x, y, X, Y, Z, model_diagnostics
-
     else
-    
         return x, y, X, Y, Z
-
     end
-    
 end
 
 
-function visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename)
+function visualize_cubed_sphere_2D(X, Y, Z, filename)
+    axis_kwargs_2D = (xlabelsize = 22.5, ylabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5,
+                      xticklabelpad = 10, yticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold,
+                      xlabel = "x", ylabel = "y")
+    hide_decorations = false
 
+    colors = [:orange, :red, :deepskyblue, :purple, :green, :blue]
+
+    fig = Figure(resolution = (750, 750))
+
+    ax2D = Axis(fig[1, 1]; aspect = 1, title = "Cubed Sphere", axis_kwargs_2D...)
+    hide_decorations && hidedecorations!(ax2D)
+    wireframe!(ax2D, X, Y, Z, color = colors[1])
+
+    rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
+
+    for (i, R) in enumerate(rotations)
+        X′ = similar(X)
+        Y′ = similar(Y)
+        Z′ = similar(Z)
+
+        for I in CartesianIndices(X)
+            X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
+        end
+
+        wireframe!(ax2D, X′, Y′, Z′, color = colors[i + 1])
+    end
+
+    colsize!(fig.layout, 1, Auto(0.8))
+    colgap!(fig.layout, 40)
+
+    save(filename, fig)
+end
+
+
+function visualize_cubed_sphere_3D(X, Y, Z, filename)
+    axis_kwargs_3D = (xlabelsize = 22.5, ylabelsize = 22.5, zlabelsize = 22.5, xticklabelsize = 17.5,
+                      yticklabelsize = 17.5, zticklabelsize = 17.5, xticklabelpad = 10, yticklabelpad = 10,
+                      zticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold, xlabel = "x",
+                      ylabel = "y", zlabel = "z")
+    hide_decorations = false
+
+    colors = [:orange, :red, :deepskyblue, :purple, :green, :blue]
+    alphas = [1, 1, 0.1125, 0.1125, 1, 0.1125]
+
+    fig = Figure(resolution = (750, 750))
+
+    ax3D = Axis3(fig[1, 1]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = "Cubed Sphere",
+                 axis_kwargs_3D...)
+    hide_decorations && hidedecorations!(ax3D)
+
+    wireframe!(ax3D, X, Y, Z, color = colors[1], alpha = alphas[1])
+
+    rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
+
+    for (i, R) in enumerate(rotations)
+        X′ = similar(X)
+        Y′ = similar(Y)
+        Z′ = similar(Z)
+
+        for I in CartesianIndices(X)
+            X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
+        end
+
+        wireframe!(ax3D, X′, Y′, Z′, color = colors[i + 1], alpha = alphas[i + 1])
+    end
+
+    colsize!(fig.layout, 1, Auto(0.8))
+    colgap!(fig.layout, 40)
+
+    save(filename, fig)
+end
+
+
+function visualize_cubed_sphere_2D_3D(X, Y, Z, filename)
     axis_kwargs_2D = (xlabelsize = 22.5, ylabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5, 
                       xticklabelpad = 10, yticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold, 
                       xlabel = "x", ylabel = "y")
@@ -528,7 +571,6 @@ function visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename)
     rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
     
     for (i, R) in enumerate(rotations)
-    
         X′ = similar(X)
         Y′ = similar(Y)
         Z′ = similar(Z)
@@ -539,19 +581,16 @@ function visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename)
         
         wireframe!(ax2D, X′, Y′, Z′, color = colors[i+1])
         wireframe!(ax3D, X′, Y′, Z′, color = colors[i+1], alpha = alphas[i+1])
-        
     end
     
     colsize!(fig.layout, 1, Auto(0.8))
     colgap!(fig.layout, 200)
     
     save(filename, fig)
-    
 end
 
 
 function specify_parameters()
-
     θ_x = 0.75
     θ_y = 0.75
     b_x = 3
@@ -565,12 +604,10 @@ function specify_parameters()
     θ = [θ_x, θ_y, b_x, b_y, S_0, a_P, a_Q, b_P, b_Q]
 
     return θ
-
 end
 
 
 function specify_parameter_limits()
-
     θ_x_limits = [0.5, 1.25]
     θ_y_limits = [0.5, 1.25]
     b_x_limits = [2, 4]
@@ -585,22 +622,18 @@ function specify_parameter_limits()
                 b_Q_limits]
 
     return θ_limits
-
 end
 
 
 function enforce_symmetry_in_parameters!(θ)
-
     θ[2] = θ[1]
     θ[4] = θ[3]
     θ[7] = θ[6]
     θ[9] = θ[8]
-
 end
 
 
 function specify_random_parameters(nEnsemble; enforce_symmetry = false)
-
     θ = specify_parameters()
     θ_limits = specify_parameter_limits()
 
@@ -613,29 +646,28 @@ function specify_random_parameters(nEnsemble; enforce_symmetry = false)
     end
 
     return θᵣ
-
 end
 
 
 function visualize_conformal_and_elliptic_quasi_conformal_cubed_sphere_2D_3D()
-
     Nx, Ny = 32 + 1, 32 + 1
     θ = specify_parameters()
 
     x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
-    filename = "conformal_cubed_sphere_2D_3D.png"
-    visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename)
+    visualize_cubed_sphere_2D(X, Y, Z, "conformal_cubed_sphere_2D.png")
+    visualize_cubed_sphere_3D(X, Y, Z, "conformal_cubed_sphere_3D.png")
+    visualize_cubed_sphere_2D_3D(X, Y, Z, "conformal_cubed_sphere_2D_3D.png")
 
     cell_areas = compute_cell_areas(X, Y)
-    minimum_to_maximum_cell_area_ratio = minimum(cell_areas[1:Nx-1,1:Ny-1])/maximum(cell_areas[1:Nx-1,1:Ny-1])
+    minimum_to_maximum_cell_area_ratio = minimum(cell_areas)/maximum(cell_areas)
 
     x, y, X, Y, Z = elliptic_quasi_conformal_cubed_sphere_coordinates(Nx, Ny, θ)
-    filename = "elliptic_quasi_conformal_cubed_sphere_2D_3D.png"
-    visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename)
+    visualize_cubed_sphere_2D(X, Y, Z, "elliptic_quasi_conformal_cubed_sphere_2D.png")
+    visualize_cubed_sphere_3D(X, Y, Z, "elliptic_quasi_conformal_cubed_sphere_3D.png")
+    visualize_cubed_sphere_2D_3D(X, Y, Z, "elliptic_quasi_conformal_cubed_sphere_2D_3D.png")
 
     cell_areas = compute_cell_areas(X, Y)
-    minimum_to_maximum_cell_area_ratio = minimum(cell_areas[1:Nx-1,1:Ny-1])/maximum(cell_areas[1:Nx-1,1:Ny-1])
-
+    minimum_to_maximum_cell_area_ratio = minimum(cell_areas)/maximum(cell_areas)
 end
 
 
@@ -643,16 +675,12 @@ visualize_conformal_and_elliptic_quasi_conformal_cubed_sphere_2D_3D()
 
 
 function specify_weights_for_model_diagnostics()
-
     weights = [10, 1, 10]
-
     return weights
-
 end
 
 
 function compute_weighted_model_diagnostics(Nx, Ny, model_diagnostics)
-
     deviation_from_orthogonality = model_diagnostics[1:Nx*Ny]
     deviation_from_isotropy = model_diagnostics[Nx*Ny+1:2*Nx*Ny]
     minimum_to_maximum_cell_area_ratio = model_diagnostics[2*Nx*Ny+1]
@@ -664,12 +692,10 @@ function compute_weighted_model_diagnostics(Nx, Ny, model_diagnostics)
                                       weights[3] * minimum_to_maximum_cell_area_ratio)
 
     return weighted_model_diagnostics
-
 end
 
 
 function forward_map(Nx, Ny, θ)
-
     θ_limits = specify_parameter_limits()
 
     for i in 1:lastindex(θ)
@@ -687,12 +713,10 @@ function forward_map(Nx, Ny, θ)
     weighted_model_diagnostics = compute_weighted_model_diagnostics(Nx, Ny, model_diagnostics)
 
 	return weighted_model_diagnostics
-
 end
 
 
 function specify_ideal_weighted_model_diagnostics(Nx, Ny)
-
     deviation_from_orthogonality = zeros(Nx, Ny)
     deviation_from_isotropy = zeros(Nx, Ny)
     minimum_to_maximum_cell_area_ratio = 1
@@ -704,12 +728,10 @@ function specify_ideal_weighted_model_diagnostics(Nx, Ny)
                                             weights[3] * minimum_to_maximum_cell_area_ratio)
 
     return ideal_weighted_model_diagnostics
-
 end
 
 
 function optimize!(Nx, Ny, θ; nIterations = 10, Δt = 1)
-
     ideal_data = specify_ideal_weighted_model_diagnostics(Nx, Ny)
     model_data = forward_map(Nx, Ny, mean(θ))
 
@@ -727,7 +749,6 @@ function optimize!(Nx, Ny, θ; nIterations = 10, Δt = 1)
 
 	# EKI iteration is equivalent to a time step of the above equation.
     @inbounds for i in 1:nIterations
-
         θ̄ = mean(θ)
 
         #=
@@ -774,12 +795,10 @@ function optimize!(Nx, Ny, θ; nIterations = 10, Δt = 1)
     end
 
     return θ_series
-
 end
 
 
 function optimize_and_visualize_elliptic_quasi_conformal_cubed_sphere_2D_3D()
-
     Nx, Ny = 32 + 1, 32 + 1
 
     Nx == Ny ? enforce_symmetry = true : enforce_symmetry = false
@@ -787,13 +806,11 @@ function optimize_and_visualize_elliptic_quasi_conformal_cubed_sphere_2D_3D()
     nEnsemble = 36 # Choose nEnsemble to be at least 4 times the number of parameters.
 
     begin
-
         Random.seed!(123)
         θᵣ = specify_random_parameters(nEnsemble; enforce_symmetry = enforce_symmetry)
         θᵢ = deepcopy(θᵣ)
 
         θ_series = optimize!(Nx, Ny, θᵣ; nIterations = 10)
-
     end
 
     @printf("\nThe unoptimized parameters are:\n\nθ_x = %.2f\nθ_y = %.2f\nb_x = %.2f\nb_y = %.2f\nS_0 = %.2f\na_P = %.2f\na_Q = %.2f\nb_P = %.2f\nb_Q = %.2f\n",
@@ -805,8 +822,7 @@ function optimize_and_visualize_elliptic_quasi_conformal_cubed_sphere_2D_3D()
     x, y, X, Y, Z = elliptic_quasi_conformal_cubed_sphere_coordinates(Nx, Ny, mean(θᵣ))
 
     filename = "optimized_elliptic_quasi_conformal_cubed_sphere_2D_3D.png"
-    visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename)
-
+    visualize_cubed_sphere_2D_3D(X, Y, Z, filename)
 end
 
 
