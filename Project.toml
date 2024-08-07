@@ -1,7 +1,7 @@
 name = "CubedSphere"
 uuid = "7445602f-e544-4518-8976-18f8e8ae6cdb"
 authors = ["Climate Modeling Alliance and contributors"]
-version = "0.2.4"
+version = "0.2.5"
 
 [deps]
 Elliptic = "b305315f-e792-5b7a-8f41-49f472929428"
@@ -17,7 +17,7 @@ Elliptic = "1"
 FFTW = "1"
 ProgressBars = "1"
 SpecialFunctions = "2"
-TaylorSeries = "0.10 - 0.15"
+TaylorSeries = "0.10 - 0.17"
 julia = "1"
 
 [extras]
