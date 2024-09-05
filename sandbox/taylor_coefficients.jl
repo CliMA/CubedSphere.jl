@@ -1,8 +1,10 @@
+# Compute Rančić coefficients with the method described in
+# [Rancic-etal-1996](@citet)
+
 using GLMakie
 using Printf
-using CubedSphere
 
-using CubedSphere: find_taylor_coefficients, cbrt′, find_N
+include("compute_taylor_coefficients.jl")
 
 function plot_transformation(A, r, Nφ; Lφ=π/2)
     dφ = Lφ / Nφ
