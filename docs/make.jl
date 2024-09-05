@@ -4,7 +4,7 @@ using
   Documenter,
   DocumenterCitations,
   Literate,
-  CairoMakie,
+  GLMakie,
   CubedSphere
 
 #####
