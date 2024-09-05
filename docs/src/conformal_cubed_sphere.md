@@ -16,13 +16,12 @@ We can visualize the mapping.
 
 ```@setup 1
 using Rotations
-using CairoMakie
-CairoMakie.activate!(type = "svg")
+using GLMakie
 using CubedSphere
 ```
 
 ```@example 1
-using CairoMakie
+using GLMakie
 using CubedSphere
 
 N = 16
@@ -78,10 +77,7 @@ ax3D = Axis3(fig[1, 2],
 identity = one(RotMatrix{3})
 rotations = (RotY(π/2), RotX(-π/2), identity, RotY(-π/2), RotX(π/2), RotX(π))
 
-# to enhance visibility in 3D plot use smaller alpha for panels that are at the back
-   alphas = (   0.1,       0.1,         1,        1,          1,       0.1  )
-
-for (rotation, alpha) in zip(rotations, alphas)
+for rotation in rotations
     X′ = similar(X)
     Y′ = similar(Y)
     Z′ = similar(Z)
@@ -91,7 +87,7 @@ for (rotation, alpha) in zip(rotations, alphas)
     end
 
     wireframe!(ax2D, X′, Y′, Z′)
-    wireframe!(ax3D, X′, Y′, Z′; alpha)
+    wireframe!(ax3D, X′, Y′, Z′)
 end
 
 colsize!(fig.layout, 1, Auto(0.8))
