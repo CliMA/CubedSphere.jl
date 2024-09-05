@@ -2,7 +2,6 @@ module CubedSphere
 
 export sn, cn, conformal_cubed_sphere_mapping, conformal_cubed_sphere_inverse_mapping, cartesian_to_lat_lon
 
-using Printf
 using TaylorSeries
 
 include("complex_jacobi_elliptic.jl")
