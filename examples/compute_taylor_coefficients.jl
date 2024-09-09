@@ -256,6 +256,5 @@ A_coefficients[1:11]
 # And we can also plot them:
 
 using GLMakie
-GLMakie.activate!(type="svg") #hide
 
 scatter(log10.(abs.(A_coefficients[1:11])))
