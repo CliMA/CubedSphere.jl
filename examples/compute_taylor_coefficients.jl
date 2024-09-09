@@ -244,7 +244,7 @@ end
 
 # Now let's reproduce the results by [Rancic-etal-1996](@citet) we need to choose ``r = 1 - 10^{-7}``.
 
-r = 1 - 1e-4
+r = 1 - 1e-7
 A_coefficients, B_coefficients = find_taylor_coefficients(r)
 
 nothing #hide
