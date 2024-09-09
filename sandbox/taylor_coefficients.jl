@@ -4,7 +4,7 @@
 using GLMakie
 using Printf
 
-include("compute_taylor_coefficients.jl")
+include(joinpath(@__DIR__, "../examples/compute_taylor_coefficients.jl"))
 
 function plot_transformation(A, r, Nφ; Lφ=π/2)
     dφ = Lφ / Nφ
@@ -56,20 +56,20 @@ function plot_transformation(A, r, Nφ; Lφ=π/2)
         ylims!(ax, -lim, lim)
     end
 
-    scatter!(axz, real.(z), imag.(z), linewidth=4)
+    scatter!(axz, real.(z), imag.(z))
     scatter!(axZ, real.(Z), imag.(Z))
 
-    scatter!(axw, real.(w), imag.(w), color=(:black, 0.5), linewidth=8, label=L"w")
-    scatter!(axw, real.(w̃), imag.(w̃), color=(:orange, 0.8), linewidth=4, label=L"w̃")
+    scatter!(axw, real.(w), imag.(w), color=(:black, 0.5), label=L"w")
+    scatter!(axw, real.(w̃), imag.(w̃), color=(:orange, 0.8), label=L"w̃")
 
-    scatter!(axW, real.(W), imag.(W), color=(:black, 0.5), linewidth=8, label=L"W")
-    scatter!(axW, real.(W̃), imag.(W̃), color=(:orange, 0.8), linewidth=4, label=L"W̃")
+    scatter!(axW, real.(W), imag.(W), color=(:black, 0.5), label=L"W")
+    scatter!(axW, real.(W̃), imag.(W̃), color=(:orange, 0.8), label=L"W̃")
 
-    scatter!(axwp, real.(w′), imag.(w′), color=(:black, 0.5), linewidth=8, label=L"w′")
-    scatter!(axwp, real.(w̃′), imag.(w̃′), color=(:orange, 0.8), linewidth=4, label=L"w̃′")
+    scatter!(axwp, real.(w′), imag.(w′), color=(:black, 0.5), label=L"w′")
+    scatter!(axwp, real.(w̃′), imag.(w̃′), color=(:orange, 0.8), label=L"w̃′")
 
-    scatter!(axWp, real.(W′), imag.(W′), color=(:black, 0.5), linewidth=8, label=L"W′")
-    scatter!(axWp, real.(W̃′), imag.(W̃′), color=(:orange, 0.8), linewidth=4, label=L"W̃′")
+    scatter!(axWp, real.(W′), imag.(W′), color=(:black, 0.5), label=L"W′")
+    scatter!(axWp, real.(W̃′), imag.(W̃′), color=(:orange, 0.8), label=L"W̃′")
 
     for ax in [axw, axW, axwp, axWp]
         axislegend(ax)
