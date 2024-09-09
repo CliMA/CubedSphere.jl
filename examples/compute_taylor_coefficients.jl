@@ -20,7 +20,7 @@
 #
 # We start by importing some useful packages and define some utility methods.
 
-using FFTW, SpecialFunctions, TaylorSeries, ProgressBars
+using FFTW, SpecialFunctions, TaylorSeries
 
 function find_angles(φ)
     φ⁻ = -φ
@@ -219,7 +219,9 @@ function find_taylor_coefficients(r = 1 - 1e-7;
 
     A_coefficients_old = deepcopy(A_coefficients)
 
-    for iteration in ProgressBar(1:Niterations)
+    for iteration in 1:Niterations
+        @info "Iteration $iteration out of $Niterations"
+
         _update_coefficients!(A_coefficients, r, Nevaluations)
 
         rel_error = (abs.(A_coefficients - A_coefficients_old) ./ abs.(A_coefficients))[1:maximum_coefficients]
