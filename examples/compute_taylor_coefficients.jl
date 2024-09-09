@@ -244,10 +244,9 @@ function find_taylor_coefficients(r = 1 - 1e-7;
     return A_coefficients, B_coefficients
 end
 
-# Now let's reproduce the results by [Rancic-etal-1996](@citet) we need to choose ``r = 1 - 10^{-7}``.
+# Now let's reproduce the results by [Rancic-etal-1996](@citet). For that, we need to choose ``r = 1 - 10^{-7}``.
 
 using Random; Random.seed!(123) #hide
-
 r = 1 - 1e-7
 A_coefficients, B_coefficients = find_taylor_coefficients(r)
 
