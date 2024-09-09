@@ -175,7 +175,31 @@ Example
 julia> A, B = find_taylor_coefficients(1 - 1e-4);
 [ Info: Computing the first 256 coefficients of the Taylor serieses
 [ Info: using 32768 function evaluations on a circle with radius 0.9999.
-100.0%┣████████████████████████████████████████████┫ 30/30 [00:02<00:00, 12it/s]
+[ Info: Iteration 1 out of 30
+[ Info: Iteration 2 out of 30
+[ Info: Iteration 3 out of 30
+[ Info: Iteration 4 out of 30
+[ Info: Iteration 5 out of 30
+[ Info: Iteration 6 out of 30
+[ Info: Iteration 7 out of 30
+[ Info: Iteration 8 out of 30
+[ Info: Iteration 9 out of 30
+[ Info: Iteration 10 out of 30
+[ Info: Iteration 11 out of 30
+[ Info: Iteration 12 out of 30
+[ Info: Iteration 13 out of 30
+[ Info: Iteration 14 out of 30
+[ Info: Iteration 15 out of 30
+[ Info: Iteration 16 out of 30
+[ Info: Iteration 17 out of 30
+[ Info: Iteration 18 out of 30
+[ Info: Iteration 19 out of 30
+[ Info: Iteration 20 out of 30
+[ Info: Iteration 21 out of 30
+[ Info: Iteration 22 out of 30
+[ Info: Iteration 23 out of 30
+[ Info: Iteration 24 out of 30
+[ Info: Algorithm converged after 24 iterations
 
 julia> A[1:10]
 10-element Vector{Float64}:
