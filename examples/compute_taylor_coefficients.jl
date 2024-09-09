@@ -20,7 +20,7 @@
 #
 # We start by importing some useful packages and define some utility methods.
 
-using FFTW, SpecialFunctions, TaylorSeries, ProgressBars, CubedSphere
+using FFTW, SpecialFunctions, TaylorSeries, ProgressBars
 
 function find_angles(φ)
     φ⁻ = -φ
@@ -214,7 +214,9 @@ function find_taylor_coefficients(r = 1 - 1e-7;
     ## initialize coefficients
     A_coefficients = rand(Ncoefficients)
 
-    A_coefficients[1:min(maximum_coefficients, 30)] = CubedSphere.A_Rancic[2:min(maximum_coefficients, 30)+1]
+    ## we can use Rančić as initial guess; this makes convergence faster
+    ## A_coefficients[1:min(maximum_coefficients, 30)] = CubedSphere.A_Rancic[2:min(maximum_coefficients, 30)+1]
+
     A_coefficients_old = deepcopy(A_coefficients)
 
     for iteration in ProgressBar(1:Niterations)
@@ -243,6 +245,8 @@ function find_taylor_coefficients(r = 1 - 1e-7;
 end
 
 # Now let's reproduce the results by [Rancic-etal-1996](@citet) we need to choose ``r = 1 - 10^{-7}``.
+
+using Random; Random.seed!(123) #hide
 
 r = 1 - 1e-7
 A_coefficients, B_coefficients = find_taylor_coefficients(r)
