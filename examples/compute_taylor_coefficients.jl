@@ -239,12 +239,13 @@ function find_taylor_coefficients(r = 1 - 1e-7;
     A_series = Taylor1([0; A_coefficients])
 
     B_series = inverse(A_series) # This is the inverse Taylor series
-
     B_series.coeffs[1] !== 0.0 && error("coefficient that corresponds to W^0 is non-zero; something went wrong")
     B_coefficients = B_series.coeffs[2:end] # don't return coefficient for 0-th power
 
     return A_coefficients, B_coefficients
 end
+
+nothing #hide
 
 # Now let's reproduce the results by [Rancic-etal-1996](@citet). For that, we need to choose ``r = 1 - 10^{-7}``.
 
