@@ -11,7 +11,6 @@ TaylorSeries = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
 
 [compat]
 Documenter = "1"
-Elliptic = "1"
 FFTW = "1"
 GLMakie = "0.10"
 ProgressBars = "1"
