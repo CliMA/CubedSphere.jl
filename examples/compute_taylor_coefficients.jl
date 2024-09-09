@@ -244,7 +244,7 @@ end
 
 # Now let's reproduce the results by [Rancic-etal-1996](@citet) we need to choose ``r = 1 - 10^{-7}``.
 
-r = 1 - 1e-7
+r = 1 - 1e-4
 A_coefficients, B_coefficients = find_taylor_coefficients(r)
 
 nothing #hide
@@ -257,4 +257,7 @@ A_coefficients[1:11]
 
 using GLMakie
 
-scatter(log10.(abs.(A_coefficients[1:11])))
+fig = Figure(fontsize=20)
+ax = Axis(fig[1, 1], xlabel=L"$k$th coefficient", ylabel=L"\log_{10}(|A_k|)", xticks=1:11)
+scatter!(ax, log10.(abs.(A_coefficients[1:11])))
+current_figure()
