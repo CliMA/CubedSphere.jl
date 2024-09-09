@@ -251,13 +251,13 @@ nothing #hide
 
 # The first few coefficients are:
 
-A_coefficients[1:11]
+A_coefficients[1:10]
 
 # And we can also plot them:
 
 using GLMakie
 
 fig = Figure(fontsize=20)
-ax = Axis(fig[1, 1], xlabel=L"$k$th coefficient", ylabel=L"\log_{10}(|A_k|)", xticks=1:11)
-scatter!(ax, log10.(abs.(A_coefficients[1:11])))
+ax = Axis(fig[1, 1], xlabel=L"$k$ th coefficient", ylabel=L"\log_{10}(|A_k|)", xticks=1:10)
+scatter!(ax, log10.(abs.(A_coefficients[1:10])))
 current_figure()
