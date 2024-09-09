@@ -40,8 +40,8 @@ end
 
 nothing #hide
 
-# Next we define the cubic roots. We use `cbrt` to go from ``W`` to ``w`` and
-# `cbrt′` to go from ``W′`` to ``w′``.
+# Next we define the cubic roots and be carefull to choose the appropriate branch.
+# We use `cbrt` to go from ``W`` to ``w`` and `cbrt′` to go from ``W′`` to ``w′``.
 
 function Base.cbrt(z::Complex)
     r = abs(z)
