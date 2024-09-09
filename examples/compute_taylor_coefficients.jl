@@ -37,7 +37,8 @@ function find_angles(φ)
 
     return φ′⁻, φ′⁺
 end
-nothing # hide
+
+nothing #hide
 
 # Next we define the cubic roots. We use `cbrt` to go from ``W`` to ``w`` and
 # `cbrt′` to go from ``W′`` to ``w′``.
@@ -63,7 +64,8 @@ function cbrt′(z::Complex)
     end
     return r^(1/3) * cis(θ)
 end
-nothing # hide
+
+nothing #hide
 
 # A few more utility methods and the actual iterative algorithm.
 
@@ -245,7 +247,7 @@ end
 r = 1 - 1e-7
 A_coefficients, B_coefficients = find_taylor_coefficients(r)
 
-nothing # hide
+nothing #hide
 
 # The first few coefficients are:
 
@@ -254,6 +256,6 @@ A_coefficients[1:11]
 # And we can also plot them:
 
 using GLMakie
-GLMakie.activate!(type="svg") # hide
+GLMakie.activate!(type="svg") #hide
 
 scatter(log10.(abs.(A_coefficients[1:11])))
