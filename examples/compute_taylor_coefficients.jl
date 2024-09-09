@@ -240,9 +240,10 @@ function find_taylor_coefficients(r = 1 - 1e-7;
     return A_coefficients, B_coefficients
 end
 
-# Now let's reproduce Rančić et al. (1996) results we need to use ``r = 1 - 10^{-7}``.
+# Now let's reproduce the results by [Rancic-etal-1996](@citet) we need to choose ``r = 1 - 10^{-7}``.
 
-A_coefficients, B_coefficients = find_taylor_coefficients(1 - 1e-7)
+r = 1 - 1e-7
+A_coefficients, B_coefficients = find_taylor_coefficients(r)
 
 nothing # hide
 
@@ -253,5 +254,6 @@ A_coefficients[1:11]
 # And we can also plot them:
 
 using GLMakie
+GLMakie.activate!(type="svg") # hide
 
 scatter(log10.(abs.(A_coefficients[1:11])))
