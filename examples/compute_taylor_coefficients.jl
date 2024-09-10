@@ -4,15 +4,20 @@
 # map ``Z \to W`` and also of the inverse map, ``W \to Z``, where ``Z = z^4`` and ``W = w^3``.
 #
 # The algorithm to obtain the coefficients follows the procedure described in the
-# Appendix of the paper by [Rancic-etal-1996](@citet)
+# Appendix of the paper by [Rancic-etal-1996](@citet). An elaborate explanation of
+# the algorithm is [documented online](https://www.overleaf.com/read/ghkbfrmtjvjb#f58410).
+# Furthermore, the repository [github.com/kburns/LightningCubedSphere.jl](https://github.com/kburns/LightningCubedSphere.jl)
+# provides an independent algorithm using least squares fitting and rational functions
+# ("lightning" rational approximations) to compute the forward and inverse maps.
 
-# In particular, the example showcases how to obtain the coefficients ``A_k`` of the Taylor series
+# This example, follows the steps described in the [notes](https://www.overleaf.com/read/ghkbfrmtjvjb#f58410)
+# and showcases how to obtain the coefficients ``A_k`` of the Taylor series
 #
 # ```math
 # W(Z) = \sum_{k=1}^\infty A_k Z^k
 # ```
 #
-# and also coefficients ``B_k`` the inverse Taylor series
+# and also coefficients ``B_k`` of the inverse Taylor series
 #
 # ```math
 # Z(W) = \sum_{k=1}^\infty B_k Z^k
@@ -274,7 +279,7 @@ nothing #hide
 # Now let's reproduce the results by [Rancic-etal-1996](@citet). For that, we need to choose ``r = 1 - 10^{-7}``.
 
 using Random; Random.seed!(123) #hide
-r = 1 - 1e-7
+r = 1 - 1e-4
 A_coefficients, B_coefficients = find_taylor_coefficients(r)
 
 nothing #hide
