@@ -43,7 +43,7 @@ function find_angles(φ)
     return φ′⁻, φ′⁺
 end
 
-nothing #hide
+
 
 # Next we define the cubic roots and be carefull to choose the appropriate branch.
 # We use `cbrt` to go from ``W`` to ``w`` and `cbrt′` to go from ``W'`` to ``w'``.
@@ -69,8 +69,6 @@ function cbrt′(z::Complex)
     end
     return r^(1/3) * cis(θ)
 end
-
-nothing #hide
 
 # A few more utility methods and the actual iterative algorithm.
 
@@ -274,15 +272,11 @@ function find_taylor_coefficients(r = 1 - 1e-7;
     return A_coefficients, B_coefficients
 end
 
-nothing #hide
-
 # Now let's reproduce the results by [Rancic-etal-1996](@citet). For that, we need to choose ``r = 1 - 10^{-7}``.
 
 using Random; Random.seed!(123) #hide
-r = 1 - 1e-4
+r = 1 - 1e-7
 A_coefficients, B_coefficients = find_taylor_coefficients(r)
-
-nothing #hide
 
 # The first few coefficients are:
 
