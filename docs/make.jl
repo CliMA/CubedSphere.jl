@@ -1,11 +1,24 @@
-pushfirst!(LOAD_PATH, joinpath(@__DIR__, "..")) # add CubedSphere.jl to environment stack
-
 using
   Documenter,
   DocumenterCitations,
   Literate,
-  CairoMakie,
+  GLMakie,
   CubedSphere
+
+const EXAMPLES_DIR = joinpath(@__DIR__, "..", "examples")
+const OUTPUT_DIR   = joinpath(@__DIR__, "src/literated")
+  
+to_be_literated = [
+    "compute_taylor_coefficients.jl"
+]
+
+for file in to_be_literated
+    filepath = joinpath(EXAMPLES_DIR, file)
+    withenv("JULIA_DEBUG" => "Literate") do
+        Literate.markdown(filepath, OUTPUT_DIR; flavor = Literate.DocumenterFlavor(), execute = true)
+    end
+end
+
 
 #####
 ##### Build and deploy docs
@@ -20,6 +33,9 @@ format = Documenter.HTML(
 pages = [
     "Home" => "index.md",
     "Conformal Cubed Sphere" => "conformal_cubed_sphere.md",
+    "Advanced" => [
+      "Reproduce Taylor coefficients for conformal mapping" => "literated/compute_taylor_coefficients.md",
+      ],
     "References" => "references.md",
     "Library" => [ 
         "Contents"       => "library/outline.md",

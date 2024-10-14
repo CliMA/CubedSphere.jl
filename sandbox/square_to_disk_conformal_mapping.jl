@@ -16,7 +16,7 @@ function visualize_conformal_mapping(w; x_min, y_min, x_max, y_max, n_lines, n_s
     zs = cat(z₁, z₂, dims=1)
     ws = [w.(z) for z in zs]
 
-    fig = Figure(resolution=(1200, 1200), fontsize=30)
+    fig = Figure(size=(1200, 1200), fontsize=30)
     ax = Axis(fig[1, 1];
               xlabel = "Re(w)",
               ylabel = "Im(w)",

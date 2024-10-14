@@ -1,8 +1,10 @@
+# Compute Rančić coefficients with the method described in
+# [Rancic-etal-1996](@citet)
+
 using GLMakie
 using Printf
-using CubedSphere
 
-using CubedSphere: find_taylor_coefficients, cbrt′, find_N
+include(joinpath(@__DIR__, "../examples/compute_taylor_coefficients.jl"))
 
 function plot_transformation(A, r, Nφ; Lφ=π/2)
     dφ = Lφ / Nφ
@@ -27,7 +29,7 @@ function plot_transformation(A, r, Nφ; Lφ=π/2)
     w̃  = @. (1 - w̃′) / (1 + w̃′/2)
     W̃  = @. w̃^3
 
-    fig = Figure(resolution=(1200, 1800), fontsize=30)
+    fig = Figure(size=(1200, 1800), fontsize=30)
 
     axz  = Axis(fig[1, 1], title="z")
     axZ  = Axis(fig[1, 2], title="Z")
@@ -54,20 +56,20 @@ function plot_transformation(A, r, Nφ; Lφ=π/2)
         ylims!(ax, -lim, lim)
     end
 
-    scatter!(axz, real.(z), imag.(z), linewidth=4)
+    scatter!(axz, real.(z), imag.(z))
     scatter!(axZ, real.(Z), imag.(Z))
 
-    scatter!(axw, real.(w), imag.(w), color=(:black, 0.5), linewidth=8, label=L"w")
-    scatter!(axw, real.(w̃), imag.(w̃), color=(:orange, 0.8), linewidth=4, label=L"w̃")
+    scatter!(axw, real.(w), imag.(w), color=(:black, 0.5), label=L"w")
+    scatter!(axw, real.(w̃), imag.(w̃), color=(:orange, 0.8), label=L"w̃")
 
-    scatter!(axW, real.(W), imag.(W), color=(:black, 0.5), linewidth=8, label=L"W")
-    scatter!(axW, real.(W̃), imag.(W̃), color=(:orange, 0.8), linewidth=4, label=L"W̃")
+    scatter!(axW, real.(W), imag.(W), color=(:black, 0.5), label=L"W")
+    scatter!(axW, real.(W̃), imag.(W̃), color=(:orange, 0.8), label=L"W̃")
 
-    scatter!(axwp, real.(w′), imag.(w′), color=(:black, 0.5), linewidth=8, label=L"w′")
-    scatter!(axwp, real.(w̃′), imag.(w̃′), color=(:orange, 0.8), linewidth=4, label=L"w̃′")
+    scatter!(axwp, real.(w′), imag.(w′), color=(:black, 0.5), label=L"w′")
+    scatter!(axwp, real.(w̃′), imag.(w̃′), color=(:orange, 0.8), label=L"w̃′")
 
-    scatter!(axWp, real.(W′), imag.(W′), color=(:black, 0.5), linewidth=8, label=L"W′")
-    scatter!(axWp, real.(W̃′), imag.(W̃′), color=(:orange, 0.8), linewidth=4, label=L"W̃′")
+    scatter!(axWp, real.(W′), imag.(W′), color=(:black, 0.5), label=L"W′")
+    scatter!(axWp, real.(W̃′), imag.(W̃′), color=(:orange, 0.8), label=L"W̃′")
 
     for ax in [axw, axW, axwp, axWp]
         axislegend(ax)
@@ -78,9 +80,9 @@ function plot_transformation(A, r, Nφ; Lφ=π/2)
     return fig
 end
 
-r = 1 - 1e-7
+r = 1 - 1e-6
 
-Nφ = find_N(r; decimals=15)
+Nφ = find_N(r; decimals=10)
 
 maximum_coefficients = 128
 

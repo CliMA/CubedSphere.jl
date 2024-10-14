@@ -208,42 +208,6 @@ function conformal_cubed_sphere_coordinates(Nx, Ny; non_uniform_spacing = false,
 end
 
 
-function visualize_cubed_sphere_2D(X, Y, Z, filename)
-    axis_kwargs_2D = (xlabelsize = 22.5, ylabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5, 
-                      xticklabelpad = 10, yticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold, 
-                      xlabel = "x", ylabel = "y")
-    hide_decorations = false
-    
-    colors = [:orange, :red, :deepskyblue, :purple, :green, :blue]
-
-    fig = Figure(resolution = (750, 750))
-
-    # ax2D = Axis(fig[1, 1]; aspect = 1, title = "Cubed Sphere", axis_kwargs_2D...)
-    ax2D = Axis(fig[1, 1]; aspect = 1, title = "", axis_kwargs_2D...)
-    hide_decorations && hidedecorations!(ax2D)
-    wireframe!(ax2D, X, Y, Z, color = colors[1])
-
-    rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
-    
-    for (i, R) in enumerate(rotations)
-        X′ = similar(X)
-        Y′ = similar(Y)
-        Z′ = similar(Z)
-    
-        for I in CartesianIndices(X)
-            X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
-        end
-    
-        wireframe!(ax2D, X′, Y′, Z′, color = colors[i + 1])
-    end
-    
-    colsize!(fig.layout, 1, Auto(0.8))
-    colgap!(fig.layout, 40)
-    
-    save(filename, fig)
-end
-
-
 function specify_parameters(spacing_type)
     θ = 0.0
     if spacing_type == "geometric"

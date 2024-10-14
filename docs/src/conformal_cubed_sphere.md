@@ -2,7 +2,7 @@
 
 ## Conformal cubed sphere mapping
 
-The conformal method for projecting the cube on the sphere was first described the paper by [Rancic-etal-1996](@citet).
+The conformal method for projecting the cube on the sphere was first described by [Rancic-etal-1996](@citet).
 
 > Rančić et al., (1996). A global shallow-water model using an expanded spherical cube - Gnomonic versus conformal coordinates, _Quarterly Journal of the Royal Meteorological Society_, **122 (532)**, 959-982. doi:[10.1002/qj.49712253209](https://doi.org/10.1002/qj.49712253209)
 
@@ -16,13 +16,12 @@ We can visualize the mapping.
 
 ```@setup 1
 using Rotations
-using CairoMakie
-CairoMakie.activate!(type = "svg")
+using GLMakie
 using CubedSphere
 ```
 
 ```@example 1
-using CairoMakie
+using GLMakie
 using CubedSphere
 
 N = 16
@@ -38,13 +37,16 @@ for (j, y′) in enumerate(y), (i, x′) in enumerate(x)
     X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x′, y′)
 end
 
-fig = Figure(resolution = (800, 400))
+fig = Figure(size = (800, 400))
 
-ax2D = Axis(fig[1, 1], aspect = 1)
-ax3D = Axis3(fig[1, 2], aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)))
+ax2D = Axis(fig[1, 1],
+            aspect = 1,
+            title = "Cubed Sphere Panel")
+ax3D = Axis3(fig[1, 2],
+             aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
+             title = "Cubed Sphere Panel")
 
 for ax in [ax2D, ax3D]
-    hidedecorations!(ax)
     wireframe!(ax, X, Y, Z)
 end
 
@@ -54,39 +56,38 @@ colgap!(fig.layout, 40)
 current_figure()
 ```
 
-Above, we plotted the mapping from the cube's face onto the sphere both in a 2D
-projection (e.g., overlooking the sphere down to its North Pole) and in 3D space.
+Above, we plotted the mapping from the cube's face onto the sphere both in a 2D projection (e.g., overlooking
+the sphere down to its North Pole) and in 3D space.
 
-We can then use [Rotations.jl](https://github.com/JuliaGeometry/Rotations.jl) to rotate
-the face of the sphere that includes the North Pole and this way obtain all six faces of
-the sphere.
+We can then use [Rotations.jl](https://github.com/JuliaGeometry/Rotations.jl) to rotate the face of the
+sphere that includes the North Pole and obtain all six faces of the sphere.
 
 ```@example 1
 using Rotations
 
 fig = Figure(resolution = (800, 400))
 
-ax2D = Axis(fig[1, 1], aspect = 1)
-ax3D = Axis3(fig[1, 2], aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)))
+ax2D = Axis(fig[1, 1],
+            aspect = 1,
+            title = "Cubed Sphere")
+ax3D = Axis3(fig[1, 2],
+             aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
+             title = "Cubed Sphere")
 
-for ax in [ax2D, ax3D]
-    wireframe!(ax, X, Y, Z)
-end
+identity = one(RotMatrix{3})
+rotations = (RotY(π/2), RotX(-π/2), identity, RotY(-π/2), RotX(π/2), RotX(π))
 
-rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
-
-for R in rotations
+for rotation in rotations
     X′ = similar(X)
     Y′ = similar(Y)
     Z′ = similar(Z)
 
     for I in CartesianIndices(X)
-        X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
+        X′[I], Y′[I], Z′[I] = rotation * [X[I], Y[I], Z[I]]
     end
 
-    for ax in [ax2D, ax3D]
-        wireframe!(ax, X′, Y′, Z′)
-    end
+    wireframe!(ax2D, X′, Y′, Z′)
+    wireframe!(ax3D, X′, Y′, Z′)
 end
 
 colsize!(fig.layout, 1, Auto(0.8))

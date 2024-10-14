@@ -6,9 +6,7 @@ export compute_cell_areas, conformal_cubed_sphere_coordinates, optimized_non_uni
 using Printf
 using TaylorSeries
 
-include("complex_jacobi_elliptic.jl")
 include("rancic_taylor_coefficients.jl")
-include("conformal_map_taylor_coefficients.jl")
 include("conformal_cubed_sphere.jl")
 include("cartesian_to_lat_lon.jl")
 include("non_uniform_conformal_cubed_sphere.jl")
