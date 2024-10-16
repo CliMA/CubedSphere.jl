@@ -99,7 +99,7 @@ function visualize_conformal_cubed_sphere_panel_2D(Nx, Ny, axis_kwargs_2D, hide_
     
     fig = Figure(resolution = (750, 750))
     
-    ax2D = Axis(fig[1, 1]; aspect = 1, title = "Cubed Sphere Panel", axis_kwargs_2D...)
+    ax2D = Axis(fig[1, 1]; aspect = 1, title = "Conformal Cubed Sphere Panel", axis_kwargs_2D...)
     hide_decorations && hidedecorations!(ax2D)
     wireframe!(ax2D, X, Y, Z, color = color)
     
@@ -115,8 +115,8 @@ function visualize_conformal_cubed_sphere_panel_3D(Nx, Ny, axis_kwargs_3D, hide_
     
     fig = Figure(resolution = (750, 750))
     
-    ax3D = Axis3(fig[1, 1]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = "Cubed Sphere Panel", 
-                 axis_kwargs_3D...)
+    ax3D = Axis3(fig[1, 1]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
+                 title = "Conformal Cubed Sphere Panel", axis_kwargs_3D...)
     hide_decorations && hidedecorations!(ax3D)
     wireframe!(ax3D, X, Y, Z, color = color)
     
@@ -132,9 +132,9 @@ function visualize_conformal_cubed_sphere_panel_2D_3D(Nx, Ny, axis_kwargs_2D, ax
     
     fig = Figure(resolution = (1500, 750))
     
-    ax2D = Axis(fig[1, 1]; aspect = 1, title = "Cubed Sphere Panel", axis_kwargs_2D...)
-    ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = "Cubed Sphere Panel", 
-                 axis_kwargs_3D...)
+    ax2D = Axis(fig[1, 1]; aspect = 1, title = "Conformal Cubed Sphere Panel", axis_kwargs_2D...)
+    ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
+                 title = "Conformal Cubed Sphere Panel", axis_kwargs_3D...)
     
     for ax in [ax2D, ax3D]
         hide_decorations && hidedecorations!(ax)
@@ -148,12 +148,13 @@ function visualize_conformal_cubed_sphere_panel_2D_3D(Nx, Ny, axis_kwargs_2D, ax
 end
 
 
-function visualize_conformal_cubed_sphere_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, colors)
+function visualize_conformal_cubed_sphere_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, colors;
+                                             title = "Conformal Cubed Sphere: 2D Projection")
     x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
 
     fig = Figure(resolution = (750, 750))
 
-    ax2D = Axis(fig[1, 1]; aspect = 1, title = "Cubed Sphere", axis_kwargs_2D...)
+    ax2D = Axis(fig[1, 1]; aspect = 1, title = title, axis_kwargs_2D...)
     hide_decorations && hidedecorations!(ax2D)
     wireframe!(ax2D, X, Y, Z, color = colors[1])
 
@@ -180,7 +181,7 @@ function visualize_conformal_cubed_sphere_2D(Nx, Ny, axis_kwargs_2D, hide_decora
 end
 
 
-function visualize_conformal_cubed_sphere_2D(X, Y, Z, filename)
+function visualize_conformal_cubed_sphere_2D(X, Y, Z, filename; title = "Conformal Cubed Sphere: 2D Projection")
     axis_kwargs_2D = (xlabelsize = 22.5, ylabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5,
                       xticklabelpad = 10, yticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold,
                       xlabel = "x", ylabel = "y")
@@ -190,7 +191,7 @@ function visualize_conformal_cubed_sphere_2D(X, Y, Z, filename)
 
     fig = Figure(resolution = (750, 750))
 
-    ax2D = Axis(fig[1, 1]; aspect = 1, title = "Cubed Sphere", axis_kwargs_2D...)
+    ax2D = Axis(fig[1, 1]; aspect = 1, title = title, axis_kwargs_2D...)
     hide_decorations && hidedecorations!(ax2D)
     wireframe!(ax2D, X, Y, Z, color = colors[1])
 
@@ -215,13 +216,13 @@ function visualize_conformal_cubed_sphere_2D(X, Y, Z, filename)
 end
 
 
-function visualize_conformal_cubed_sphere_3D(Nx, Ny, axis_kwargs_3D, hide_decorations, colors, alphas)
+function visualize_conformal_cubed_sphere_3D(Nx, Ny, axis_kwargs_3D, hide_decorations, colors, alphas;
+                                             title = "Conformal Cubed Sphere: 3D View")
     x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
 
     fig = Figure(resolution = (750, 750))
 
-    ax3D = Axis3(fig[1, 1]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = "Cubed Sphere", 
-                 axis_kwargs_3D...)
+    ax3D = Axis3(fig[1, 1]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = title, axis_kwargs_3D...)
     hide_decorations && hidedecorations!(ax3D)
     
     wireframe!(ax3D, X, Y, Z, color = colors[1], alpha = alphas[1])
@@ -249,7 +250,7 @@ function visualize_conformal_cubed_sphere_3D(Nx, Ny, axis_kwargs_3D, hide_decora
 end
 
 
-function visualize_conformal_cubed_sphere_3D(X, Y, Z, filename)
+function visualize_conformal_cubed_sphere_3D(X, Y, Z, filename; title = "Conformal Cubed Sphere: 3D View")
     axis_kwargs_3D = (xlabelsize = 22.5, ylabelsize = 22.5, zlabelsize = 22.5, xticklabelsize = 17.5,
                       yticklabelsize = 17.5, zticklabelsize = 17.5, xticklabelpad = 10, yticklabelpad = 10,
                       zticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold, xlabel = "x",
@@ -261,8 +262,7 @@ function visualize_conformal_cubed_sphere_3D(X, Y, Z, filename)
 
     fig = Figure(resolution = (750, 750))
 
-    ax3D = Axis3(fig[1, 1]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = "Cubed Sphere",
-                 axis_kwargs_3D...)
+    ax3D = Axis3(fig[1, 1]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = title, axis_kwargs_3D...)
     hide_decorations && hidedecorations!(ax3D)
 
     wireframe!(ax3D, X, Y, Z, color = colors[1], alpha = alphas[1])
@@ -289,13 +289,14 @@ end
 
 
 function visualize_conformal_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hide_decorations, colors,
-                                                alphas)
+                                                alphas; title_2D = "Conformal Cubed Sphere: 2D Projection",
+                                                title_3D = "Conformal Cubed Sphere: 3D View")
     x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
 
     fig = Figure(resolution = (1500, 750))
 
-    ax2D = Axis(fig[1, 1]; aspect = 1, title = "Cubed Sphere", axis_kwargs_2D...)
-    ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = "Cubed Sphere", 
+    ax2D = Axis(fig[1, 1]; aspect = 1, title = title_2D, axis_kwargs_2D...)
+    ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = title_3D,
                  axis_kwargs_3D...)
     
     for ax in [ax2D, ax3D]
@@ -327,7 +328,8 @@ function visualize_conformal_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwa
 end
 
 
-function visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename)
+function visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename; title_2D = "Conformal Cubed Sphere: 2D Projection",
+                                                title_3D = "Conformal Cubed Sphere: 3D View")
     axis_kwargs_2D = (xlabelsize = 22.5, ylabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5, 
                       xticklabelpad = 10, yticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold, 
                       xlabel = "x", ylabel = "y")
@@ -340,11 +342,11 @@ function visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename)
     colors = [:orange, :red, :deepskyblue, :purple, :green, :blue]
     alphas = [1, 1, 0.1125, 0.1125, 1, 0.1125]
 
-    fig = Figure(resolution = (1600, 750))
+    fig = Figure(resolution = (1500, 750))
 
-    ax2D = Axis(fig[1, 1]; aspect = 1, title = "Conformal Cubed Sphere Projection in 2D", axis_kwargs_2D...)
-    ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
-                 title = "Conformal Cubed Sphere in 3D", axis_kwargs_3D...)
+    ax2D = Axis(fig[1, 1]; aspect = 1, title = title_2D, axis_kwargs_2D...)
+    ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = title_3D,
+                 axis_kwargs_3D...)
     
     for ax in [ax2D, ax3D]
         hide_decorations && hidedecorations!(ax)

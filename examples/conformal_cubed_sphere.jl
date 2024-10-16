@@ -38,26 +38,27 @@ function conformal_cubed_sphere_2D_3D_visualization_example()
                       ylabel = "y", zlabel = "z")
     hide_decorations = false
     color = :blue
-    colors = [:purple, :red, :orange, :cyan, :green, :blue]
+    colors = [:orange, :red, :deepskyblue, :purple, :green, :blue]
     alphas = [1, 1, 0.1125, 0.1125, 1, 0.1125]
 
     fig = visualize_conformal_cubed_sphere_panel_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, color)
-    save("cubed_sphere_panel_2D.png", fig)
+    save("conformal_cubed_sphere_panel_2D.png", fig)
 
     fig = visualize_conformal_cubed_sphere_panel_3D(Nx, Ny, axis_kwargs_3D, hide_decorations, color)
-    save("cubed_sphere_panel_3D.png", fig)
+    save("conformal_cubed_sphere_panel_3D.png", fig)
 
     fig = visualize_conformal_cubed_sphere_panel_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hide_decorations, color)
-    save("cubed_sphere_panel_2D_3D.png", fig)
+    save("conformal_cubed_sphere_panel_2D_3D.png", fig)
 
     fig = visualize_conformal_cubed_sphere_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, colors)
-    save("cubed_sphere_2D.png", fig)
+    save("conformal_cubed_sphere_2D.png", fig)
 
     fig = visualize_conformal_cubed_sphere_3D(Nx, Ny, axis_kwargs_3D, hide_decorations, colors, alphas)
-    save("cubed_sphere_3D.png", fig)
+    save("conformal_cubed_sphere_3D.png", fig)
 
-    fig = visualize_conformal_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hide_decorations, colors, alphas)
-    save("cubed_sphere_2D_3D.png", fig)
+    fig = visualize_conformal_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hide_decorations, colors,
+                                                 alphas)
+    save("conformal_cubed_sphere_2D_3D.png", fig)
 end
 
 
@@ -79,17 +80,28 @@ function visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing_
                                                            spacing_type = spacing_type)
     end
     
+    if spacing_type == "geometric"
+        spacing_type_title = "Geometric"
+    elseif spacing_type == "exponential"
+        spacing_type_title = "Exponential"
+    end
+
     if optimized
         file_name_suffix = "_optimized"
+        title_2D = "CCS with Adaptive $spacing_type_title Spacing and\nOptimized with EKI: 2D Projection"
+        title_3D = "CCS with Adaptive $spacing_type_title Spacing\nand Optimized with EKI: 3D View"
     else
         file_name_suffix = "_unoptimized"
+        title_2D = "CCS with Adaptive $spacing_type_title Spacing:\n2D Projection"
+        title_3D = "CCS with Adaptive $spacing_type_title Spacing:\n3D View"
     end
-    visualize_conformal_cubed_sphere_2D(X, Y, Z,
-                              "non_uniform_conformal_cubed_sphere_2D_" * spacing_type * file_name_suffix * ".png")
-    visualize_conformal_cubed_sphere_3D(X, Y, Z,
-                              "non_uniform_conformal_cubed_sphere_3D_" * spacing_type * file_name_suffix * ".png")
-    visualize_conformal_cubed_sphere_2D_3D(X, Y, Z,
-                                 "non_uniform_conformal_cubed_sphere_2D_3D_" * spacing_type * file_name_suffix * ".png")
+    visualize_conformal_cubed_sphere_2D(
+    X, Y, Z, "non_uniform_conformal_cubed_sphere_2D_" * spacing_type * file_name_suffix * ".png"; title = title_2D)
+    visualize_conformal_cubed_sphere_3D(
+    X, Y, Z, "non_uniform_conformal_cubed_sphere_3D_" * spacing_type * file_name_suffix * ".png"; title = title_3D)
+    visualize_conformal_cubed_sphere_2D_3D(
+    X, Y, Z, "non_uniform_conformal_cubed_sphere_2D_3D_" * spacing_type * file_name_suffix * ".png";
+    title_2D = title_2D, title_3D = title_3D)
     
     cell_areas = compute_cell_areas(X, Y)
     minimum_cell_area = minimum(cell_areas)
