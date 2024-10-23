@@ -334,7 +334,7 @@ function optimize!(Nx, Ny, spacing_type, θ; nIterations = 10, Δt = 1)
     @inbounds for i in 1:nIterations
         θ̄ = mean(θ)
 
-		# Evaluating the forward map for all ensemble members. This is the most expensive step because it need to  run
+		# Evaluating the forward map for all ensemble members. This is the most expensive step because it needs to run
         # the model nEnsemble times. For the moment our model is simple, but imagine doing this with a full climate
         # model! Luckily this step is embarassingly parallelizeable.
         
