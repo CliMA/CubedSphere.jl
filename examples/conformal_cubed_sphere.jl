@@ -172,10 +172,14 @@ function minimum_cell_width_variation_with_resolution(spacing_type, optimized)
 end
 
 
-for optimized in [false, true]
-    for spacing_type in ["geometric", "exponential"]
-        @info "Computing minimum cell width variation with resolution for spacing = $spacing_type " *
-        "and optimized = $optimized"
-        minimum_cell_width_variation_with_resolution(spacing_type, optimized)
+compute_and_plot_minimum_cell_width_variation_with_resolution = false
+
+if compute_and_plot_minimum_cell_width_variation_with_resolution
+    for optimized in [false, true]
+        for spacing_type in ["geometric", "exponential"]
+            @info "Computing minimum cell width variation with resolution for spacing = $spacing_type " *
+            "and optimized = $optimized"
+            minimum_cell_width_variation_with_resolution(spacing_type, optimized)
+        end
     end
 end
