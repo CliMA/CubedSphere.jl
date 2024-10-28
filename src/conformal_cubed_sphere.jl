@@ -45,7 +45,6 @@ julia> conformal_cubed_sphere_mapping(1, 1)
 * [Rancic-etal-1996](@cite) Rančić et al., *Q. J. R. Meteorol.*, (1996).
 """
 function conformal_cubed_sphere_mapping(x, y; W_map=W_Rancic)
-
     (abs(x) > 1 || abs(y) > 1) && throw(ArgumentError("(x, y) must lie within [-1, 1] x [-1, 1]"))
 
     X = xᶜ = abs(x)
