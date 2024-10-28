@@ -70,7 +70,7 @@ function visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing_
     visualize_conformal_cubed_sphere_2D(X, Y, Z, "conformal_cubed_sphere_2D.png")
     visualize_conformal_cubed_sphere_3D(X, Y, Z, "conformal_cubed_sphere_3D.png")
     visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, "conformal_cubed_sphere_2D_3D.png")
-    cell_areas = compute_cell_areas(X, Y)
+    cell_areas = compute_cell_areas(X, Y, Z)
     reference_minimum_cell_area = minimum(cell_areas)
     
     if optimized
@@ -103,7 +103,7 @@ function visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing_
     X, Y, Z, "non_uniform_conformal_cubed_sphere_2D_3D_" * spacing_type * file_name_suffix * ".png";
     title_2D = title_2D, title_3D = title_3D)
     
-    cell_areas = compute_cell_areas(X, Y)
+    cell_areas = compute_cell_areas(X, Y, Z)
     minimum_cell_area = minimum(cell_areas)
     print("The normalized minimum cell width of the non-uniform conformal cubed sphere for spacing = $spacing_type " 
           * "and optimized = $optimized is $(sqrt(minimum_cell_area/reference_minimum_cell_area))\n")
@@ -129,7 +129,7 @@ function minimum_cell_width_variation_with_resolution(spacing_type, optimized)
     for (i, resolution) in enumerate(resolutions)
         Nx, Ny = resolution + 1, resolution + 1
         x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
-        cell_areas = compute_cell_areas(X, Y)
+        cell_areas = compute_cell_areas(X, Y, Z)
         minimum_reference_cell_area = minimum(cell_areas)
         if optimized
             x, y, X, Y, Z = optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing_type)
@@ -137,7 +137,7 @@ function minimum_cell_width_variation_with_resolution(spacing_type, optimized)
             x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny; non_uniform_spacing = true,
                                                                spacing_type = spacing_type)
         end
-        cell_areas = compute_cell_areas(X, Y)
+        cell_areas = compute_cell_areas(X, Y, Z)
         minimum_cell_area = minimum(cell_areas)
         normalized_minimum_cell_widths[i] = sqrt(minimum_cell_area/minimum_reference_cell_area)
     end

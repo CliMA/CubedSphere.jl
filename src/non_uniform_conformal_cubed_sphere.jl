@@ -3,78 +3,118 @@ using Statistics: mean, norm
 using Random
 
 
-function compute_deviation_from_isotropy_at_point(X, Y, i, j)
-    x1 = X[i, j]
-    y1 = Y[i, j]
-    x2 = X[i+1, j]
-    y2 = Y[i+1, j]
-    x3 = X[i+1, j+1]
-    y3 = Y[i+1, j+1]
-    x4 = X[i, j+1]
-    y4 = Y[i, j+1]
+"""
+    spherical_distance(a₁::AbstractVector, a₂::AbstractVector)
 
-    # Compute the vectors.
-    v1 = [x2 - x1, y2 - y1]
-    v2 = [x3 - x2, y3 - y2]
-    v3 = [x4 - x3, y4 - y3]
-    v4 = [x1 - x4, y1 - y4]
+Compute the arc length (distance) between two points on the unit sphere, given their Cartesian coordinates `a₁` and
+`a₂`. The points `a₁` and `a₂` should be unit vectors (magnitude 1), representing locations on the sphere.
+"""
+function spherical_distance(a₁::AbstractVector, a₂::AbstractVector)
+    (sum(a₁.^2) ≈ 1 && sum(a₂.^2) ≈ 1) || error("a₁ and a₂ must be unit vectors")
 
-    # Compute the deviation from isotropy.
-    deviation_from_isotropy_at_point = (
-    abs(norm(v1) - norm(v2)) + abs(norm(v2) - norm(v3)) + abs(norm(v3) - norm(v4)) + abs(norm(v4) - norm(v1)))
+    # Compute the dot product and calculate the arccosine to find the angle.
+    cosθ = dot(a₁, a₂)
 
-    return deviation_from_isotropy_at_point
+    # Ensure the result is within the domain of acos due to potential floating-point errors.
+    cosθ = clamp(cosθ, -1.0, 1.0)
+
+    # Return the arc length, which is the angle between the two points.
+    return acos(cosθ)
 end
 
 
-function compute_deviation_from_isotropy(X, Y)
+"""
+    spherical_area_triangle(a::AbstractVector, b::AbstractVector, c::AbstractVector)
+
+Return the area of a spherical triangle on the unit sphere with vertices given by the 3-vectors `a`, `b`, and `c` whose 
+origin is the the center of the sphere. The formula was first given by Eriksson (1990).
+
+If we denote with ``A``, ``B``, and ``C`` the inner angles of the spherical triangle and with ``a``, ``b``, and ``c``
+the side of the triangle then, it has been known since Euler and Lagrange that
+``\\tan(E/2) = P / (1 + \\cos a + \\cos b + \\cos c)``, where ``E = A + B + C - π`` is the triangle's excess and
+``P = (1 - \\cos²a - \\cos²b - \\cos²c + 2 \\cos a \\cos b \\cos c)^{1/2}``.
+
+On the unit sphere, ``E`` is precisely the area of the spherical triangle. Erikkson (1990) showed that ``P`` above is
+the same as the volume defined by the vectors `a`, `b`, and `c`, that is ``P = |𝐚 \\cdot (𝐛 \\times 𝐜)|``.
+
+References
+==========
+* Eriksson, F. (1990) On the measure of solid angles, Mathematics Magazine, 63 (3), 184-187, doi:10.1080/0025570X.1990.11977515
+"""
+function spherical_area_triangle(a₁::AbstractVector, a₂::AbstractVector, a₃::AbstractVector)
+    (sum(a₁.^2) ≈ 1 && sum(a₂.^2) ≈ 1 && sum(a₃.^2) ≈ 1) || error("a₁, a₂, a₃ must be unit vectors")
+
+    tan½E = abs(dot(a₁, cross(a₂, a₃)))
+    tan½E /= 1 + dot(a₁, a₂) + dot(a₂, a₃) + dot(a₁, a₃)
+
+    return 2atan(tan½E)
+end
+
+
+"""
+    spherical_area_quadrilateral(a₁, a₂, a₃, a₄)
+
+Return the area of a spherical quadrilateral on the unit sphere whose points are given by 3-vectors, `a`, `b`, `c`, and
+`d`. The area of the quadrilateral is given as the sum of the ares of the two non-overlapping triangles. To avoid having
+to pick the triangles appropriately ensuring they are not overlapping, we compute the area of the quadrilateral as the
+half the sum of the areas of all four potential triangles formed by `a₁`, `a₂`, `a₃`, and `a₄`.
+"""
+spherical_area_quadrilateral(a::AbstractVector, b::AbstractVector, c::AbstractVector, d::AbstractVector) =
+    1/2 * (spherical_area_triangle(a, b, c) + spherical_area_triangle(a, b, d) +
+           spherical_area_triangle(a, c, d) + spherical_area_triangle(b, c, d))
+
+
+function spherical_quadrilateral_vertices(X, Y, Z, i, j)
+    x₁ = X[i, j]
+    y₁ = Y[i, j]
+    z₁ = Z[i, j]
+    a₁ = [x₁, y₁, z₁]
+    x₂ = X[i+1, j]
+    y₂ = Y[i+1, j]
+    z₂ = Z[i+1, j]
+    a₂ = [x₂, y₂, z₂]
+    x₃ = X[i+1, j+1]
+    y₃ = Y[i+1, j+1]
+    z₃ = Z[i+1, j+1]
+    a₃ = [x₃, y₃, z₃]
+    x₄ = X[i, j+1]
+    y₄ = Y[i, j+1]
+    z₄ = Z[i, j+1]
+    a₄ = [x₄, y₄, z₄]
+
+    return a₁, a₂, a₃, a₄
+end
+
+
+function compute_deviation_from_isotropy(X, Y, Z)
     Nx, Ny = size(X)
     deviation_from_isotropy = zeros(Nx-1, Ny-1)
 
     for j in 1:Ny-1, i in 1:Nx-1
-        deviation_from_isotropy[i, j] = compute_deviation_from_isotropy_at_point(X, Y, i, j)
+        a₁, a₂, a₃, a₄ = spherical_quadrilateral_vertices(X, Y, Z, i, j)
+
+        # Compute the arc lengths (distances) between the points a₁ and a₂, a₂ and a₃, a₃ and a₄, and a₄ and a₁ on the
+        # unit sphere.
+        d₁ = spherical_distance(a₁, a₂)
+        d₂ = spherical_distance(a₂, a₃)
+        d₃ = spherical_distance(a₃, a₄)
+        d₄ = spherical_distance(a₄, a₁)
+
+        # Compute the deviation from isotropy.
+        deviation_from_isotropy[i, j] = abs(d₁ - d₂) + abs(d₂ - d₃) + abs(d₃ - d₄) + abs(d₄ - d₁)
     end
 
     return norm(deviation_from_isotropy)
 end
 
 
-function compute_cell_area(X, Y, i, j)
-    x1 = X[i,   j]
-    y1 = Y[i,   j]
-    x2 = X[i+1, j]
-    y2 = Y[i+1, j]
-    x3 = X[i+1, j+1]
-    y3 = Y[i+1, j+1]
-    x4 = X[i,   j+1]
-    y4 = Y[i,   j+1]
-
-    # Compute vectors.
-    v1 = [x2 - x1, y2 - y1]
-    v2 = [x3 - x2, y3 - y2]
-    v3 = [x4 - x3, y4 - y3]
-    v4 = [x1 - x4, y1 - y4]
-
-    # Compute angles.
-    angle1 = abs(acos(clamp(dot(normalize(v1), normalize(-v4)), -1, 1)))
-    angle3 = abs(acos(clamp(dot(normalize(v3), normalize(-v2)), -1, 1)))
-
-    # Compute area using triangles formed by the cell.
-    s1 = 0.5 * norm(v1) * norm(v4) * sin(angle1)
-    s3 = 0.5 * norm(v3) * norm(v2) * sin(angle3)
-
-    cell_area = s1 + s3
-
-    return cell_area
-end
-
-
-function compute_cell_areas(X, Y)
+function compute_cell_areas(X, Y, Z)
     Nx, Ny = size(X)
     cell_areas = zeros(Nx-1, Ny-1)
 
     for j in 1:Ny-1, i in 1:Nx-1
-        cell_areas[i, j] = compute_cell_area(X, Y, i, j)
+        a₁, a₂, a₃, a₄ = spherical_quadrilateral_vertices(X, Y, Z, i, j)
+        cell_areas[i, j] = spherical_area_quadrilateral(a₁, a₂, a₃, a₄)
     end
 
     return cell_areas
@@ -248,11 +288,11 @@ function specify_weights_for_model_diagnostics()
 end
 
 
-function compute_model_diagnostics(X, Y, minimum_reference_cell_area)
-    cell_areas = compute_cell_areas(X, Y)
+function compute_model_diagnostics(X, Y, Z, minimum_reference_cell_area)
+    cell_areas = compute_cell_areas(X, Y, Z)
     normalized_minimum_cell_width = sqrt(minimum(cell_areas)/minimum_reference_cell_area)
     
-    deviation_from_isotropy = compute_deviation_from_isotropy(X, Y)
+    deviation_from_isotropy = compute_deviation_from_isotropy(X, Y, Z)
 
     model_diagnostics = vcat(normalized_minimum_cell_width, deviation_from_isotropy)
     
@@ -260,14 +300,13 @@ function compute_model_diagnostics(X, Y, minimum_reference_cell_area)
 end
 
 
-function compute_weighted_model_diagnostics(Nx, Ny, model_diagnostics)
+function compute_weighted_model_diagnostics(model_diagnostics)
     normalized_minimum_cell_width = model_diagnostics[1]
     deviation_from_isotropy = model_diagnostics[2]
 
     weights = specify_weights_for_model_diagnostics()
 
-    weighted_model_diagnostics = vcat(weights[1] * normalized_minimum_cell_width,
-                                      weights[2] * deviation_from_isotropy)
+    weighted_model_diagnostics = vcat(weights[1] * normalized_minimum_cell_width, weights[2] * deviation_from_isotropy)
 
     return weighted_model_diagnostics
 end
@@ -281,22 +320,22 @@ function forward_map(Nx, Ny, spacing_type, θ)
     end
     
     x_reference, y_reference, X_reference, Y_reference, Z_reference = conformal_cubed_sphere_coordinates(Nx, Ny)
-    cell_areas = compute_cell_areas(X_reference, Y_reference)
+    cell_areas = compute_cell_areas(X_reference, Y_reference, Z_reference)
     minimum_reference_cell_area = minimum(cell_areas)
     
     x, y, X, Y, Z = (
     conformal_cubed_sphere_coordinates(Nx, Ny; non_uniform_spacing = true, spacing_type = spacing_type,
                                        ratio_raised_to_Nx_minus_one = θ[1], k₀ByNx = θ[1]))
     
-    model_diagnostics = compute_model_diagnostics(X, Y, minimum_reference_cell_area)
+    model_diagnostics = compute_model_diagnostics(X, Y, Z, minimum_reference_cell_area)
 
-    weighted_model_diagnostics = compute_weighted_model_diagnostics(Nx, Ny, model_diagnostics)
+    weighted_model_diagnostics = compute_weighted_model_diagnostics(model_diagnostics)
 
 	return weighted_model_diagnostics
 end
 
 
-function specify_ideal_weighted_model_diagnostics(Nx, Ny)
+function specify_ideal_weighted_model_diagnostics()
     normalized_minimum_cell_width = 4
 
     deviation_from_isotropy = 0.0
@@ -311,7 +350,7 @@ end
 
 
 function optimize!(Nx, Ny, spacing_type, θ; nIterations = 10, Δt = 1)
-    ideal_data = specify_ideal_weighted_model_diagnostics(Nx, Ny)
+    ideal_data = specify_ideal_weighted_model_diagnostics()
     model_data = forward_map(Nx, Ny, spacing_type, mean(θ))
 
     nData = length(ideal_data)
