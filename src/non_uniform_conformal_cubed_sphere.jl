@@ -31,10 +31,8 @@ function compute_deviation_from_isotropy(X, Y)
     Nx, Ny = size(X)
     deviation_from_isotropy = zeros(Nx-1, Ny-1)
 
-    for i in 1:Nx-1
-        for j in 1:Ny-1
-            deviation_from_isotropy[i, j] = compute_deviation_from_isotropy_at_point(X, Y, i, j)
-        end
+    for j in 1:Ny-1, i in 1:Nx-1
+        deviation_from_isotropy[i, j] = compute_deviation_from_isotropy_at_point(X, Y, i, j)
     end
 
     return norm(deviation_from_isotropy)
@@ -75,10 +73,8 @@ function compute_cell_areas(X, Y)
     Nx, Ny = size(X)
     cell_areas = zeros(Nx-1, Ny-1)
 
-    for i in 1:Nx-1
-        for j in 1:Ny-1
-            cell_areas[i, j] = compute_cell_area(X, Y, i, j)
-        end
+    for j in 1:Ny-1, i in 1:Nx-1
+        cell_areas[i, j] = compute_cell_area(X, Y, i, j)
     end
 
     return cell_areas
