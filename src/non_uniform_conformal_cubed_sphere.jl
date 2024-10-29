@@ -1,5 +1,5 @@
 using LinearAlgebra
-using Statistics: mean, norm
+using Statistics
 using Random
 
 
