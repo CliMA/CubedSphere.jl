@@ -94,6 +94,47 @@ function create_single_line_or_scatter_plot(resolution, plot_type, x, y, axis_kw
 end
 
 
+function create_multiple_line_or_scatter_plots(resolution, plot_type, x, ys, axis_kwargs, title, plot_kwargs, file_name;
+                                               specify_x_limits = false, x_limits = [0, 0], specify_y_limits = false,
+                                               y_limits = [0, 0], tight_x_axis = false, tight_y_axis = false,
+                                               halign = :center, valign = :center, format = ".png")
+    fig = Figure(resolution = resolution)
+    ax = Axis(fig[1,1]; axis_kwargs...)
+
+    for i in axes(ys, 1)
+        if plot_type == "line_plot"
+            lines!(ax, x, ys[i, :], linewidth = plot_kwargs.linewidth, color = plot_kwargs.linecolors[i],
+                   label = plot_kwargs.labels[i])
+        elseif plot_type == "scatter_plot"
+            scatter!(ax, x, ys[i, :], marker = plot_kwargs.markers[i], markersize = plot_kwargs.markersize,
+                     color = plot_kwargs.linecolors[i], label = plot_kwargs.labels[i])
+        elseif plot_type == "scatter_line_plot"
+            scatterlines!(ax, x, ys[i, :], linewidth = plot_kwargs.linewidth, marker = plot_kwargs.markers[i],
+                          markersize = plot_kwargs.markersize, color = plot_kwargs.linecolors[i],
+                          label = plot_kwargs.labels[i])
+        end
+    end
+
+    axislegend(ax; position = (halign, valign))
+
+    ax.title = title
+
+    if specify_x_limits
+        xlims!(ax, x_limits...)
+    elseif tight_x_axis
+        xlims!(ax, extrema(x)...)
+    end
+
+    if specify_y_limits
+        ylims!(ax, y_limits...)
+    elseif tight_y_axis
+        ylims!(ax, extrema(y)...)
+    end
+
+    save(file_name * format, fig)
+end
+
+
 function visualize_conformal_cubed_sphere_panel_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, color)
     x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
     
@@ -189,7 +230,7 @@ function visualize_conformal_cubed_sphere_2D(X, Y, Z, filename; title = "Conform
 
     colors = [:orange, :red, :deepskyblue, :purple, :green, :blue]
 
-    fig = Figure(resolution = (750, 750))
+    fig = Figure(resolution = (825, 750))
 
     ax2D = Axis(fig[1, 1]; aspect = 1, title = title, axis_kwargs_2D...)
     hide_decorations && hidedecorations!(ax2D)
@@ -289,8 +330,8 @@ end
 
 
 function visualize_conformal_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hide_decorations, colors,
-                                                alphas; title_2D = "Conformal Cubed Sphere: 2D Projection",
-                                                title_3D = "Conformal Cubed Sphere: 3D View")
+                                                alphas; title_2D = "CCS: 2D Projection",
+                                                title_3D = "CCS: 3D View")
     x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
 
     fig = Figure(resolution = (1500, 750))
@@ -328,8 +369,8 @@ function visualize_conformal_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwa
 end
 
 
-function visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename; title_2D = "Conformal Cubed Sphere: 2D Projection",
-                                                title_3D = "Conformal Cubed Sphere: 3D View")
+function visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, filename; title_2D = "CCS: 2D Projection",
+                                                title_3D = "CCS: 3D View")
     axis_kwargs_2D = (xlabelsize = 22.5, ylabelsize = 22.5, xticklabelsize = 17.5, yticklabelsize = 17.5, 
                       xticklabelpad = 10, yticklabelpad = 10, titlesize = 27.5, titlegap = 15, titlefont = :bold, 
                       xlabel = "x", ylabel = "y")
