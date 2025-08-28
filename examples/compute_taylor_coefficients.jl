@@ -43,8 +43,6 @@ function find_angles(φ)
     return φ′⁻, φ′⁺
 end
 
-
-
 # Next we define the cubic roots and be careful to choose the appropriate branch.
 # We use `cbrt` to go from ``W`` to ``w`` and `cbrt′` to go from ``W'`` to ``w'``.
 

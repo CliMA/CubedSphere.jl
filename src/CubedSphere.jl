@@ -11,7 +11,6 @@ using TaylorSeries
 include("rancic_taylor_coefficients.jl")
 include("conformal_cubed_sphere.jl")
 include("cartesian_to_lat_lon.jl")
-include("spherical_geometry.jl")
 include("generate_non_uniform_conformal_mapping_coordinates.jl")
 
 end # module
