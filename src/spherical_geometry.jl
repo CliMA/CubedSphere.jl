@@ -1,27 +1,21 @@
 """
     spherical_distance(a₁, a₂)
-
-Compute the great-circle arc length (angle in radians) between two points on the **unit sphere**, given their Cartesian
-coordinates `a₁` and `a₂`. Both inputs are expected to be 3-vectors of unit length; the dot product is clamped to
-`[-1, 1]` to guard against floating-point roundoff before applying `acos`.
+Compute the great-circle arc angle (in radians) between two points on the sphere, given their Cartesian coordinates `a₁`
+and `a₂`. Both inputs are expected to be 3-vectors of same norm.
 
 # Arguments
-- `a₁`, `a₂`: 3-element Cartesian vectors on the unit sphere (‖`a`‖ = 1).
+- `a₁`, `a₂`: 3-element Cartesian vectors on the sphere.
 
-# Returns
-- The arc length (in radians) between `a₁` and `a₂`.
+# Return
+- The spherical angle (in radians) between `a₁` and `a₂`.
 """
 function spherical_distance(a₁::AbstractVector, a₂::AbstractVector)
-    (sum(a₁.^2) ≈ 1 && sum(a₂.^2) ≈ 1) || error("a₁ and a₂ must be unit vectors")
+    (sum(a₁.^2) ≈ sum(a₂.^2)) || error("a₁ and a₂ must have same norm")
 
-    # Compute the dot product and calculate the arccosine to find the angle.
-    cosθ = dot(a₁, a₂)
+    λ₁, φ₁ = rad2deg.(cartesian_to_spherical(a₁))
+    λ₂, φ₂ = rad2deg.(cartesian_to_spherical(a₂))
 
-    # Ensure the result is within the domain of acos due to potential floating-point errors.
-    cosθ = clamp(cosθ, -1, 1)
-
-    # Return the arc length, which is the angle between the two points.
-    return acos(cosθ)
+    return Distances.haversine((λ₁, φ₁), (λ₂, φ₂), 1)
 end
 
 """
