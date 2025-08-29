@@ -1,3 +1,5 @@
+using Distances
+
 """
     spherical_to_cartesian(λ, φ, r=1)
 
@@ -54,7 +56,7 @@ function spherical_distance(a₁::AbstractVector, a₂::AbstractVector)
     λ₁, φ₁ = rad2deg.(cartesian_to_spherical(a₁))
     λ₂, φ₂ = rad2deg.(cartesian_to_spherical(a₂))
 
-    return Distances.haversine((λ₁, φ₁), (λ₂, φ₂), 1)
+    return haversine((λ₁, φ₁), (λ₂, φ₂), 1)
 end
 
 """
