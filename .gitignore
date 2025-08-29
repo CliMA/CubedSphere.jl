@@ -17,6 +17,13 @@
 *.swp
 *~
 
+# Model output
+*.curve
+*.dat
+*.data
+*.nc
+*.jld2
+
 # Plots
 *.pdf
 *.png
