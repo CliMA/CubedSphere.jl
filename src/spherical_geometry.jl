@@ -1,4 +1,43 @@
 """
+    spherical_to_cartesian(λ, φ, r=1)
+
+Convert spherical coordinates `(λ, φ, r)` to 3D Cartesian coordinates.
+
+# Arguments
+- `λ`: Longitude angle (radians).
+- `φ`: Latitude angle (radians).
+- `r`: Radius of the sphere (default = 1).
+
+# Returns
+- `SVector(x, y, z)`: Cartesian coordinates corresponding to `(λ, φ, r)`.
+"""
+function spherical_to_cartesian(λ, φ, r = 1)
+    x = r * cos(φ) * cos(λ)
+    y = r * cos(φ) * sin(λ)
+    z = r * sin(φ)
+    return SVector(x, y, z)
+end
+
+"""
+    cartesian_to_spherical(X)
+
+Convert 3D Cartesian coordinates `X = (x, y, z)` to spherical coordinates.
+
+# Arguments
+- `X`: 3-element Cartesian vector.
+
+# Returns
+- `λ, φ`: Longitude and latitude angles (in radians).
+"""
+function cartesian_to_spherical(X)
+    x, y, z = X
+    r = norm(X)
+    φ = asin(z / r)
+    λ = atan(y, x)
+    return λ, φ
+end
+
+"""
     spherical_distance(a₁, a₂)
 Compute the great-circle arc angle (in radians) between two points on the sphere, given their Cartesian coordinates `a₁`
 and `a₂`. Both inputs are expected to be 3-vectors of same norm.
