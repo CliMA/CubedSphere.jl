@@ -1,4 +1,6 @@
 using Distances
+using StaticArrays
+using LinearAlgebra
 
 """
     spherical_to_cartesian(λ, φ, r=1)
