@@ -71,7 +71,7 @@ function turning_angle_great_circle(λ₁, φ₁, λ₂, φ₂)
     num = dot(n̂, cross(t₁, t₂))
     den = dot(t₁, t₂)
 
-    return atan2(num, den)
+    return atan(num, den)
 end
 
 """
