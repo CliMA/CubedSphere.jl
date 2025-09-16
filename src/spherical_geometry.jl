@@ -40,6 +40,39 @@ function cartesian_to_spherical(X)
 end
 
 """
+    turning_angle_great_circle(λ₁, φ₁, λ₂, φ₂)
+
+Compute the signed turning angle (in radians) between the unit tangents at the endpoints of the great-circle arc
+connecting two points `(λ₁, φ₁)` and `(λ₂, φ₂)` on the unit sphere.
+
+# Arguments
+- `λ₁, φ₁`: Longitude and latitude of the first point (radians).
+- `λ₂, φ₂`: Longitude and latitude of the second point (radians).
+
+# Return
+- Signed turning angle (in radians) in `(-π, π]`.
+"""
+function turning_angle_great_circle(λ₁, φ₁, λ₂, φ₂)
+    r₁ = spherical_to_cartesian(λ₁, φ₁)
+    r₂ = spherical_to_cartesian(λ₂, φ₂)
+
+    n = cross(r₁, r₂)
+    nrm = norm(n)
+    if !(nrm > 0) || !isfinite(nrm)
+        throw(ArgumentError("Great-circle normal is undefined for coincident or antipodal points."))
+    end
+    n̂ = n / nrm
+
+    t₁ = cross(n̂, r₁); t₁ /= norm(t₁)
+    t₂ = cross(n̂, r₂); t₂ /= norm(t₂)
+
+    num = dot(n̂, cross(t₁, t₂))
+    den = dot(t₁, t₂)
+
+    return atan2(num, den)
+end
+
+"""
     spherical_distance(a₁, a₂)
 Compute the great-circle arc angle (in radians) between two points on the sphere, given their Cartesian coordinates `a₁`
 and `a₂`. Both inputs are expected to be 3-vectors of same norm.
