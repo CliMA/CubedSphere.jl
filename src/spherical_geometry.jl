@@ -135,8 +135,8 @@ arc connecting two points `(λ₁, φ₁)` and `(λ₂, φ₂)` on the unit sphe
 """
 
 function turning_angle(λ₁, φ₁, λ₂, φ₂)
-    r₁ = lat_lon_to_cartesian(λ₁, φ₁)
-    r₂ = lat_lon_to_cartesian(λ₂, φ₂)
+    r₁ = collect(lat_lon_to_cartesian(λ₁, φ₁))
+    r₂ = collect(lat_lon_to_cartesian(λ₂, φ₂))
 
     n = cross(r₁, r₂)
     nrm = norm(n)
@@ -225,6 +225,7 @@ doi:10.1080/0025570X.1990.11977515
 """
 
 function spherical_area_triangle(a₁, a₂, a₃)
+    a₁, a₂, a₃ = collect(a₁), collect(a₂), collect(a₃)
     (sum(a₁.^2) ≈ 1 && sum(a₂.^2) ≈ 1 && sum(a₃.^2) ≈ 1) || error("a₁, a₂, a₃ must be unit vectors")
 
     tan½E = abs(dot(a₁, cross(a₂, a₃)))
