@@ -165,7 +165,7 @@ and `a₂`. Both inputs are expected to be 3-vectors of same norm.
 # Returns
 - The spherical angle (in radians) between `a₁` and `a₂`.
 """
-function spherical_distance(a₁::AbstractVector, a₂::AbstractVector)
+function spherical_distance(a₁, a₂)
     (sum(a₁.^2) ≈ sum(a₂.^2)) || error("a₁ and a₂ must have same norm")
 
     λ₁, φ₁ = cartesian_to_lat_lon(a₁)
@@ -204,18 +204,18 @@ function spherical_area_triangle(a::Number, b::Number, c::Number)
 end
 
 """
-    spherical_area_triangle(a::AbstractVector, b::AbstractVector, c::AbstractVector)
+    spherical_area_triangle(a₁, a₂, a₃)
 
-Returns the area of a spherical triangle on the unit sphere with vertices given by the 3-vectors `a`, `b`, and `c`
-whose origin is the the center of the sphere. The formula was first given by Eriksson (1990).
+Returns the area of a spherical triangle on the unit sphere with vertices given by the 3-vectors `a₁`, `a₂`, and `a₃`,
+whose origin is the center of the sphere. The formula was first given by Eriksson (1990).
 
 If we denote with ``A``, ``B``, and ``C`` the inner angles of the spherical triangle and with ``a``, ``b``, and ``c`` 
-the side of the triangle, then it has been known since Euler and Lagrange that 
+the sides of the triangle, then it has been known since Euler and Lagrange that
 ``\\tan(E/2) = P / (1 + \\cos a + \\cos b + \\cos c)``, where ``E = A + B + C - π`` is the triangle's excess and 
 ``P = (1 - \\cos²a - \\cos²b - \\cos²c + 2 \\cos a \\cos b \\cos c)^{1/2}``. 
 
-On the unit sphere, ``E`` is precisely the area of the spherical triangle. Erikkson (1990) showed that ``P`` above is 
-the same as the volume defined by the vectors `a`, `b`, and `c`, that is ``P = |𝐚 \\cdot (𝐛 \\times 𝐜)|``.
+On the unit sphere, ``E`` is precisely the area of the spherical triangle. Eriksson (1990) showed that ``P`` above is
+the same as the volume defined by the vectors `a₁`, `a₂`, and `a₃`, that is ``P = |𝐚₁ ⋅ (𝐚₂ × 𝐚₃)|``.
 
 References
 ==========
@@ -223,7 +223,8 @@ References
 * Eriksson, F. (1990) On the measure of solid angles, Mathematics Magazine, 63 (3), 184-187, 
 doi:10.1080/0025570X.1990.11977515
 """
-function spherical_area_triangle(a₁::AbstractVector, a₂::AbstractVector, a₃::AbstractVector)
+
+function spherical_area_triangle(a₁, a₂, a₃)
     (sum(a₁.^2) ≈ 1 && sum(a₂.^2) ≈ 1 && sum(a₃.^2) ≈ 1) || error("a₁, a₂, a₃ must be unit vectors")
 
     tan½E = abs(dot(a₁, cross(a₂, a₃)))
@@ -235,14 +236,14 @@ end
 """
     spherical_area_quadrilateral(a₁, a₂, a₃, a₄)
 
-Returns the area of a spherical quadrilateral on the unit sphere whose points are given by 3-vectors, `a`, `b`, `c`, and
-`d`. The area of the quadrilateral is given as the sum of the ares of the two non-overlapping triangles. To avoid having
-to pick the triangles appropriately ensuring they are not overlapping, we compute the area of the quadrilateral as the
-half the sum of the areas of all four potential triangles formed by `a₁`, `a₂`, `a₃`, and `a₄`.
+Returns the area of a spherical quadrilateral on the unit sphere whose points are given by 3-vectors, `a₁`, `a₂`, `a₃`,
+and `a₄`. The area of the quadrilateral is given as the sum of the areas of the two non-overlapping triangles. To avoid
+having to pick the triangles appropriately ensuring they are not overlapping, we compute the area of the quadrilateral
+as half the sum of the areas of all four potential triangles formed by `a₁`, `a₂`, `a₃`, and `a₄`.
 """
-spherical_area_quadrilateral(a::AbstractVector, b::AbstractVector, c::AbstractVector, d::AbstractVector) =
-    1/2 * (spherical_area_triangle(a, b, c) + spherical_area_triangle(a, b, d) +
-           spherical_area_triangle(a, c, d) + spherical_area_triangle(b, c, d))
+spherical_area_quadrilateral(a₁, a₂, a₃, a₄) =
+    1/2 * (spherical_area_triangle(a₁, a₂, a₃) + spherical_area_triangle(a₁, a₂, a₄) +
+           spherical_area_triangle(a₁, a₃, a₄) + spherical_area_triangle(a₂, a₃, a₄))
 
 """
     spherical_quadrilateral_vertices(X, Y, Z, i, j)
