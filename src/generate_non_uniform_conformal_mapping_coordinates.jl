@@ -3,8 +3,6 @@ using LinearAlgebra
 using Statistics
 using Random
 
-include("spherical_geometry.jl")
-
 """
     geometric_spacing(N, ratio_raised_to_N_minus_one)
 

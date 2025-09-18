@@ -1,62 +1,142 @@
 using Distances
-using StaticArrays
 using LinearAlgebra
 
 """
-    spherical_to_cartesian(λ, φ, r=1)
+    cartesian_to_lat_lon(x, y, z)
+    cartesian_to_lat_lon(X)
 
-Convert spherical coordinates `(λ, φ, r)` to 3D Cartesian coordinates.
+Convert 3D Cartesian coordinates `(x, y, z)` or a 3-element Cartesian vector `X = (x, y, z)` on the sphere to
+latitude–longitude. Returns a tuple `(latitude, longitude)` in degrees.
 
-# Arguments
-- `λ`: Longitude angle (radians).
-- `φ`: Latitude angle (radians).
-- `r`: Radius of the sphere (default = 1).
-
-# Returns
-- `SVector(x, y, z)`: Cartesian coordinates corresponding to `(λ, φ, r)`.
-"""
-function spherical_to_cartesian(λ, φ, r = 1)
-    x = r * cos(φ) * cos(λ)
-    y = r * cos(φ) * sin(λ)
-    z = r * sin(φ)
-    return SVector(x, y, z)
-end
-
-"""
-    cartesian_to_spherical(X)
-
-Convert 3D Cartesian coordinates `X = (x, y, z)` to spherical coordinates.
+- Latitude is the angle measured from the equatorial plane (`z = 0`).
+- Longitude is measured anti-clockwise (eastward) from the `x`-axis (`y = 0`) about the `z`-axis.
 
 # Arguments
+- `x, y, z`: Cartesian coordinates (numbers), **or**
 - `X`: 3-element Cartesian vector.
 
 # Returns
-- `λ, φ`: Longitude and latitude angles (in radians).
+- `(latitude, longitude)`: Latitude and longitude angles in degrees.
+
+# Examples
+Find latitude–longitude of the North Pole:
+
+```jldoctest 1
+julia> using CubedSphere
+
+julia> x, y, z = (0, 0, 6.4e6); # Cartesian coordinates of the North Pole [in meters]
+
+julia> cartesian_to_lat_lon(x, y, z)
+(90.0, 0.0)
+```
+Let's confirm that for few points on the unit sphere we get the answers we expect.
+
+```jldoctest 1
+julia> cartesian_to_lat_lon(√2/4, -√2/4, √3/2)
+(59.99999999999999, -45.0)
+
+julia> cartesian_to_lat_lon(-√6/4, √2/4, -√2/2)
+(-45.00000000000001, 150.0)
+```
 """
-function cartesian_to_spherical(X)
+cartesian_to_lat_lon(x, y, z) = cartesian_to_latitude(x, y, z), cartesian_to_longitude(x, y, z)
+
+function cartesian_to_lat_lon(X)
     x, y, z = X
-    r = norm(X)
-    φ = asin(z / r)
-    λ = atan(y, x)
-    return λ, φ
+    return cartesian_to_lat_lon(x, y, z)
 end
 
 """
-    turning_angle_great_circle(λ₁, φ₁, λ₂, φ₂)
+    cartesian_to_latitude(x, y, z)
 
-Compute the signed turning angle (in radians) between the unit tangents at the endpoints of the great-circle arc
-connecting two points `(λ₁, φ₁)` and `(λ₂, φ₂)` on the unit sphere.
+Convert Cartesian coordinates `(x, y, z)` to latitude (in degrees) on the sphere.
+"""
+cartesian_to_latitude(x, y, z) = atand(z, hypot(x, y))
+
+"""
+    cartesian_to_longitude(x, y, z)
+
+Convert Cartesian coordinates `(x, y, z)` to longitude (in degrees) on the sphere.
+"""
+cartesian_to_longitude(x, y, z) = atand(y, x)
+
+"""
+    lat_lon_to_cartesian(λ, φ; radius = 1)
+
+Convert `(longitude, latitude)` coordinates (in degrees) to Cartesian coordinates `(x, y, z)` on the sphere.
 
 # Arguments
-- `λ₁, φ₁`: Longitude and latitude of the first point (radians).
-- `λ₂, φ₂`: Longitude and latitude of the second point (radians).
+- `λ`: Longitude in degrees.
+- `φ`: Latitude in degrees.
+- `radius`: Sphere radius (optional). Default is `1`.
 
-# Return
-- Signed turning angle (in radians) in `(-π, π]`.
+# Returns
+- `(x, y, z)`: Cartesian coordinates on the sphere.
+
+# Examples
+Find the Cartesian coordinates of the North Pole on a unit sphere:
+
+```jldoctest 1
+julia> using CubedSphere
+
+julia> lat_lon_to_cartesian(0, 90)
+(0.0, 0.0, 1.0)
+```
+Find the Cartesian coordinates of a point on the equator with longitude 90°E:
+
+```jldoctest 1
+julia> lat_lon_to_cartesian(90, 0)
+(0.0, 1.0, 0.0)
+```
 """
-function turning_angle_great_circle(λ₁, φ₁, λ₂, φ₂)
-    r₁ = spherical_to_cartesian(λ₁, φ₁)
-    r₂ = spherical_to_cartesian(λ₂, φ₂)
+function lat_lon_to_cartesian(λ, φ; radius = 1)
+    abs(φ) > 90 && error("Latitude φ must be within -90 ≤ φ ≤ 90 degrees.")
+    return (lat_lon_to_x(λ, φ; radius), lat_lon_to_y(λ, φ; radius), lat_lon_to_z(λ, φ; radius))
+end
+
+"""
+    lat_lon_to_x(λ, φ; radius = 1)
+
+Convert `(longitude, latitude)` coordinates (in degrees) to Cartesian coordinate `x` on the sphere.
+"""
+lat_lon_to_x(λ, φ; radius = 1) = radius * cosd(λ) * cosd(φ)
+
+"""
+    lat_lon_to_y(λ, φ; radius = 1)
+
+Convert `(longitude, latitude)` coordinates (in degrees) to Cartesian coordinate `y` on the sphere.
+"""
+lat_lon_to_y(λ, φ; radius = 1) = radius * sind(λ) * cosd(φ)
+
+"""
+    lat_lon_to_z(λ, φ; radius = 1)
+
+Convert `(longitude, latitude)` coordinates (in degrees) to Cartesian coordinate `z` on the sphere.
+"""
+lat_lon_to_z(λ, φ; radius = 1) = radius * sind(φ)
+
+"""
+    turning_angle(λ₁, φ₁, λ₂, φ₂)
+
+Compute the **signed** turning angle (in degrees) between the unit tangent vectors at the endpoints of the great-circle
+arc connecting two points `(λ₁, φ₁)` and `(λ₂, φ₂)` on the unit sphere.
+
+# Arguments
+- `λ₁, φ₁`: Longitude and latitude of the first point (in degrees).
+- `λ₂, φ₂`: Longitude and latitude of the second point (in degrees).
+
+# Returns
+- Signed turning angle (in degrees) in `(-180, 180]`.
+
+# Notes
+- A positive angle corresponds to a counter-clockwise rotation from the tangent at `(λ₁, φ₁)` to the tangent at
+  `(λ₂, φ₂)` about the great-circle normal.
+- The result is undefined for coincident or antipodal points (an error is thrown).
+"""
+
+function turning_angle(λ₁, φ₁, λ₂, φ₂)
+    r₁ = lat_lon_to_cartesian(λ₁, φ₁)
+    r₂ = lat_lon_to_cartesian(λ₂, φ₂)
 
     n = cross(r₁, r₂)
     nrm = norm(n)
@@ -82,14 +162,14 @@ and `a₂`. Both inputs are expected to be 3-vectors of same norm.
 # Arguments
 - `a₁`, `a₂`: 3-element Cartesian vectors on the sphere.
 
-# Return
+# Returns
 - The spherical angle (in radians) between `a₁` and `a₂`.
 """
 function spherical_distance(a₁::AbstractVector, a₂::AbstractVector)
     (sum(a₁.^2) ≈ sum(a₂.^2)) || error("a₁ and a₂ must have same norm")
 
-    λ₁, φ₁ = rad2deg.(cartesian_to_spherical(a₁))
-    λ₂, φ₂ = rad2deg.(cartesian_to_spherical(a₂))
+    λ₁, φ₁ = cartesian_to_lat_lon(a₁)
+    λ₂, φ₂ = cartesian_to_lat_lon(a₂)
 
     return haversine((λ₁, φ₁), (λ₂, φ₂), 1)
 end
@@ -97,7 +177,7 @@ end
 """
     spherical_area_triangle(a::Number, b::Number, c::Number)
 
-Return the area of a spherical triangle on the unit sphere with sides `a`, `b`, and `c`.
+Returns the area of a spherical triangle on the unit sphere with sides `a`, `b`, and `c`.
 
 The area of a spherical triangle on the unit sphere is ``E = A + B + C - π``, where ``A``, ``B``, and ``C`` are the
 triangle's inner angles.
@@ -126,7 +206,7 @@ end
 """
     spherical_area_triangle(a::AbstractVector, b::AbstractVector, c::AbstractVector)
 
-Return the area of a spherical triangle on the unit sphere with vertices given by the 3-vectors `a`, `b`, and `c`
+Returns the area of a spherical triangle on the unit sphere with vertices given by the 3-vectors `a`, `b`, and `c`
 whose origin is the the center of the sphere. The formula was first given by Eriksson (1990).
 
 If we denote with ``A``, ``B``, and ``C`` the inner angles of the spherical triangle and with ``a``, ``b``, and ``c`` 
@@ -155,7 +235,7 @@ end
 """
     spherical_area_quadrilateral(a₁, a₂, a₃, a₄)
 
-Return the area of a spherical quadrilateral on the unit sphere whose points are given by 3-vectors, `a`, `b`, `c`, and
+Returns the area of a spherical quadrilateral on the unit sphere whose points are given by 3-vectors, `a`, `b`, `c`, and
 `d`. The area of the quadrilateral is given as the sum of the ares of the two non-overlapping triangles. To avoid having
 to pick the triangles appropriately ensuring they are not overlapping, we compute the area of the quadrilateral as the
 half the sum of the areas of all four potential triangles formed by `a₁`, `a₂`, `a₃`, and `a₄`.
@@ -167,7 +247,7 @@ spherical_area_quadrilateral(a::AbstractVector, b::AbstractVector, c::AbstractVe
 """
     spherical_quadrilateral_vertices(X, Y, Z, i, j)
 
-Return the four Cartesian vertex vectors of the spherical grid cell whose corners are indexed by `(i, j)`, `(i+1, j)`,
+Returns the four Cartesian vertex vectors of the spherical grid cell whose corners are indexed by `(i, j)`, `(i+1, j)`,
 `(i+1, j+1)`, and `(i, j+1)` in the arrays `X`, `Y`, and `Z`. Each of `X`, `Y`, and `Z` is a 2D array of size `(Nx, Ny)`
 holding the Cartesian coordinates of grid vertices on the sphere, such that the point at `(i, j)` is
 `(X[i, j], Y[i, j], Z[i, j])`.
