@@ -61,13 +61,13 @@ Convert Cartesian coordinates `(x, y, z)` to longitude (in degrees) on the spher
 cartesian_to_longitude(x, y, z) = atand(y, x)
 
 """
-    lat_lon_to_cartesian(λ, φ; radius = 1)
+    lat_lon_to_cartesian(φ, λ; radius = 1)
 
-Convert `(longitude, latitude)` coordinates (in degrees) to Cartesian coordinates `(x, y, z)` on the sphere.
+Convert `(latitude, longitude)` coordinates (in degrees) to Cartesian coordinates `(x, y, z)` on the sphere.
 
 # Arguments
-- `λ`: Longitude in degrees.
 - `φ`: Latitude in degrees.
+- `λ`: Longitude in degrees.
 - `radius`: Sphere radius (optional). Default is `1`.
 
 # Returns
@@ -79,41 +79,41 @@ Find the Cartesian coordinates of the North Pole on a unit sphere:
 ```jldoctest 1
 julia> using CubedSphere
 
-julia> lat_lon_to_cartesian(0, 90)
+julia> lat_lon_to_cartesian(90, 0)
 (0.0, 0.0, 1.0)
 ```
 Find the Cartesian coordinates of a point on the equator with longitude 90°E:
 
 ```jldoctest 1
-julia> lat_lon_to_cartesian(90, 0)
+julia> lat_lon_to_cartesian(0, 90)
 (0.0, 1.0, 0.0)
 ```
 """
-function lat_lon_to_cartesian(λ, φ; radius = 1)
+function lat_lon_to_cartesian(φ, λ; radius = 1)
     abs(φ) > 90 && error("Latitude φ must be within -90 ≤ φ ≤ 90 degrees.")
-    return (lat_lon_to_x(λ, φ; radius), lat_lon_to_y(λ, φ; radius), lat_lon_to_z(λ, φ; radius))
+    return (lat_lon_to_x(φ, λ; radius), lat_lon_to_y(φ, λ; radius), lat_lon_to_z(φ; radius))
 end
 
 """
-    lat_lon_to_x(λ, φ; radius = 1)
+lat_lon_to_x(φ, λ; radius = 1)
 
-Convert `(longitude, latitude)` coordinates (in degrees) to Cartesian coordinate `x` on the sphere.
+Convert (latitude, longitude) coordinates (in degrees) to Cartesian coordinate x on the sphere.
 """
-lat_lon_to_x(λ, φ; radius = 1) = radius * cosd(λ) * cosd(φ)
-
-"""
-    lat_lon_to_y(λ, φ; radius = 1)
-
-Convert `(longitude, latitude)` coordinates (in degrees) to Cartesian coordinate `y` on the sphere.
-"""
-lat_lon_to_y(λ, φ; radius = 1) = radius * sind(λ) * cosd(φ)
+lat_lon_to_x(φ, λ; radius = 1) = radius * cosd(λ) * cosd(φ)
 
 """
-    lat_lon_to_z(λ, φ; radius = 1)
+lat_lon_to_y(φ, λ; radius = 1)
 
-Convert `(longitude, latitude)` coordinates (in degrees) to Cartesian coordinate `z` on the sphere.
+Convert (latitude, longitude) coordinates (in degrees) to Cartesian coordinate y on the sphere.
 """
-lat_lon_to_z(λ, φ; radius = 1) = radius * sind(φ)
+lat_lon_to_y(φ, λ; radius = 1) = radius * sind(λ) * cosd(φ)
+
+"""
+lat_lon_to_z(φ; radius = 1)
+
+Convert (latitude, longitude) coordinates (in degrees) to Cartesian coordinate z on the sphere.
+"""
+lat_lon_to_z(φ; radius = 1) = radius * sind(φ)
 
 """
     turning_angle(λ₁, φ₁, λ₂, φ₂)
@@ -134,9 +134,9 @@ arc connecting two points `(λ₁, φ₁)` and `(λ₂, φ₂)` on the unit sphe
 - The result is undefined for coincident or antipodal points (an error is thrown).
 """
 
-function turning_angle(λ₁, φ₁, λ₂, φ₂)
-    r₁ = collect(lat_lon_to_cartesian(λ₁, φ₁))
-    r₂ = collect(lat_lon_to_cartesian(λ₂, φ₂))
+function turning_angle(φ₁, λ₁, φ₂, λ₂)
+    r₁ = collect(lat_lon_to_cartesian(φ₁, λ₁))
+    r₂ = collect(lat_lon_to_cartesian(φ₂, λ₂))
 
     n = cross(r₁, r₂)
     nrm = norm(n)
@@ -168,8 +168,8 @@ and `a₂`. Both inputs are expected to be 3-vectors of same norm.
 function spherical_distance(a₁, a₂)
     (sum(a₁.^2) ≈ sum(a₂.^2)) || error("a₁ and a₂ must have same norm")
 
-    λ₁, φ₁ = cartesian_to_lat_lon(a₁)
-    λ₂, φ₂ = cartesian_to_lat_lon(a₂)
+    φ₁, λ₁ = cartesian_to_lat_lon(a₁)
+    φ₂, λ₂ = cartesian_to_lat_lon(a₂)
 
     return haversine((λ₁, φ₁), (λ₂, φ₂), 1)
 end
