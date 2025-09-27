@@ -133,7 +133,6 @@ arc connecting two points `(λ₁, φ₁)` and `(λ₂, φ₂)` on the unit sphe
   `(λ₂, φ₂)` about the great-circle normal.
 - The result is undefined for coincident or antipodal points (an error is thrown).
 """
-
 function turning_angle(φ₁, λ₁, φ₂, λ₂)
     r₁ = collect(lat_lon_to_cartesian(φ₁, λ₁))
     r₂ = collect(lat_lon_to_cartesian(φ₂, λ₂))
@@ -223,7 +222,6 @@ References
 * Eriksson, F. (1990) On the measure of solid angles, Mathematics Magazine, 63 (3), 184-187, 
 doi:10.1080/0025570X.1990.11977515
 """
-
 function spherical_area_triangle(a₁, a₂, a₃)
     a₁, a₂, a₃ = collect(a₁), collect(a₂), collect(a₃)
     (sum(a₁.^2) ≈ 1 && sum(a₂.^2) ≈ 1 && sum(a₃.^2) ≈ 1) || error("a₁, a₂, a₃ must be unit vectors")
