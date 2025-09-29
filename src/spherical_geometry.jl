@@ -140,10 +140,10 @@ returned value is the physical arc length along the sphere.
 julia> using CubedSphere
 
 julia> a₁ = (1.0, 0.0, 0.0);  # point on unit sphere
-julia> a₂ = (0.0, 1.0, 0.0);  # 90° away
+       a₂ = (0.0, 1.0, 0.0);  # 90° away
 
 julia> spherical_distance(a₁, a₂)
-1.5707963267948968  # π/2 radians
+1.5707963267948968
 ```
 """
 function spherical_distance(a₁, a₂; radius=1)
@@ -194,9 +194,9 @@ julia> using CubedSphere
 julia> a = b = c = π/2;  # Right spherical triangle with 90° sides on unit sphere
 
 julia> spherical_area_triangle(a, b, c)
-1.5707963267948966       # π/2, area of a spherical octant
+1.5707963267948966
 
-julia> spherical_area_triangle(a, b, c; radius = 6371e3)  # Earth radius
+julia> spherical_area_triangle(a, b, c; radius = 6371e3)
 6.375805898872353e13
 ```
 """
@@ -255,14 +255,14 @@ doi:10.1080/0025570X.1990.11977515
 julia> using CubedSphere
 
 julia> a₁ = [1.0, 0.0, 0.0];
-julia> a₂ = [0.0, 1.0, 0.0];
-julia> a₃ = [0.0, 0.0, 1.0];
+       a₂ = [0.0, 1.0, 0.0];
+       a₃ = [0.0, 0.0, 1.0];
 
 julia> spherical_area_triangle(a₁, a₂, a₃)
-1.5707963267948966    # π/2, spherical triangle area on unit sphere
+1.5707963267948966
 
 julia> spherical_area_triangle(a₁ .* 6.371e6, a₂ .* 6.371e6, a₃ .* 6.371e6; radius = 6.371e6)
-6.375805898872353e13  # physical area on Earth-sized sphere
+6.375805898872353e13
 ```
 """
 function spherical_area_triangle(a₁, a₂, a₃; radius=1)
@@ -306,16 +306,17 @@ triangles.
 julia> using CubedSphere
 
 julia> a₁ = [1.0, 0.0, 0.0];
-julia> a₂ = [0.0, 1.0, 0.0];
-julia> a₃ = [0.0, 0.0, 1.0];
-julia> a₄ = [1.0, 1.0, 0.0] ./ √2;  # mid-edge on unit sphere
+       a₂ = [0.0, 1.0, 0.0];
+       a₃ = [0.0, 0.0, 1.0];
+       a₄ = [1.0, 1.0, 0.0] ./ √2;  # mid-edge on unit sphere
 
 julia> spherical_area_quadrilateral(a₁, a₂, a₃, a₄)
-1.5707963267948966    # example value on unit sphere
+1.5707963267948966
 
-julia> R = 6.371e6;   # Earth radius [m]
+julia> R = 6.371e6;
+
 julia> spherical_area_quadrilateral(a₁ .* R, a₂ .* R, a₃ .* R, a₄ .* R; radius = R)
-6.375805898872353e13  # physical area [m²]
+6.375805898872353e13
 ```
 """
 spherical_area_quadrilateral(a₁, a₂, a₃, a₄; radius=1) =
@@ -392,14 +393,14 @@ and then returns the Euclidean norm of these deviations over the entire grid.
 julia> using CubedSphere
 
 julia> Nx, Ny = 3, 3;
-julia> lons = range(-π/4, π/4, length = Nx);
-julia> lats = range(-π/6, π/6, length = Ny);
-julia> X = [cos(φ)*cos(λ) for λ in lons, φ in lats];
-julia> Y = [cos(φ)*sin(λ) for λ in lons, φ in lats];
-julia> Z = [sin(φ)        for λ in lons, φ in lats];
+       lons = range(-π/4, π/4, length = Nx);
+       lats = range(-π/6, π/6, length = Ny);
+       X = [cos(φ)*cos(λ) for λ in lons, φ in lats];
+       Y = [cos(φ)*sin(λ) for λ in lons, φ in lats];
+       Z = [sin(φ)        for λ in lons, φ in lats];
 
 julia> compute_deviation_from_isotropy(X, Y, Z)
-1.6552138747243959  # example value on unit sphere
+1.6552138747243959
 ```
 """
 function compute_deviation_from_isotropy(X, Y, Z; radius=1)
@@ -451,30 +452,26 @@ areas correspond to the unit sphere. For `radius ≠ 1`, the physical areas are 
 ```jldoctest 1
 julia> using CubedSphere
 
-julia> # 3×3 points on the unit sphere (not a lat–lon cell bounded by small circles
 julia> Nx, Ny = 3, 3
-julia> lons = range(-π/6, π/6, length = Nx)
-julia> lats = range(-π/6,  π/6, length = Ny)
-julia> X = [cos(φ)*cos(λ) for λ in lons, φ in lats]
-julia> Y = [cos(φ)*sin(λ) for λ in lons, φ in lats]
-julia> Z = [sin(φ)        for λ in lons, φ in lats];
+       lons = range(-π/6, π/6, length = Nx)
+       lats = range(-π/6,  π/6, length = Ny)
+       X = [cos(φ)*cos(λ) for λ in lons, φ in lats]
+       Y = [cos(φ)*sin(λ) for λ in lons, φ in lats]
+       Z = [sin(φ)        for λ in lons, φ in lats];
 
 julia> A = compute_cell_areas(X, Y, Z);
 
 julia> size(A)
 (2, 2)
 
-# All four cells are identical by symmetry:
 julia> all(isapprox.(A, fill(A[1,1], 2, 2); rtol=1e-12))
 true
 
-# Reference value for this geodesic quadrilateral (unit sphere):
 julia> isapprox(A[1,1], 0.26636308214247195; rtol=1e-12)
 true
 
-julia> # Physical scaling: areas scale like R^2
-julia> R = 6.371e6;  # Earth radius [m]
-julia> A_R = compute_cell_areas(X .* R, Y .* R, Z .* R; radius = R);
+julia> R = 6.371e6;
+       A_R = compute_cell_areas(X .* R, Y .* R, Z .* R; radius = R);
 
 julia> isapprox.(A_R, A .* R^2; rtol=1e-9) |> all
 true
