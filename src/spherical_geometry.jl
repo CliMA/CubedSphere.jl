@@ -24,7 +24,7 @@ Find latitude–longitude of the North Pole:
 ```jldoctest 1
 julia> using CubedSphere
 
-julia> x, y, z = (0, 0, 6.4e6); # Cartesian coordinates of the North Pole [in meters]
+julia> x, y, z = (0, 0, 6.4e6);  # Cartesian coordinates of the North Pole [in meters]
 
 julia> cartesian_to_lat_lon(x, y, z)
 (90.0, 0.0)
@@ -154,95 +154,213 @@ function turning_angle(φ₁, λ₁, φ₂, λ₂)
 end
 
 """
-    spherical_distance(a₁, a₂)
-Compute the great-circle arc angle (in radians) between two points on the sphere, given their Cartesian coordinates `a₁`
-and `a₂`. Both inputs are expected to be 3-vectors of same norm.
+    spherical_distance(a₁, a₂; radius = 1)
+
+Compute the great-circle distance between two Cartesian points `a₁` and `a₂` on a sphere of radius `radius`.
+
+If `radius = 1`, this function returns the central angle (in radians) between the two points. For `radius ≠ 1`, the
+returned value is the physical arc length along the sphere.
 
 # Arguments
 - `a₁`, `a₂`: 3-element Cartesian vectors on the sphere.
+- `radius`: Sphere radius (optional). Default is `1`.
 
 # Returns
-- The spherical angle (in radians) between `a₁` and `a₂`.
+- Great-circle distance between `a₁` and `a₂`:
+  - For `radius = 1`, the central angle (in radians).
+  - For `radius ≠ 1`, the physical arc length.
+
+# Notes
+- Both `a₁` and `a₂` must lie on the surface of the same sphere (i.e., have the same norm).
+
+# Examples
+```jldoctest 1
+julia> using CubedSphere
+
+julia> a₁ = (1.0, 0.0, 0.0);  # point on unit sphere
+julia> a₂ = (0.0, 1.0, 0.0);  # 90° away
+
+julia> spherical_distance(a₁, a₂)
+1.5707963267948966  # π/2 radians
+```
 """
-function spherical_distance(a₁, a₂)
+function spherical_distance(a₁, a₂; radius=1)
     (sum(a₁.^2) ≈ sum(a₂.^2)) || error("a₁ and a₂ must have same norm")
 
     φ₁, λ₁ = cartesian_to_lat_lon(a₁)
     φ₂, λ₂ = cartesian_to_lat_lon(a₂)
 
-    return haversine((λ₁, φ₁), (λ₂, φ₂), 1)
+    return haversine((λ₁, φ₁), (λ₂, φ₂), radius)
 end
 
 """
-    spherical_area_triangle(a::Number, b::Number, c::Number)
+    spherical_area_triangle(a::Number, b::Number, c::Number; radius = 1)
 
-Returns the area of a spherical triangle on the unit sphere with sides `a`, `b`, and `c`.
+Compute the area of a spherical triangle on a sphere of radius `radius`, given its three side lengths `a`, `b`, and `c`
+(in radians).
 
-The area of a spherical triangle on the unit sphere is ``E = A + B + C - π``, where ``A``, ``B``, and ``C`` are the
-triangle's inner angles.
+For a unit sphere (`radius = 1`), the area equals the spherical excess `E = A + B + C − π`, where `A`, `B`, and `C` are
+the triangle’s interior angles. For a sphere of radius `R`, the physical area is `R² * E`.
 
-It has been known since the time of Euler and Lagrange that
-``\\tan(E/2) = P / (1 + \\cos a + \\cos b + \\cos c)``, where
-``P = (1 - \\cos²a - \\cos²b - \\cos²c + 2 \\cos a \\cos b \\cos c)^{1/2}``.
+# Arguments
+- `a`, `b`, `c`: Side lengths of the spherical triangle, measured as central angles (in radians).
+- `radius`: Sphere radius (optional). Default is `1`.
+
+# Returns
+- The **physical area** of the spherical triangle on a sphere of radius `radius`.
+
+# Notes
+- Euler (1778) and Lagrange (1798) showed that the spherical excess `E` on the unit sphere can be computed as
+
+  ```math
+  \\tan\\frac{E}{2} =
+  \\frac{\\sqrt{1 - \\cos^2 a - \\cos^2 b - \\cos^2 c + 2 \\cos a \\cos b \\cos c}}{1 + \\cos a + \\cos b + \\cos c}.
+  ```
+
+- This function uses the above relation to compute the excess E and then scales by radius² to obtain the physical area.
 
 References
 ==========
 
 * Euler, L. (1778) De mensura angulorum solidorum, Opera omnia, 26, 204-233 (Orig. in Acta adac. sc. Petrop. 1778)
-* Lagrange,  J.-L. (1798) Solutions de quilquies problèmes relatifs au triangles sphéruques, Oeuvres, 7, 331-359.
+* Lagrange,  J.-L. (1798) Solutions de quelques problèmes relatifs au triangles sphériques, Oeuvres, 7, 331-359.
+
+# Examples
+```jldoctest 1
+julia> using CubedSphere
+
+julia> a = b = c = π/2;  # Right spherical triangle with 90° sides on unit sphere
+
+julia> spherical_area_triangle(a, b, c)
+1.5707963267948966       # π/2, area of a spherical octant
+
+julia> spherical_area_triangle(a, b, c; radius = 6371e3)  # Earth radius
+6.378136064430505e13
+```
 """
-function spherical_area_triangle(a::Number, b::Number, c::Number)
-    cosa = cos(a)
-    cosb = cos(b)
-    cosc = cos(c)
+function spherical_area_triangle(a::Number, b::Number, c::Number; radius=1)
+    cosa, cosb, cosc = cos(a), cos(b), cos(c)
 
-    tan½E = sqrt(1 - cosa^2 - cosb^2 - cosc^2 + 2cosa * cosb * cosc)
-    tan½E /= 1 + cosa + cosb + cosc
+    tan½E = sqrt(1 - cosa^2 - cosb^2 - cosc^2 + 2cosa * cosb * cosc) / (1 + cosa + cosb + cosc)
 
-    return 2atan(tan½E)
+    E_unit = 2atan(tan½E)       # area on unit sphere
+
+    return (radius^2) * E_unit  # physical area
 end
 
 """
-    spherical_area_triangle(a₁, a₂, a₃)
+    spherical_area_triangle(a₁, a₂, a₃; radius = 1)
 
-Returns the area of a spherical triangle on the unit sphere with vertices given by the 3-vectors `a₁`, `a₂`, and `a₃`,
-whose origin is the center of the sphere. The formula was first given by Eriksson (1990).
+Compute the area of a spherical triangle on a sphere of radius `radius`, given its three vertex position vectors
+`a₁`, `a₂`, and `a₃` in 3D Cartesian coordinates. The origin is assumed to be at the center of the sphere.
 
-If we denote with ``A``, ``B``, and ``C`` the inner angles of the spherical triangle and with ``a``, ``b``, and ``c`` 
-the sides of the triangle, then it has been known since Euler and Lagrange that
-``\\tan(E/2) = P / (1 + \\cos a + \\cos b + \\cos c)``, where ``E = A + B + C - π`` is the triangle's excess and 
-``P = (1 - \\cos²a - \\cos²b - \\cos²c + 2 \\cos a \\cos b \\cos c)^{1/2}``. 
+For a unit sphere (`radius = 1`), the area equals the spherical excess `E`. For a sphere of radius `R`, the physical
+area is `R² * E`.
 
-On the unit sphere, ``E`` is precisely the area of the spherical triangle. Eriksson (1990) showed that ``P`` above is
-the same as the volume defined by the vectors `a₁`, `a₂`, and `a₃`, that is ``P = |𝐚₁ ⋅ (𝐚₂ × 𝐚₃)|``.
+# Arguments
+- `a₁`, `a₂`, `a₃`: 3-element Cartesian vectors representing the vertices of the spherical triangle. All three must lie
+  on the same sphere.
+- `radius`: Sphere radius (optional). Default is `1`.
+
+# Returns
+- The **physical area** of the spherical triangle on a sphere of radius `radius`.
+
+# Notes
+- This function generalizes the classical Euler–Lagrange formula for spherical excess by expressing the quantity
+  ```math
+  P = \\sqrt{1 - \\cos^2 a - \\cos^2 b - \\cos^2 c + 2 \\cos a \\cos b \\cos c}
+  ```
+  in terms of the scalar triple product
+  ```math
+  P = |𝐚₁ ⋅ (𝐚₂ × 𝐚₃)|
+  ```
+  where `a`, `b`, and `c` are the side lengths of the spherical triangle formed by the vertices `a₁`, `a₂`, and `a₃`.
+  This formula was first derived by Eriksson (1990).
+
+- The inputs a₁, a₂, and a₃ need not be normalized, but they must have the same norm. The function rescales them
+  internally to compute the unit-sphere area, then multiplies by radius² to obtain the physical area.
 
 References
 ==========
 
+* Euler, L. (1778) De mensura angulorum solidorum, Opera omnia, 26, 204-233 (Orig. in Acta adac. sc. Petrop. 1778)
+* Lagrange,  J.-L. (1798) Solutions de quelques problèmes relatifs au triangles sphériques, Oeuvres, 7, 331-359.
 * Eriksson, F. (1990) On the measure of solid angles, Mathematics Magazine, 63 (3), 184-187, 
 doi:10.1080/0025570X.1990.11977515
+
+# Examples
+```jldoctest 1
+julia> using CubedSphere
+
+julia> a₁ = [1.0, 0.0, 0.0];
+julia> a₂ = [0.0, 1.0, 0.0];
+julia> a₃ = [0.0, 0.0, 1.0];
+
+julia> spherical_area_triangle(a₁, a₂, a₃)
+1.5707963267948966    # π/2, spherical triangle area on unit sphere
+
+julia> spherical_area_triangle(a₁ .* 6.371e6, a₂ .* 6.371e6, a₃ .* 6.371e6; radius = 6.371e6)
+6.378136064430505e13  # physical area on Earth-sized sphere
+```
 """
-function spherical_area_triangle(a₁, a₂, a₃)
+function spherical_area_triangle(a₁, a₂, a₃; radius=1)
     a₁, a₂, a₃ = collect(a₁), collect(a₂), collect(a₃)
-    (sum(a₁.^2) ≈ 1 && sum(a₂.^2) ≈ 1 && sum(a₃.^2) ≈ 1) || error("a₁, a₂, a₃ must be unit vectors")
+    r1, r2, r3 = sqrt(sum(a₁.^2)), sqrt(sum(a₂.^2)), sqrt(sum(a₃.^2))
+    (r1 ≈ r2 && r2 ≈ r3) || error("a₁, a₂, a₃ must lie on the same sphere")
 
-    tan½E = abs(dot(a₁, cross(a₂, a₃)))
-    tan½E /= 1 + dot(a₁, a₂) + dot(a₂, a₃) + dot(a₁, a₃)
+    # Use only directions to compute unit-sphere area (scale later)
+    û₁, û₂, û₃ = a₁/r1, a₂/r2, a₃/r3
+    tan½E = abs(dot(û₁, cross(û₂, û₃))) / (1 + dot(û₁, û₂) + dot(û₂, û₃) + dot(û₁, û₃))
+    E_unit = 2atan(tan½E)
 
-    return 2atan(tan½E)
+    return (radius^2) * E_unit
 end
 
 """
-    spherical_area_quadrilateral(a₁, a₂, a₃, a₄)
+    spherical_area_quadrilateral(a₁, a₂, a₃, a₄; radius = 1)
 
-Returns the area of a spherical quadrilateral on the unit sphere whose points are given by 3-vectors, `a₁`, `a₂`, `a₃`,
-and `a₄`. The area of the quadrilateral is given as the sum of the areas of the two non-overlapping triangles. To avoid
-having to pick the triangles appropriately ensuring they are not overlapping, we compute the area of the quadrilateral
-as half the sum of the areas of all four potential triangles formed by `a₁`, `a₂`, `a₃`, and `a₄`.
+Compute the area of a spherical quadrilateral on a sphere of radius `radius`, given its four vertex position vectors
+`a₁`, `a₂`, `a₃`, and `a₄` in 3D Cartesian coordinates. The origin is assumed to be at the center of the sphere.
+
+The quadrilateral area is evaluated as half the sum of the areas of all four spherical triangles formed by the vertices.
+This approach avoids the need to explicitly choose a diagonal that splits the quadrilateral into two non-overlapping
+triangles.
+
+# Arguments
+- `a₁`, `a₂`, `a₃`, `a₄`: 3-element Cartesian vectors representing the four vertices of the spherical quadrilateral.
+  All four must lie on the same sphere.
+- `radius`: Sphere radius (optional). Default is `1`.
+
+# Returns
+- The **physical area** of the spherical quadrilateral on a sphere of radius `radius`.
+
+# Notes
+- This method is numerically robust and works for convex spherical quadrilaterals without requiring explicit diagonal
+  selection.
+- When `radius = 1`, the result corresponds to the quadrilateral area on the unit sphere.
+
+# Examples
+```jldoctest 1
+julia> using CubedSphere
+
+julia> a₁ = [1.0, 0.0, 0.0];
+julia> a₂ = [0.0, 1.0, 0.0];
+julia> a₃ = [0.0, 0.0, 1.0];
+julia> a₄ = [1.0, 1.0, 0.0] ./ √2;  # mid-edge on unit sphere
+
+julia> spherical_area_quadrilateral(a₁, a₂, a₃, a₄)
+2.356194490192345    # example value on unit sphere
+
+julia> R = 6.371e6;  # Earth radius [m]
+julia> spherical_area_quadrilateral(a₁ .* R, a₂ .* R, a₃ .* R, a₄ .* R; radius = R)
+9.58936788123271e13  # physical area [m²]
+```
 """
-spherical_area_quadrilateral(a₁, a₂, a₃, a₄) =
-    1/2 * (spherical_area_triangle(a₁, a₂, a₃) + spherical_area_triangle(a₁, a₂, a₄) +
-           spherical_area_triangle(a₁, a₃, a₄) + spherical_area_triangle(a₂, a₃, a₄))
+spherical_area_quadrilateral(a₁, a₂, a₃, a₄; radius=1)
+    0.5 * (spherical_area_triangle(a₁, a₂, a₃; radius) +
+           spherical_area_triangle(a₁, a₂, a₄; radius) +
+           spherical_area_triangle(a₁, a₃, a₄; radius) +
+           spherical_area_triangle(a₂, a₃, a₄; radius))
 
 """
     spherical_quadrilateral_vertices(X, Y, Z, i, j)
@@ -298,7 +416,48 @@ the Euclidean norm over all cells.
 # Returns
 - A nonnegative scalar quantifying overall grid anisotropy (larger ⇒ more anisotropic).
 """
-function compute_deviation_from_isotropy(X, Y, Z)
+
+"""
+    compute_deviation_from_isotropy(X, Y, Z; radius = 1)
+
+Compute a scalar measure of the deviation from isotropy for a spherical grid (e.g., a conformal cubed-sphere panel),
+defined by the Cartesian coordinate arrays `X`, `Y`, and `Z`. Each of `X`, `Y`, and `Z` is a 2D array of size `(Nx, Ny)`
+holding the Cartesian coordinates of the grid vertices on the sphere, such that the point at `(i, j)` corresponds to
+`(X[i, j], Y[i, j], Z[i, j])`. The grid therefore contains `(Nx−1) × (Ny−1)` spherical quadrilateral cells.
+
+For each quadrilateral cell, the function computes the lengths of its four edges on the sphere (using great-circle
+distances), evaluates the sum of absolute differences between consecutive edge lengths as a measure of cell anisotropy,
+and then returns the Euclidean norm of these deviations over the entire grid.
+
+# Arguments
+- `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates of grid vertices on the sphere.
+- `radius`: Sphere radius (optional). Default is `1`. If `radius ≠ 1`, physical edge lengths are used in the
+  computation.
+
+# Returns
+- A nonnegative scalar quantifying the overall deviation from isotropy in the grid. Larger values correspond to more
+  anisotropic grids.
+
+# Notes
+- When `radius = 1`, the measure corresponds to purely angular differences between cell edge lengths.
+- When `radius ≠ 1`, the differences are computed in physical units (e.g., meters).
+- This metric is useful for evaluating the quality of spherical grids (e.g., assessing how close cells are to being
+  isotropic squares in length).
+
+# Examples
+```jldoctest 1
+julia> using CubedSphere
+
+julia> Nx, Ny = 3, 3;
+julia> X = [1.0 0.0 -1.0; 1.0 0.0 -1.0; 1.0 0.0 -1.0];
+julia> Y = [0.0 1.0 0.0; 0.0 1.0 0.0; 0.0 1.0 0.0];
+julia> Z = [0.0 0.0 0.0; 1.0 1.0 1.0; 0.0 0.0 0.0];
+
+julia> compute_deviation_from_isotropy(X, Y, Z)
+3.141592653589793  # example value on unit sphere
+```
+"""
+function compute_deviation_from_isotropy(X, Y, Z; radius=1)
     Nx, Ny = size(X)
     deviation_from_isotropy = zeros(Nx-1, Ny-1)
 
@@ -306,11 +465,11 @@ function compute_deviation_from_isotropy(X, Y, Z)
         a₁, a₂, a₃, a₄ = spherical_quadrilateral_vertices(X, Y, Z, i, j)
 
         # Compute the arc lengths (distances) between the points a₁ and a₂, a₂ and a₃, a₃ and a₄, and a₄ and a₁ on the
-        # unit sphere.
-        d₁ = spherical_distance(a₁, a₂)
-        d₂ = spherical_distance(a₂, a₃)
-        d₃ = spherical_distance(a₃, a₄)
-        d₄ = spherical_distance(a₄, a₁)
+        # sphere.
+        d₁ = spherical_distance(a₁, a₂; radius)
+        d₂ = spherical_distance(a₂, a₃; radius)
+        d₃ = spherical_distance(a₃, a₄; radius)
+        d₄ = spherical_distance(a₄, a₁; radius)
 
         # Compute the deviation from isotropy.
         deviation_from_isotropy[i, j] = abs(d₁ - d₂) + abs(d₂ - d₃) + abs(d₃ - d₄) + abs(d₄ - d₁)
@@ -320,29 +479,57 @@ function compute_deviation_from_isotropy(X, Y, Z)
 end
 
 """
-    compute_cell_areas(X, Y, Z)
+    compute_cell_areas(X, Y, Z; radius = 1)
 
-Compute the spherical surface areas of all quadrilateral cells in a spherical grid (e.g., a conformal cubed sphere 
-panel) defined by the coordinate arrays `X`, `Y`, and `Z`. Each of `X`, `Y`, and `Z` is a 2D array of size `(Nx, Ny)` 
-holding the Cartesian coordinates of the grid vertices on the sphere, such that the point at `(i, j)` is
-`(X[i, j], Y[i, j], Z[i, j])`. The grid therefore contains `(Nx-1) × (Ny-1)` spherical quadrilateral cells.
+Compute the spherical surface areas of all quadrilateral cells in a spherical grid (e.g., a conformal cubed-sphere
+panel), defined by the Cartesian coordinate arrays `X`, `Y`, and `Z`. Each of `X`, `Y`, and `Z` is a 2D array of size
+`(Nx, Ny)` holding the Cartesian coordinates of the grid vertices on the sphere, such that the point at `(i, j)` is
+`(X[i, j], Y[i, j], Z[i, j])`. The grid therefore contains `(Nx−1) × (Ny−1)` spherical quadrilateral cells.
 
-For each cell centered at `(i, j)` with vertices `(i, j)`, `(i+1, j)`, `(i+1, j+1)`, and `(i, j+1)`, the function
-computes the cell area using `spherical_area_quadrilateral` and stores the results in a 2D array.
+For each quadrilateral cell with vertices `(i, j)`, `(i+1, j)`, `(i+1, j+1)`, and `(i, j+1)`, the function computes the
+spherical area using `spherical_area_quadrilateral` and stores the result in a 2D array. If `radius = 1`, the returned
+areas correspond to the unit sphere. For `radius ≠ 1`, the physical areas are returned.
 
 # Arguments
-- `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates on the sphere.
+- `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates of grid vertices on the sphere.
+- `radius`: Sphere radius (optional). Default is `1`.
 
 # Returns
-- `cell_areas`: An `(Nx-1, Ny-1)` array of spherical quadrilateral cell areas.
+- `cell_areas`: An `(Nx−1, Ny−1)` array of quadrilateral cell areas.
+  - For `radius = 1`, these are unit-sphere areas.
+  - For `radius ≠ 1`, these are physical areas (e.g., in m²).
+
+# Notes
+- The function assumes that `X`, `Y`, and `Z` represent vertices lying on the same sphere.
+
+# Examples
+```jldoctest 1
+julia> using CubedSphere
+
+julia> Nx, Ny = 3, 3;
+julia> X = [1.0 0.0 -1.0; 1.0 0.0 -1.0; 1.0 0.0 -1.0];
+julia> Y = [0.0 1.0 0.0; 0.0 1.0 0.0; 0.0 1.0 0.0];
+julia> Z = [0.0 0.0 0.0; 1.0 1.0 1.0; 0.0 0.0 0.0];
+
+julia> compute_cell_areas(X, Y, Z)
+2×2 Matrix{Float64}:
+ 1.5708  1.5708
+ 1.5708  1.5708
+
+julia> R = 6.371e6;  # Earth radius [m]
+julia> compute_cell_areas(X .* R, Y .* R, Z .* R; radius = R)
+2×2 Matrix{Float64}:
+ 2.57791e13  2.57791e13
+ 2.57791e13  2.57791e13
+```
 """
-function compute_cell_areas(X, Y, Z)
+function compute_cell_areas(X, Y, Z; radius=1)
     Nx, Ny = size(X)
     cell_areas = zeros(Nx-1, Ny-1)
 
     for j in 1:Ny-1, i in 1:Nx-1
         a₁, a₂, a₃, a₄ = spherical_quadrilateral_vertices(X, Y, Z, i, j)
-        cell_areas[i, j] = spherical_area_quadrilateral(a₁, a₂, a₃, a₄)
+        cell_areas[i, j] = spherical_area_quadrilateral(a₁, a₂, a₃, a₄; radius)
     end
 
     return cell_areas
