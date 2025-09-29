@@ -356,7 +356,7 @@ julia> spherical_area_quadrilateral(a₁ .* R, a₂ .* R, a₃ .* R, a₄ .* R; 
 9.58936788123271e13  # physical area [m²]
 ```
 """
-spherical_area_quadrilateral(a₁, a₂, a₃, a₄; radius=1)
+spherical_area_quadrilateral(a₁, a₂, a₃, a₄; radius=1) =
     0.5 * (spherical_area_triangle(a₁, a₂, a₃; radius) +
            spherical_area_triangle(a₁, a₂, a₄; radius) +
            spherical_area_triangle(a₁, a₃, a₄; radius) +
