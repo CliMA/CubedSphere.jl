@@ -143,7 +143,7 @@ julia> a₁ = (1.0, 0.0, 0.0);  # point on unit sphere
 julia> a₂ = (0.0, 1.0, 0.0);  # 90° away
 
 julia> spherical_distance(a₁, a₂)
-1.5707963267948966  # π/2 radians
+1.5707963267948968  # π/2 radians
 ```
 """
 function spherical_distance(a₁, a₂; radius=1)
@@ -197,7 +197,7 @@ julia> spherical_area_triangle(a, b, c)
 1.5707963267948966       # π/2, area of a spherical octant
 
 julia> spherical_area_triangle(a, b, c; radius = 6371e3)  # Earth radius
-6.378136064430505e13
+6.375805898872353e13
 ```
 """
 function spherical_area_triangle(a::Number, b::Number, c::Number; radius=1)
@@ -262,7 +262,7 @@ julia> spherical_area_triangle(a₁, a₂, a₃)
 1.5707963267948966    # π/2, spherical triangle area on unit sphere
 
 julia> spherical_area_triangle(a₁ .* 6.371e6, a₂ .* 6.371e6, a₃ .* 6.371e6; radius = 6.371e6)
-6.378136064430505e13  # physical area on Earth-sized sphere
+6.375805898872353e13  # physical area on Earth-sized sphere
 ```
 """
 function spherical_area_triangle(a₁, a₂, a₃; radius=1)
@@ -311,11 +311,11 @@ julia> a₃ = [0.0, 0.0, 1.0];
 julia> a₄ = [1.0, 1.0, 0.0] ./ √2;  # mid-edge on unit sphere
 
 julia> spherical_area_quadrilateral(a₁, a₂, a₃, a₄)
-2.356194490192345    # example value on unit sphere
+1.5707963267948966    # example value on unit sphere
 
-julia> R = 6.371e6;  # Earth radius [m]
+julia> R = 6.371e6;   # Earth radius [m]
 julia> spherical_area_quadrilateral(a₁ .* R, a₂ .* R, a₃ .* R, a₄ .* R; radius = R)
-9.58936788123271e13  # physical area [m²]
+6.375805898872353e13  # physical area [m²]
 ```
 """
 spherical_area_quadrilateral(a₁, a₂, a₃, a₄; radius=1) =
@@ -361,25 +361,6 @@ function spherical_quadrilateral_vertices(X, Y, Z, i, j)
 end
 
 """
-    compute_deviation_from_isotropy(X, Y, Z)
-
-Compute a scalar measure of the deviation from isotropy for a spherical grid (e.g., a conformal cubed-sphere panel),
-defined by the coordinate arrays `X`, `Y`, and `Z`. Each of `X`, `Y`, and `Z` is a 2D array of size `(Nx, Ny)` holding
-the Cartesian coordinates of grid vertices on the sphere, such that the point at `(i, j)` is
-`(X[i, j], Y[i, j], Z[i, j])`. The grid therefore contains `(Nx-1) × (Ny-1)` spherical quadrilateral cells.
-
-For each quadrilateral cell in the grid, the function computes the arc lengths of its four edges on the unit sphere and
-evaluates the sum of consecutive edge differences as a measure of anisotropy. The total deviation is then returned as 
-the Euclidean norm over all cells.
-
-# Arguments
-- `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates on the sphere.
-
-# Returns
-- A nonnegative scalar quantifying overall grid anisotropy (larger ⇒ more anisotropic).
-"""
-
-"""
     compute_deviation_from_isotropy(X, Y, Z; radius = 1)
 
 Compute a scalar measure of the deviation from isotropy for a spherical grid (e.g., a conformal cubed-sphere panel),
@@ -411,12 +392,14 @@ and then returns the Euclidean norm of these deviations over the entire grid.
 julia> using CubedSphere
 
 julia> Nx, Ny = 3, 3;
-julia> X = [1.0 0.0 -1.0; 1.0 0.0 -1.0; 1.0 0.0 -1.0];
-julia> Y = [0.0 1.0 0.0; 0.0 1.0 0.0; 0.0 1.0 0.0];
-julia> Z = [0.0 0.0 0.0; 1.0 1.0 1.0; 0.0 0.0 0.0];
+julia> lons = range(-π/4, π/4, length = Nx);
+julia> lats = range(-π/6, π/6, length = Ny);
+julia> X = [cos(φ)*cos(λ) for λ in lons, φ in lats];
+julia> Y = [cos(φ)*sin(λ) for λ in lons, φ in lats];
+julia> Z = [sin(φ)        for λ in lons, φ in lats];
 
 julia> compute_deviation_from_isotropy(X, Y, Z)
-3.141592653589793  # example value on unit sphere
+1.6552138747243959  # example value on unit sphere
 ```
 """
 function compute_deviation_from_isotropy(X, Y, Z; radius=1)
@@ -468,21 +451,33 @@ areas correspond to the unit sphere. For `radius ≠ 1`, the physical areas are 
 ```jldoctest 1
 julia> using CubedSphere
 
-julia> Nx, Ny = 3, 3;
-julia> X = [1.0 0.0 -1.0; 1.0 0.0 -1.0; 1.0 0.0 -1.0];
-julia> Y = [0.0 1.0 0.0; 0.0 1.0 0.0; 0.0 1.0 0.0];
-julia> Z = [0.0 0.0 0.0; 1.0 1.0 1.0; 0.0 0.0 0.0];
+julia> # 3×3 points on the unit sphere (not a lat–lon cell bounded by small circles
+julia> Nx, Ny = 3, 3
+julia> lons = range(-π/6, π/6, length = Nx)
+julia> lats = range(-π/6,  π/6, length = Ny)
+julia> X = [cos(φ)*cos(λ) for λ in lons, φ in lats]
+julia> Y = [cos(φ)*sin(λ) for λ in lons, φ in lats]
+julia> Z = [sin(φ)        for λ in lons, φ in lats];
 
-julia> compute_cell_areas(X, Y, Z)
-2×2 Matrix{Float64}:
- 1.5708  1.5708
- 1.5708  1.5708
+julia> A = compute_cell_areas(X, Y, Z);
 
+julia> size(A)
+(2, 2)
+
+# All four cells are identical by symmetry:
+julia> all(isapprox.(A, fill(A[1,1], 2, 2); rtol=1e-12))
+true
+
+# Reference value for this geodesic quadrilateral (unit sphere):
+julia> isapprox(A[1,1], 0.26636308214247195; rtol=1e-12)
+true
+
+julia> # Physical scaling: areas scale like R^2
 julia> R = 6.371e6;  # Earth radius [m]
-julia> compute_cell_areas(X .* R, Y .* R, Z .* R; radius = R)
-2×2 Matrix{Float64}:
- 2.57791e13  2.57791e13
- 2.57791e13  2.57791e13
+julia> A_R = compute_cell_areas(X .* R, Y .* R, Z .* R; radius = R);
+
+julia> isapprox.(A_R, A .* R^2; rtol=1e-9) |> all
+true
 ```
 """
 function compute_cell_areas(X, Y, Z; radius=1)
