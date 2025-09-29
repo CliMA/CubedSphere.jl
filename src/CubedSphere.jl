@@ -2,7 +2,7 @@ module CubedSphere
 
 export sn, cn, conformal_cubed_sphere_mapping, conformal_cubed_sphere_inverse_mapping, cartesian_to_lat_lon
 export lat_lon_to_x, lat_lon_to_y, lat_lon_to_z, lat_lon_to_cartesian, cartesian_to_latitude, cartesian_to_longitude,
-    cartesian_to_lat_lon, turning_angle, spherical_distance, spherical_area_triangle, spherical_area_quadrilateral,
+    cartesian_to_lat_lon, spherical_distance, spherical_area_triangle, spherical_area_quadrilateral,
     spherical_quadrilateral_vertices, compute_deviation_from_isotropy, compute_cell_areas
 export conformal_cubed_sphere_coordinates, optimized_non_uniform_conformal_cubed_sphere_coordinates
 

@@ -116,44 +116,6 @@ Convert (latitude, longitude) coordinates (in degrees) to Cartesian coordinate z
 lat_lon_to_z(φ; radius = 1) = radius * sind(φ)
 
 """
-    turning_angle(λ₁, φ₁, λ₂, φ₂)
-
-Compute the **signed** turning angle (in degrees) between the unit tangent vectors at the endpoints of the great-circle
-arc connecting two points `(λ₁, φ₁)` and `(λ₂, φ₂)` on the unit sphere.
-
-# Arguments
-- `λ₁, φ₁`: Longitude and latitude of the first point (in degrees).
-- `λ₂, φ₂`: Longitude and latitude of the second point (in degrees).
-
-# Returns
-- Signed turning angle (in degrees) in `(-180, 180]`.
-
-# Notes
-- A positive angle corresponds to a counter-clockwise rotation from the tangent at `(λ₁, φ₁)` to the tangent at
-  `(λ₂, φ₂)` about the great-circle normal.
-- The result is undefined for coincident or antipodal points (an error is thrown).
-"""
-function turning_angle(φ₁, λ₁, φ₂, λ₂)
-    r₁ = collect(lat_lon_to_cartesian(φ₁, λ₁))
-    r₂ = collect(lat_lon_to_cartesian(φ₂, λ₂))
-
-    n = cross(r₁, r₂)
-    nrm = norm(n)
-    if !(nrm > 0) || !isfinite(nrm)
-        throw(ArgumentError("Great-circle normal is undefined for coincident or antipodal points."))
-    end
-    n̂ = n / nrm
-
-    t₁ = cross(n̂, r₁); t₁ /= norm(t₁)
-    t₂ = cross(n̂, r₂); t₂ /= norm(t₂)
-
-    num = dot(n̂, cross(t₁, t₂))
-    den = dot(t₁, t₂)
-
-    return atan(num, den)
-end
-
-"""
     spherical_distance(a₁, a₂; radius = 1)
 
 Compute the great-circle distance between two Cartesian points `a₁` and `a₂` on a sphere of radius `radius`.
