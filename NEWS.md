@@ -1,6 +1,13 @@
 CubedSphere.jl Release Notes
 ===============================
 
+v0.3.3
+------
+
+Introduces conformal cubed-sphere coordinates which originate from a non-uniformly
+spaced horizontal grid (ξ, η) ∈ [-1, 1] x [-1, 1].
+
+
 v0.3.0
 ------
 
