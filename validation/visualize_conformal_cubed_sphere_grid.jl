@@ -10,16 +10,16 @@ function write_output_to_file_1D(output_directory, x, y, file_name)
         mkdir(path)
     end
     cd(path)
-    
+
     file_name *= ".curve"
     outputfile = open(file_name, "w")
-    
+
     write(outputfile, "#phi\n")
     for i in eachindex(x)
         write(outputfile, string(x[i], " ", y[i], "\n"))
         # The above line is equivalent to println(outputfile, "$(x[i]) $(y[i])")
     end
-    
+
     close(outputfile)
     cd(cwd)
 end
@@ -31,7 +31,7 @@ function read_output_from_file_1D(output_directory, file_name)
         mkdir(path)
     end
     cd(path)
-    
+
     data = []
     count = 1
     open(file_name, "r") do infile
@@ -43,7 +43,7 @@ function read_output_from_file_1D(output_directory, file_name)
         end
     end
     data = readdlm(IOBuffer(join(data, "\n")))
-    
+
     N = size(data, 1)
     x = zeros(N)
     y = zeros(N)
@@ -51,9 +51,9 @@ function read_output_from_file_1D(output_directory, file_name)
         x[i] = data[i,1]
         y[i] = data[i,2]
     end
-    
+
     cd(cwd)
-    
+
     return (x, y)
 end
 
@@ -227,12 +227,12 @@ function visualize_conformal_cubed_sphere_panel_2D_3D(Nx, Ny, axis_kwargs_2D, ax
     ax2D = Axis(fig[1, 1]; aspect = 1, title = "Conformal Cubed Sphere Panel", axis_kwargs_2D...)
     ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)),
                  title = "Conformal Cubed Sphere Panel", axis_kwargs_3D...)
-    
+
     for ax in [ax2D, ax3D]
         hide_decorations && hidedecorations!(ax)
         wireframe!(ax, X, Y, Z, color = color)
     end
-    
+
     colgap!(fig.layout, 60)
 
     return fig
@@ -250,21 +250,21 @@ function visualize_conformal_cubed_sphere_2D(Nx, Ny, axis_kwargs_2D, hide_decora
     wireframe!(ax2D, X, Y, Z, color = colors[1])
 
     rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
-    
+
     for (i, R) in enumerate(rotations)
-    
+
         X′ = similar(X)
         Y′ = similar(Y)
         Z′ = similar(Z)
-    
+
         for I in CartesianIndices(X)
             X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
         end
-    
+
         wireframe!(ax2D, X′, Y′, Z′, color = colors[i + 1])
-        
+
     end
-    
+
     return fig
 end
 
@@ -276,7 +276,7 @@ axis_kwargs_2D = (xlabel = "x", ylabel = "y", xlabelsize = 22.5, ylabelsize = 22
 axis_kwargs_3D = (xlabel = "x", ylabel = "y", zlabel = "z", xlabelsize = 22.5, ylabelsize = 22.5, zlabelsize = 22.5,
                   xticksize = 8, yticksize = 8, zticksize = 8, xticklabelsize = 17.5, yticklabelsize = 17.5,
                   zticklabelsize = 17.5, xticklabelpad = 10, yticklabelpad = 10, zticklabelpad = 10, titlesize = 27.5,
-                  titlegap = 15, titlefont = :bold) 
+                  titlegap = 15, titlefont = :bold)
 
 function visualize_conformal_cubed_sphere_2D(X, Y, Z, file_name;
                                              figure_padding = (25, 100, 0, 0), # (left, right, bottom, top)
@@ -318,25 +318,25 @@ function visualize_conformal_cubed_sphere_3D(Nx, Ny, axis_kwargs_3D, hide_decora
 
     ax3D = Axis3(fig[1, 1]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = title, axis_kwargs_3D...)
     hide_decorations && hidedecorations!(ax3D)
-    
+
     wireframe!(ax3D, X, Y, Z, color = colors[1], alpha = alphas[1])
-    
+
     rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
-    
+
     for (i, R) in enumerate(rotations)
-    
+
         X′ = similar(X)
         Y′ = similar(Y)
         Z′ = similar(Z)
-    
+
         for I in CartesianIndices(X)
             X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
         end
-    
+
         wireframe!(ax3D, X′, Y′, Z′, color = colors[i + 1], alpha = alphas[i + 1])
-        
+
     end
-    
+
     return fig
 end
 
@@ -384,27 +384,27 @@ function visualize_conformal_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwa
     ax2D = Axis(fig[1, 1]; aspect = 1, title = title_2D, axis_kwargs_2D...)
     ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = title_3D,
                  axis_kwargs_3D...)
-    
+
     for ax in [ax2D, ax3D]
         hide_decorations && hidedecorations!(ax)
         wireframe!(ax, X, Y, Z, color = colors[1], alpha = alphas[1])
     end
-    
+
     rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
-    
+
     for (i, R) in enumerate(rotations)
-    
+
         X′ = similar(X)
         Y′ = similar(Y)
         Z′ = similar(Z)
-    
+
         for I in CartesianIndices(X)
             X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
         end
-        
+
         wireframe!(ax2D, X′, Y′, Z′, color = colors[i+1])
         wireframe!(ax3D, X′, Y′, Z′, color = colors[i+1], alpha = alphas[i+1])
-        
+
     end
 
     colgap!(fig.layout, 60)
@@ -426,29 +426,29 @@ function visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, file_name;
     ax2D = Axis(fig[1, 1]; aspect = 1, title = title_2D, axis_kwargs_2D...)
     ax3D = Axis3(fig[1, 2]; aspect = (1, 1, 1), limits = ((-1, 1), (-1, 1), (-1, 1)), title = title_3D,
                  axis_kwargs_3D...)
-    
+
     for ax in [ax2D, ax3D]
         hide_decorations && hidedecorations!(ax)
         wireframe!(ax, X, Y, Z, color = colors[1], alpha = alphas[1])
     end
-    
+
     rotations = (RotX(π/2), RotX(-π/2), RotY(π/2), RotY(-π/2), RotX(π))
-    
+
     for (i, R) in enumerate(rotations)
         X′ = similar(X)
         Y′ = similar(Y)
         Z′ = similar(Z)
-    
+
         for I in CartesianIndices(X)
             X′[I], Y′[I], Z′[I] = R * [X[I], Y[I], Z[I]]
         end
-        
+
         wireframe!(ax2D, X′, Y′, Z′, color = colors[i+1])
         wireframe!(ax3D, X′, Y′, Z′, color = colors[i+1], alpha = alphas[i+1])
     end
 
     colgap!(fig.layout, 60)
-    
+
     save(output_directory * "/" * file_name, fig)
 end
 
@@ -491,14 +491,14 @@ function visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing_
     visualize_conformal_cubed_sphere_2D_3D(X, Y, Z, "conformal_cubed_sphere_2D_3D.pdf")
     cell_areas = compute_cell_areas(X, Y, Z)
     reference_minimum_cell_area = minimum(cell_areas)
-    
+
     if optimized
         x, y, X, Y, Z = optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing_type)
     else
         x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny; non_uniform_spacing = true,
                                                            spacing_type = spacing_type)
     end
-    
+
     if spacing_type == "geometric"
         spacing_type_title = "Geometric"
     elseif spacing_type == "exponential"
@@ -521,12 +521,12 @@ function visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing_
     visualize_conformal_cubed_sphere_2D_3D(
     X, Y, Z, "non_uniform_conformal_cubed_sphere_2D_3D_" * spacing_type * file_name_suffix * ".pdf";
     title_2D = title_2D, title_3D = title_3D)
-    
+
     cell_areas = compute_cell_areas(X, Y, Z)
     minimum_cell_area = minimum(cell_areas)
-    print("The normalized minimum cell width of the non-uniform conformal cubed sphere for spacing = $spacing_type " 
+    print("The normalized minimum cell width of the non-uniform conformal cubed sphere for spacing = $spacing_type "
           * "and optimized = $optimized is $(sqrt(minimum_cell_area/reference_minimum_cell_area))\n")
-end 
+end
 
 for optimized in [false, true]
     for spacing_type in ["geometric", "exponential"]
@@ -566,7 +566,7 @@ function minimum_cell_width_variation_with_resolution(spacing_type, optimized;
                                                       output_directory = "visualize_conformal_cubed_sphere_grid")
     resolutions = 100:50:1000
     normalized_minimum_cell_widths = zeros(length(resolutions))
-    
+
     minimum_reference_cell_area = 0
 
     for (i, resolution) in enumerate(resolutions)
@@ -616,7 +616,7 @@ if plot_minimum_cell_width_variation_with_resolution
     plot_kwargs = (linewidth = 2, linecolor = :black, marker = :rect, markersize = 15)
     plot_kwargs_2 = (linewidth = 2, linecolors = [:red, :blue], markers = [:rect, :rect], markersize = 15,
                      labels = ["Unoptimized", "Optimized with EKI"])
-    
+
     for spacing_type in ["geometric", "exponential"]
         title = specify_title(spacing_type) * ":\nNormalized Minimum Cell Width versus Resolution"
 
@@ -627,7 +627,7 @@ if plot_minimum_cell_width_variation_with_resolution
         for optimized in [false, true]
             @info "Plotting minimum cell width variation with resolution for spacing = $spacing_type " *
             "and optimized = $optimized"
-            
+
             file_name_suffix_1, file_name_suffix_2 = specify_file_name_suffixes(spacing_type, optimized)
 
             file_name = "MinimumCellWidthVersusResolution" * file_name_suffix_1 * file_name_suffix_2

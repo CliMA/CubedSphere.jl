@@ -1,3 +1,9 @@
+module SphericalGeometry
+
+export lat_lon_to_x, lat_lon_to_y, lat_lon_to_z, lat_lon_to_cartesian, cartesian_to_latitude, cartesian_to_longitude,
+    cartesian_to_lat_lon, spherical_distance, spherical_area_triangle, spherical_area_quadrilateral,
+    spherical_quadrilateral_vertices, compute_cell_areas
+
 using Distances
 using LinearAlgebra
 
@@ -22,7 +28,7 @@ latitude–longitude. Returns a tuple `(latitude, longitude)` in degrees.
 Find latitude–longitude of the North Pole:
 
 ```jldoctest 1
-julia> using CubedSphere
+julia> using CubedSphere.SphericalGeometry
 
 julia> x, y, z = (0, 0, 6.4e6);  # Cartesian coordinates of the North Pole [in meters]
 
@@ -77,7 +83,7 @@ Convert `(latitude, longitude)` coordinates (in degrees) to Cartesian coordinate
 Find the Cartesian coordinates of the North Pole on a unit sphere:
 
 ```jldoctest 1
-julia> using CubedSphere
+julia> using CubedSphere.SphericalGeometry
 
 julia> lat_lon_to_cartesian(90, 0)
 (0.0, 0.0, 1.0)
@@ -137,7 +143,7 @@ returned value is the physical arc length along the sphere.
 
 # Examples
 ```jldoctest 1
-julia> using CubedSphere
+julia> using CubedSphere.SphericalGeometry
 
 julia> a₁ = (1.0, 0.0, 0.0);  # point on unit sphere
        a₂ = (0.0, 1.0, 0.0);  # 90° away
@@ -189,7 +195,7 @@ References
 
 # Examples
 ```jldoctest 1
-julia> using CubedSphere
+julia> using CubedSphere.SphericalGeometry
 
 julia> a = b = c = π/2;  # Right spherical triangle with 90° sides on unit sphere
 
@@ -247,12 +253,12 @@ References
 
 * Euler, L. (1778) De mensura angulorum solidorum, Opera omnia, 26, 204-233 (Orig. in Acta adac. sc. Petrop. 1778)
 * Lagrange,  J.-L. (1798) Solutions de quelques problèmes relatifs au triangles sphériques, Oeuvres, 7, 331-359.
-* Eriksson, F. (1990) On the measure of solid angles, Mathematics Magazine, 63 (3), 184-187, 
+* Eriksson, F. (1990) On the measure of solid angles, Mathematics Magazine, 63 (3), 184-187,
 doi:10.1080/0025570X.1990.11977515
 
 # Examples
 ```jldoctest 1
-julia> using CubedSphere
+julia> using CubedSphere.SphericalGeometry
 
 julia> a₁ = [1.0, 0.0, 0.0];
        a₂ = [0.0, 1.0, 0.0];
@@ -303,7 +309,7 @@ triangles.
 
 # Examples
 ```jldoctest 1
-julia> using CubedSphere
+julia> using CubedSphere.SphericalGeometry
 
 julia> a₁ = [1.0, 0.0, 0.0];
        a₂ = [0.0, 1.0, 0.0];
@@ -362,69 +368,6 @@ function spherical_quadrilateral_vertices(X, Y, Z, i, j)
 end
 
 """
-    compute_deviation_from_isotropy(X, Y, Z; radius = 1)
-
-Compute a scalar measure of the deviation from isotropy for a spherical grid (e.g., a conformal cubed-sphere panel),
-defined by the Cartesian coordinate arrays `X`, `Y`, and `Z`. Each of `X`, `Y`, and `Z` is a 2D array of size `(Nx, Ny)`
-holding the Cartesian coordinates of the grid vertices on the sphere, such that the point at `(i, j)` corresponds to
-`(X[i, j], Y[i, j], Z[i, j])`. The grid therefore contains `(Nx−1) × (Ny−1)` spherical quadrilateral cells.
-
-For each quadrilateral cell, the function computes the lengths of its four edges on the sphere (using great-circle
-distances), evaluates the sum of absolute differences between consecutive edge lengths as a measure of cell anisotropy,
-and then returns the Euclidean norm of these deviations over the entire grid.
-
-# Arguments
-- `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates of grid vertices on the sphere.
-- `radius`: Sphere radius (optional). Default is `1`. If `radius ≠ 1`, physical edge lengths are used in the
-  computation.
-
-# Returns
-- A nonnegative scalar quantifying the overall deviation from isotropy in the grid. Larger values correspond to more
-  anisotropic grids.
-
-# Notes
-- When `radius = 1`, the measure corresponds to purely angular differences between cell edge lengths.
-- When `radius ≠ 1`, the differences are computed in physical units (e.g., meters).
-- This metric is useful for evaluating the quality of spherical grids (e.g., assessing how close cells are to being
-  isotropic squares in length).
-
-# Examples
-```jldoctest 1
-julia> using CubedSphere
-
-julia> Nx, Ny = 3, 3;
-       lons = range(-π/4, π/4, length = Nx);
-       lats = range(-π/6, π/6, length = Ny);
-       X = [cos(φ)*cos(λ) for λ in lons, φ in lats];
-       Y = [cos(φ)*sin(λ) for λ in lons, φ in lats];
-       Z = [sin(φ)        for λ in lons, φ in lats];
-
-julia> compute_deviation_from_isotropy(X, Y, Z)
-1.6552138747243959
-```
-"""
-function compute_deviation_from_isotropy(X, Y, Z; radius=1)
-    Nx, Ny = size(X)
-    deviation_from_isotropy = zeros(Nx-1, Ny-1)
-
-    for j in 1:Ny-1, i in 1:Nx-1
-        a₁, a₂, a₃, a₄ = spherical_quadrilateral_vertices(X, Y, Z, i, j)
-
-        # Compute the arc lengths (distances) between the points a₁ and a₂, a₂ and a₃, a₃ and a₄, and a₄ and a₁ on the
-        # sphere.
-        d₁ = spherical_distance(a₁, a₂; radius)
-        d₂ = spherical_distance(a₂, a₃; radius)
-        d₃ = spherical_distance(a₃, a₄; radius)
-        d₄ = spherical_distance(a₄, a₁; radius)
-
-        # Compute the deviation from isotropy.
-        deviation_from_isotropy[i, j] = abs(d₁ - d₂) + abs(d₂ - d₃) + abs(d₃ - d₄) + abs(d₄ - d₁)
-    end
-
-    return norm(deviation_from_isotropy)
-end
-
-"""
     compute_cell_areas(X, Y, Z; radius = 1)
 
 Compute the spherical surface areas of all quadrilateral cells in a spherical grid (e.g., a conformal cubed-sphere
@@ -450,7 +393,7 @@ areas correspond to the unit sphere. For `radius ≠ 1`, the physical areas are 
 
 # Examples
 ```jldoctest 1
-julia> using CubedSphere
+julia> using CubedSphere.SphericalGeometry
 
 julia> Nx, Ny = 3, 3
        lons = range(-π/6, π/6, length = Nx)
@@ -488,3 +431,5 @@ function compute_cell_areas(X, Y, Z; radius=1)
 
     return cell_areas
 end
+
+end # module

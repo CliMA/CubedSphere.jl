@@ -1,4 +1,6 @@
 using CubedSphere
+using CubedSphere.SphericalGeometry
+
 using LinearAlgebra
 using Statistics
 using Random
@@ -18,11 +20,11 @@ outward from the center, and the layout is mirrored about zero. Endpoints are fi
 
 # Arguments
 - `N`: Number of faces (`N ≥ 2`).
-- `ratio_raised_to_N_minus_one`: The value `r^(N-1)` for some geometric ratio `r > 0`. Values near `1` yield nearly 
+- `ratio_raised_to_N_minus_one`: The value `r^(N-1)` for some geometric ratio `r > 0`. Values near `1` yield nearly
   uniform spacing. (Exactly `1` is not supported by the closed-form formulas used here.)
 
 # Returns
-- `x_faces`: A length-`N` monotonically increasing vector of face coordinates on `[-1, 1]` with geometric grading and 
+- `x_faces`: A length-`N` monotonically increasing vector of face coordinates on `[-1, 1]` with geometric grading and
   symmetry: `x_faces[1] = -1`, `x_faces[N] = 1`, and `x_faces[i] = -x_faces[N+1-i]`.
 """
 function geometric_spacing(N, ratio_raised_to_N_minus_one)
@@ -31,41 +33,41 @@ function geometric_spacing(N, ratio_raised_to_N_minus_one)
 
     if isodd(N)
         M = round(Int, (N + 1)/2)
-    
+
         Δx = 1 * (ratio - 1) / (ratio^(M - 1) - 1)
 
         x_faces[M] = 0
-        
+
         k = 0
-        
+
         for i in M+1:N
             x_faces[i] = x_faces[i-1] + Δx * ratio^k
             x_faces[N+1-i] = -x_faces[i]
             k += 1
         end
-        
+
         x_faces[1] = -1
         x_faces[N] = 1
     else
         M = Int(N/2)
-    
+
         Δx = 1/((ratio^M - 1)/(ratio - 1) - 0.5)
-        
+
         x_faces[M] = -0.5Δx
         x_faces[M+1] = 0.5Δx
-        
+
         k = 1
-        
+
         for i in M+2:N
             x_faces[i] = x_faces[i-1] + Δx * ratio^k
             x_faces[N+1-i] = -x_faces[i]
             k += 1
         end
-        
+
         x_faces[1] = -1
         x_faces[N] = 1
-    end 
-    
+    end
+
     return x_faces
 end
 
@@ -73,62 +75,62 @@ end
     exponential_spacing(N, k₀ByN)
 
 Construct a symmetric set of `N` face locations on `[-1, 1]` with **exponentially graded** spacing away from the domain
-center. Let `k₀ = k₀ByN * N`, and define an exponential map on the right half, `x(t) = α·exp(t/k₀) + β`, anchored so 
+center. Let `k₀ = k₀ByN * N`, and define an exponential map on the right half, `x(t) = α·exp(t/k₀) + β`, anchored so
 that it passes through `(t₀, 0)` and `(t₁, 1)`, then mirror about zero. Endpoints are fixed at `-1` and `+1`.
 
-- **Odd `N`** (`M = (N+1)/2`): a face lies at `0` (`x_faces[M] = 0`). The right-half faces use `t = 1, …, M` with 
+- **Odd `N`** (`M = (N+1)/2`): a face lies at `0` (`x_faces[M] = 0`). The right-half faces use `t = 1, …, M` with
   `x(1) = 0`, `x(M) = 1`, and the left half is the negative mirror.
 - **Even `N`** (`M = N/2`): no face at `0`. The two central faces straddle zero, with `0` midway between them; the
   right-half faces use `t = 2, …, M+1` anchored by `x(1.5) = 0`, `x(M+1) = 1`, and the left half is mirrored.
 
 # Arguments
 - `N`: Number of faces (`N ≥ 2`).
-- `k₀ByN`: Grading parameter scaled by `N` (the code uses `k₀ = k₀ByN * N`). Larger `k₀ByN` yields spacing closer to 
+- `k₀ByN`: Grading parameter scaled by `N` (the code uses `k₀ = k₀ByN * N`). Larger `k₀ByN` yields spacing closer to
   uniform; smaller `k₀ByN` increases clustering near the center. Requires `k₀ByN > 0`.
 
 # Returns
-- `x_faces`: A length-`N` strictly increasing vector of face coordinates on `[-1, 1]` with symmetry 
+- `x_faces`: A length-`N` strictly increasing vector of face coordinates on `[-1, 1]` with symmetry
   `x_faces[i] = -x_faces[N+1-i]`, and endpoints `x_faces[1] = -1`, `x_faces[N] = 1`.
 """
 function exponential_spacing(N, k₀ByN)
     k₀ = k₀ByN * N
     x_faces = zeros(N)
-    
+
     if isodd(N)
         M = round(Int, (N + 1)/2)
-        
+
         A = [exp(1/k₀) 1
              exp(M/k₀) 1]
 
         b = [0, 1]
-        
+
         coefficients = A \ b
-        
+
         x_faces[M:N] = coefficients[1] * exp.((1:M)/k₀) .+ coefficients[2]
-        
+
         for i in 1:M-1
             x_faces[i] = -x_faces[N+1-i]
         end
-        
+
         x_faces[1] = -1
         x_faces[M] = 0
         x_faces[N] = 1
     else
         M = Int(N/2)
-        
+
         A = [exp(1.5/k₀)   1
              exp((M+1)/k₀) 1]
-    
+
         b = [0, 1]
-        
+
         coefficients = A \ b
-        
+
         x_faces[M+1:N] = coefficients[1] * exp.((2:M+1)/k₀) .+ coefficients[2]
-        
+
         for i in 1:M
             x_faces[i] = -x_faces[N+1-i]
         end
-        
+
         x_faces[1] = -1
         x_faces[N] = 1
     end
@@ -143,8 +145,8 @@ end
                                        ratio_raised_to_Nx_minus_one=10.5,
                                        k₀ByNx=0.45)
 
-Generate computational-space coordinates `x` and `y` on `[-1, 1] × [-1, 1]` and map them to Cartesian coordinates 
-`(X, Y, Z)` on the sphere using `conformal_cubed_sphere_mapping`. The arrays `X`, `Y`, and `Z` are of size `(Nx, Ny)` 
+Generate computational-space coordinates `x` and `y` on `[-1, 1] × [-1, 1]` and map them to Cartesian coordinates
+`(X, Y, Z)` on the sphere using `conformal_cubed_sphere_mapping`. The arrays `X`, `Y`, and `Z` are of size `(Nx, Ny)`
 and correspond to `Nx × Ny` grid vertices, defining `(Nx-1) × (Ny-1)` spherical quadrilateral cells of a conformal cubed
 sphere panel.
 
@@ -186,15 +188,15 @@ function conformal_cubed_sphere_coordinates(Nx, Ny;
             y = exponential_spacing(Ny, k₀ByNx)
         end
     end
-    
+
     X = zeros(length(x), length(y))
     Y = zeros(length(x), length(y))
     Z = zeros(length(x), length(y))
-    
+
     for (j, y′) in enumerate(y), (i, x′) in enumerate(x)
         X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x′, y′)
     end
-    
+
     return x, y, X, Y, Z
 end
 
@@ -258,7 +260,7 @@ ensemble member is sampled uniformly within its parameter bounds.
 - `spacing_type`: `"geometric"` or `"exponential"`.
 
 # Returns
-- A vector of length `nEnsemble`, where each element is a one-element parameter vector `[θ]` (a single parameter in this 
+- A vector of length `nEnsemble`, where each element is a one-element parameter vector `[θ]` (a single parameter in this
   implementation).
 """
 function specify_random_parameters(nEnsemble, spacing_type)
@@ -273,7 +275,7 @@ end
 """
     specify_weights_for_model_diagnostics()
 
-Return the weights applied to the model diagnostics used by the objective function. The two diagnostics are, in order: 
+Return the weights applied to the model diagnostics used by the objective function. The two diagnostics are, in order:
 `(1) normalized minimum cell width`, `(2) deviation from isotropy`.
 
 # Returns
@@ -303,11 +305,11 @@ Compute the two model diagnostics for a given mapped grid:
 function compute_model_diagnostics(X, Y, Z, minimum_reference_cell_area)
     cell_areas = compute_cell_areas(X, Y, Z)
     normalized_minimum_cell_width = sqrt(minimum(cell_areas)/minimum_reference_cell_area)
-    
+
     deviation_from_isotropy = compute_deviation_from_isotropy(X, Y, Z)
 
     model_diagnostics = vcat(normalized_minimum_cell_width, deviation_from_isotropy)
-    
+
     return model_diagnostics
 end
 
@@ -359,18 +361,18 @@ function forward_map(Nx, Ny, spacing_type, θ)
     for i in 1:lastindex(θ)
         θ[i] = clamp(θ[i], θ_limits[i][1], θ_limits[i][2])
     end
-    
+
     x_reference, y_reference, X_reference, Y_reference, Z_reference = conformal_cubed_sphere_coordinates(Nx, Ny)
     cell_areas = compute_cell_areas(X_reference, Y_reference, Z_reference)
     minimum_reference_cell_area = minimum(cell_areas)
-    
+
     x, y, X, Y, Z = (
     conformal_cubed_sphere_coordinates(Nx, Ny;
                                        non_uniform_spacing = true,
                                        spacing_type,
                                        ratio_raised_to_Nx_minus_one = θ[1],
                                        k₀ByNx = θ[1]))
-    
+
     model_diagnostics = compute_model_diagnostics(X, Y, Z, minimum_reference_cell_area)
 
     weighted_model_diagnostics = compute_weighted_model_diagnostics(model_diagnostics)
@@ -415,12 +417,12 @@ At each iteration:
    - Cross-covariance `Cᵘᵖ = cov(θ, G)` (shape: nθ × ndata), and
    - Data covariance `Cᵖᵖ = cov(G, G)` (shape: ndata × ndata),
    using the unbiased `(nEnsemble-1)` denominator.
-3. **Perturbed observations:** For each member, build `y[n] = ideal + Δt * η[n]` where `η[n] ~ N(0, I)`. Here `Δt` sets 
+3. **Perturbed observations:** For each member, build `y[n] = ideal + Δt * η[n]` where `η[n] ~ N(0, I)`. Here `Δt` sets
    the **perturbation magnitude** of the observations.
 4. **Residuals:** `r[n] = y[n] - G[n]`.
-5. **Implicit update (Kalman-like step):** Update each parameter vector via θ[n] ← θ[n] + K * r[n], with 
+5. **Implicit update (Kalman-like step):** Update each parameter vector via θ[n] ← θ[n] + K * r[n], with
    K = Cᵘᵖ * (Cᵖᵖ + I/Δt)⁻¹, implemented by solving the linear system with a Cholesky factorization of `Cᵖᵖ + I/Δt`. The
-   same `Δt` also acts as an **implicit damping/step-size control**: smaller `Δt` ⇒ stronger regularization and smaller 
+   same `Δt` also acts as an **implicit damping/step-size control**: smaller `Δt` ⇒ stronger regularization and smaller
    updates; larger `Δt` ⇒ weaker regularization and larger, noisier updates.
 6. **Monitoring:** Report `error = ‖mean(r)‖` and store a snapshot of the ensemble.
 
@@ -436,7 +438,7 @@ after each iteration.
         in the linear solve `(Cᵖᵖ + I/Δt)`.
 
 # Returns
-- `θ_series`: A length `nIterations + 1` vector; each entry is a **snapshot** of the full ensemble (index 1 is the 
+- `θ_series`: A length `nIterations + 1` vector; each entry is a **snapshot** of the full ensemble (index 1 is the
   initial ensemble; the last is the final ensemble). The input `θ` is also mutated to the final state.
 """
 function optimize!(Nx, Ny, spacing_type, θ;
@@ -511,13 +513,13 @@ end
 """
     optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing_type)
 
-High-level driver that uses EKI to optimize the non-uniform spacing parameter for a conformal cubed sphere panel, then 
+High-level driver that uses EKI to optimize the non-uniform spacing parameter for a conformal cubed sphere panel, then
 builds and returns the corresponding grid.
 
 Procedure:
 1. Create a random ensemble of parameters within limits (`nEnsemble = 40`, reproducible seed).
 2. Run `optimize!` to fit the **weighted** diagnostics to their ideal targets.
-3. Build the optimized grid with `conformal_cubed_sphere_coordinates(Nx, Ny; non_uniform_spacing=true, ...)` using the 
+3. Build the optimized grid with `conformal_cubed_sphere_coordinates(Nx, Ny; non_uniform_spacing=true, ...)` using the
    mean optimized parameter.
 
 For `"geometric"`, the parameter is `ratio^(Nx-1)`; for `"exponential"`, the parameter is `k₀/Nx`.
@@ -534,7 +536,7 @@ For `"geometric"`, the parameter is `ratio^(Nx-1)`; for `"exponential"`, the par
 function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing_type;
                                                                   verbose = false)
     nEnsemble = 40 # Choose nEnsemble to be at least 4 times the number of parameters.
-    
+
     if verbose
         @info "Optimize non-uniform conformal cubed sphere for Nx = $Nx and Ny = $Ny"
     end
@@ -547,7 +549,7 @@ function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacin
         θ_series = optimize!(Nx, Ny, spacing_type, θᵣ;
                              nIterations = 10)
     end
-    
+
     if spacing_type == "geometric"
         θ_name = "ratio_raised_to_Nx_minus_one"
     elseif spacing_type == "exponential"
@@ -558,13 +560,77 @@ function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacin
         println("\nThe unoptimized parameters are: $θ_name = $(round(mean(θᵢ)[1], digits=2))\n")
         println("\nThe optimized parameters are: $θ_name = $(round(mean(θᵣ)[1], digits=2))\n")
     end
-    
+
     x, y, X, Y, Z = (
     conformal_cubed_sphere_coordinates(Nx, Ny;
                                        non_uniform_spacing = true,
                                        spacing_type,
                                        ratio_raised_to_Nx_minus_one = mean(θᵣ)[1],
                                        k₀ByNx = mean(θᵣ)[1]))
-    
+
     return x, y, X, Y, Z
+end
+
+
+"""
+    compute_deviation_from_isotropy(X, Y, Z; radius = 1)
+
+Compute a scalar measure of the deviation from isotropy for a spherical grid (e.g., a conformal cubed-sphere panel),
+defined by the Cartesian coordinate arrays `X`, `Y`, and `Z`. Each of `X`, `Y`, and `Z` is a 2D array of size `(Nx, Ny)`
+holding the Cartesian coordinates of the grid vertices on the sphere, such that the point at `(i, j)` corresponds to
+`(X[i, j], Y[i, j], Z[i, j])`. The grid therefore contains `(Nx−1) × (Ny−1)` spherical quadrilateral cells.
+
+For each quadrilateral cell, the function computes the lengths of its four edges on the sphere (using great-circle
+distances), evaluates the sum of absolute differences between consecutive edge lengths as a measure of cell anisotropy,
+and then returns the Euclidean norm of these deviations over the entire grid.
+
+# Arguments
+- `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates of grid vertices on the sphere.
+- `radius`: Sphere radius (optional). Default is `1`. If `radius ≠ 1`, physical edge lengths are used in the
+  computation.
+
+# Returns
+- A nonnegative scalar quantifying the overall deviation from isotropy in the grid. Larger values correspond to more
+  anisotropic grids.
+
+# Notes
+- When `radius = 1`, the measure corresponds to purely angular differences between cell edge lengths.
+- When `radius ≠ 1`, the differences are computed in physical units (e.g., meters).
+- This metric is useful for evaluating the quality of spherical grids (e.g., assessing how close cells are to being
+  isotropic squares in length).
+
+# Examples
+```jldoctest 1
+julia> using CubedSphere, CubedSphere.SphericalGeometry
+
+julia> Nx, Ny = 3, 3;
+       lons = range(-π/4, π/4, length = Nx);
+       lats = range(-π/6, π/6, length = Ny);
+       X = [cos(φ)*cos(λ) for λ in lons, φ in lats];
+       Y = [cos(φ)*sin(λ) for λ in lons, φ in lats];
+       Z = [sin(φ)        for λ in lons, φ in lats];
+
+julia> compute_deviation_from_isotropy(X, Y, Z)
+1.6552138747243959
+```
+"""
+function compute_deviation_from_isotropy(X, Y, Z; radius=1)
+    Nx, Ny = size(X)
+    deviation_from_isotropy = zeros(Nx-1, Ny-1)
+
+    for j in 1:Ny-1, i in 1:Nx-1
+        a₁, a₂, a₃, a₄ = spherical_quadrilateral_vertices(X, Y, Z, i, j)
+
+        # Compute the arc lengths (distances) between the points a₁ and a₂, a₂ and a₃, a₃ and a₄, and a₄ and a₁ on the
+        # sphere.
+        d₁ = spherical_distance(a₁, a₂; radius)
+        d₂ = spherical_distance(a₂, a₃; radius)
+        d₃ = spherical_distance(a₃, a₄; radius)
+        d₄ = spherical_distance(a₄, a₁; radius)
+
+        # Compute the deviation from isotropy.
+        deviation_from_isotropy[i, j] = abs(d₁ - d₂) + abs(d₂ - d₃) + abs(d₃ - d₄) + abs(d₄ - d₁)
+    end
+
+    return norm(deviation_from_isotropy)
 end
