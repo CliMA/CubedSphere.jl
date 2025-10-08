@@ -124,19 +124,16 @@ lat_lon_to_z(φ; radius = 1) = radius * sind(φ)
 """
     spherical_distance(a₁, a₂; radius = 1)
 
-Compute the great-circle distance between two Cartesian points `a₁` and `a₂` on a sphere of radius `radius`.
+Compute the great-circle distance between two Cartesian points `a₁` and `a₂` on a sphere of `radius`.
 
-If `radius = 1`, this function returns the central angle (in radians) between the two points. For `radius ≠ 1`, the
-returned value is the physical arc length along the sphere.
+For `radius = 1`, this is equivalent to the central angle (in radians) between the two points.
 
 # Arguments
 - `a₁`, `a₂`: 3-element Cartesian vectors on the sphere.
 - `radius`: Sphere radius (optional). Default is `1`.
 
 # Returns
-- Great-circle distance between `a₁` and `a₂`:
-  - For `radius = 1`, the central angle (in radians).
-  - For `radius ≠ 1`, the physical arc length.
+- Great-circle distance between `a₁` and `a₂`
 
 # Notes
 - Both `a₁` and `a₂` must lie on the surface of the same sphere (i.e., have the same norm).
@@ -164,28 +161,27 @@ end
 """
     spherical_area_triangle(a::Number, b::Number, c::Number; radius = 1)
 
-Compute the area of a spherical triangle on a sphere of radius `radius`, given its three side lengths `a`, `b`, and `c`
-(in radians).
+Compute the area of a spherical triangle on a sphere of `radius`, given its three side
+lengths `a`, `b`, and `c` (in radians).
 
-For a unit sphere (`radius = 1`), the area equals the spherical excess `E = A + B + C − π`, where `A`, `B`, and `C` are
-the triangle’s interior angles. For a sphere of radius `R`, the physical area is `R² * E`.
+For a unit sphere (`radius = 1`), the area equals the spherical excess `E = A + B + C − π`,
+where `A`, `B`, and `C` are the triangle’s interior angles. For a sphere of radius `R`, the
+area is `R² * E`.
 
 # Arguments
 - `a`, `b`, `c`: Side lengths of the spherical triangle, measured as central angles (in radians).
 - `radius`: Sphere radius (optional). Default is `1`.
 
 # Returns
-- The **physical area** of the spherical triangle on a sphere of radius `radius`.
+- The area of the spherical triangle on a sphere of `radius`.
 
 # Notes
-- Euler (1778) and Lagrange (1798) showed that the spherical excess `E` on the unit sphere can be computed as
+- Euler (1778) and Lagrange (1798) showed that the spherical excess `E` on the unit sphere is computed as
 
   ```math
   \\tan\\frac{E}{2} =
   \\frac{\\sqrt{1 - \\cos^2 a - \\cos^2 b - \\cos^2 c + 2 \\cos a \\cos b \\cos c}}{1 + \\cos a + \\cos b + \\cos c}.
   ```
-
-- This function uses the above relation to compute the excess E and then scales by radius² to obtain the physical area.
 
 References
 ==========
@@ -219,19 +215,19 @@ end
 """
     spherical_area_triangle(a₁, a₂, a₃; radius = 1)
 
-Compute the area of a spherical triangle on a sphere of radius `radius`, given its three vertex position vectors
+Compute the area of a spherical triangle on a sphere of `radius`, given its three vertex position vectors
 `a₁`, `a₂`, and `a₃` in 3D Cartesian coordinates. The origin is assumed to be at the center of the sphere.
 
-For a unit sphere (`radius = 1`), the area equals the spherical excess `E`. For a sphere of radius `R`, the physical
-area is `R² * E`.
+For a unit sphere (`radius = 1`), the area equals the spherical excess `E`. For a sphere of radius `R`,
+the area is `R² * E`.
 
 # Arguments
-- `a₁`, `a₂`, `a₃`: 3-element Cartesian vectors representing the vertices of the spherical triangle. All three must lie
-  on the same sphere.
+- `a₁`, `a₂`, `a₃`: 3-element Cartesian vectors representing the vertices of the spherical triangle.
+  All three must lie on the same sphere.
 - `radius`: Sphere radius (optional). Default is `1`.
 
 # Returns
-- The **physical area** of the spherical triangle on a sphere of radius `radius`.
+- The area of the spherical triangle on a sphere of `radius`.
 
 # Notes
 - This function generalizes the classical Euler–Lagrange formula for spherical excess by expressing the quantity
@@ -243,10 +239,9 @@ area is `R² * E`.
   P = |𝐚₁ ⋅ (𝐚₂ × 𝐚₃)|
   ```
   where `a`, `b`, and `c` are the side lengths of the spherical triangle formed by the vertices `a₁`, `a₂`, and `a₃`.
-  This formula was first derived by Eriksson (1990).
+  The above formula was first derived by Eriksson (1990).
 
-- The inputs a₁, a₂, and a₃ need not be normalized, but they must have the same norm. The function rescales them
-  internally to compute the unit-sphere area, then multiplies by radius² to obtain the physical area.
+- The inputs `a₁`, `a₂`, and `a₃` must have the same norm.
 
 References
 ==========
@@ -287,12 +282,13 @@ end
 """
     spherical_area_quadrilateral(a₁, a₂, a₃, a₄; radius = 1)
 
-Compute the area of a spherical quadrilateral on a sphere of radius `radius`, given its four vertex position vectors
-`a₁`, `a₂`, `a₃`, and `a₄` in 3D Cartesian coordinates. The origin is assumed to be at the center of the sphere.
+Compute the area of a spherical quadrilateral on a sphere of `radius`, given the position of
+its four vertices as vectors `a₁`, `a₂`, `a₃`, and `a₄` in 3D Cartesian coordinates.
+The origin is assumed to be at the center of the sphere.
 
-The quadrilateral area is evaluated as half the sum of the areas of all four spherical triangles formed by the vertices.
-This approach avoids the need to explicitly choose a diagonal that splits the quadrilateral into two non-overlapping
-triangles.
+The quadrilateral area is evaluated as half the sum of the areas of all four spherical triangles
+formed by the vertices. This approach avoids the need to explicitly choose a diagonal that splits
+the quadrilateral into two non-overlapping triangles.
 
 # Arguments
 - `a₁`, `a₂`, `a₃`, `a₄`: 3-element Cartesian vectors representing the four vertices of the spherical quadrilateral.
@@ -300,12 +296,11 @@ triangles.
 - `radius`: Sphere radius (optional). Default is `1`.
 
 # Returns
-- The **physical area** of the spherical quadrilateral on a sphere of radius `radius`.
+- The area of the spherical quadrilateral on a sphere of `radius`.
 
-# Notes
+# Note
 - This method is numerically robust and works for convex spherical quadrilaterals without requiring explicit diagonal
   selection.
-- When `radius = 1`, the result corresponds to the quadrilateral area on the unit sphere.
 
 # Examples
 ```jldoctest 1
@@ -395,26 +390,32 @@ areas correspond to the unit sphere. For `radius ≠ 1`, the physical areas are 
 ```jldoctest 1
 julia> using CubedSphere.SphericalGeometry
 
-julia> Nx, Ny = 3, 3
-       lons = range(-π/6, π/6, length = Nx)
-       lats = range(-π/6,  π/6, length = Ny)
-       X = [cos(φ)*cos(λ) for λ in lons, φ in lats]
-       Y = [cos(φ)*sin(λ) for λ in lons, φ in lats]
-       Z = [sin(φ)        for λ in lons, φ in lats];
+julia> Nx, Ny = 3, 3;
+
+julia> lons = range(-π/6, π/6, length = Nx);
+
+julia> lats = range(-π/6,  π/6, length = Ny);
+
+julia> X = [cos(φ)*cos(λ) for λ in lons, φ in lats];
+
+julia> Y = [cos(φ)*sin(λ) for λ in lons, φ in lats];
+
+julia> Z = [sin(φ)        for λ in lons, φ in lats];
 
 julia> A = compute_cell_areas(X, Y, Z);
 
 julia> size(A)
 (2, 2)
 
-julia> all(isapprox.(A, fill(A[1,1], 2, 2); rtol=1e-12))
+julia> all(isapprox.(A, fill(A[1, 1], 2, 2); rtol=1e-12))
 true
 
-julia> isapprox(A[1,1], 0.26636308214247195; rtol=1e-12)
+julia> isapprox(A[1, 1], 0.26636308214247195; rtol=1e-12)
 true
 
 julia> R = 6.371e6;
-       A_R = compute_cell_areas(X .* R, Y .* R, Z .* R; radius = R);
+
+julia> A_R = compute_cell_areas(X .* R, Y .* R, Z .* R; radius = R);
 
 julia> isapprox.(A_R, A .* R^2; rtol=1e-9) |> all
 true
