@@ -369,7 +369,7 @@ function forward_map(Nx, Ny, spacing, θ)
 
     weighted_model_diagnostics = compute_weighted_model_diagnostics(model_diagnostics)
 
-	return weighted_model_diagnostics
+    return weighted_model_diagnostics
 end
 
 """
@@ -451,21 +451,21 @@ function optimize!(Nx, Ny, spacing, θ;
         @info("\nIteration 0 with error $error")
     end
 
-	G = [copy(model_data) for i in 1:nEnsemble]
+    G = [copy(model_data) for i in 1:nEnsemble]
 
-	# EKI iteration is equivalent to a time step of the above equation.
+    # EKI iteration is equivalent to a time step of the above equation.
     @inbounds for i in 1:nIterations
         θ̄ = mean(θ)
 
-		# Evaluating the forward map for all ensemble members. This is the most expensive step because it needs to run
+        # Evaluating the forward map for all ensemble members. This is the most expensive step because it needs to run
         # the model nEnsemble times. For the moment our model is simple, but imagine doing this with a full climate
         # model! Luckily this step is embarassingly parallelizeable.
         Threads.@threads for n in 1:nEnsemble
-			G[n] .= forward_map(Nx, Ny, spacing, θ[n]) # Error handling needs to go here.
-		end
+            G[n] .= forward_map(Nx, Ny, spacing, θ[n]) # Error handling needs to go here.
+        end
 
-		# The ensemble mean output of the models
-		G̅ = mean(G)
+        # The ensemble mean output of the models
+        G̅ = mean(G)
 
         # Calculating the covariances to be used in the update steps
         Cᵘᵖ = (θ[1] - θ̄) * (G[1] - G̅)'
@@ -482,7 +482,7 @@ function optimize!(Nx, Ny, spacing, θ;
         # Ensemblize the data (adding the random noise η).
         y = [ideal_data + Δt * randn(nData) for i in 1:nEnsemble]
 
-		# The residual from our observations
+        # The residual from our observations
         r = y - G
 
         # Update the parameters using implicit pseudo-time-stepping, which involves solving a linear system.
