@@ -5,6 +5,10 @@ using LinearAlgebra
 using Statistics
 using Random
 
+struct UniformSpacing end
+struct GeometricSpacing end
+struct ExponentialSpacing end
+
 """
     geometric_spacing(N, ratio_raised_to_N_minus_one)
 
@@ -24,51 +28,48 @@ outward from the center, and the layout is mirrored about zero. Endpoints are fi
   uniform spacing. (Exactly `1` is not supported by the closed-form formulas used here.)
 
 # Returns
-- `x_faces`: A length-`N` monotonically increasing vector of face coordinates on `[-1, 1]` with geometric grading and
-  symmetry: `x_faces[1] = -1`, `x_faces[N] = 1`, and `x_faces[i] = -x_faces[N+1-i]`.
+- `faces`: A length-`N` monotonically increasing vector of face coordinates on `[-1, 1]` with geometric grading and
+           symmetry: `faces[1] = -1`, `faces[N] = 1`, and `faces[i] = -faces[N+1-i]`.
 """
 function geometric_spacing(N, ratio_raised_to_N_minus_one)
     ratio = ratio_raised_to_N_minus_one^(1/(N - 1))
-    x_faces = zeros(N)
+    faces = zeros(N)
 
     if isodd(N)
         M = round(Int, (N + 1)/2)
 
         Δx = 1 * (ratio - 1) / (ratio^(M - 1) - 1)
 
-        x_faces[M] = 0
+        faces[M] = 0
 
         k = 0
 
         for i in M+1:N
-            x_faces[i] = x_faces[i-1] + Δx * ratio^k
-            x_faces[N+1-i] = -x_faces[i]
+            faces[i] = faces[i-1] + Δx * ratio^k
+            faces[N+1-i] = -faces[i]
             k += 1
         end
-
-        x_faces[1] = -1
-        x_faces[N] = 1
     else
         M = Int(N/2)
 
         Δx = 1/((ratio^M - 1)/(ratio - 1) - 0.5)
 
-        x_faces[M] = -0.5Δx
-        x_faces[M+1] = 0.5Δx
+        faces[M] = -0.5Δx
+        faces[M+1] = 0.5Δx
 
         k = 1
 
         for i in M+2:N
-            x_faces[i] = x_faces[i-1] + Δx * ratio^k
-            x_faces[N+1-i] = -x_faces[i]
+            faces[i] = faces[i-1] + Δx * ratio^k
+            faces[N+1-i] = -faces[i]
             k += 1
         end
-
-        x_faces[1] = -1
-        x_faces[N] = 1
     end
 
-    return x_faces
+    faces[1] = -1
+    faces[N] = 1
+
+    return faces
 end
 
 """
@@ -78,7 +79,7 @@ Construct a symmetric set of `N` face locations on `[-1, 1]` with **exponentiall
 center. Let `k₀ = k₀ByN * N`, and define an exponential map on the right half, `x(t) = α·exp(t/k₀) + β`, anchored so
 that it passes through `(t₀, 0)` and `(t₁, 1)`, then mirror about zero. Endpoints are fixed at `-1` and `+1`.
 
-- **Odd `N`** (`M = (N+1)/2`): a face lies at `0` (`x_faces[M] = 0`). The right-half faces use `t = 1, …, M` with
+- **Odd `N`** (`M = (N+1)/2`): a face lies at `0` (`faces[M] = 0`). The right-half faces use `t = 1, …, M` with
   `x(1) = 0`, `x(M) = 1`, and the left half is the negative mirror.
 - **Even `N`** (`M = N/2`): no face at `0`. The two central faces straddle zero, with `0` midway between them; the
   right-half faces use `t = 2, …, M+1` anchored by `x(1.5) = 0`, `x(M+1) = 1`, and the left half is mirrored.
@@ -89,15 +90,15 @@ that it passes through `(t₀, 0)` and `(t₁, 1)`, then mirror about zero. Endp
   uniform; smaller `k₀ByN` increases clustering near the center. Requires `k₀ByN > 0`.
 
 # Returns
-- `x_faces`: A length-`N` strictly increasing vector of face coordinates on `[-1, 1]` with symmetry
-  `x_faces[i] = -x_faces[N+1-i]`, and endpoints `x_faces[1] = -1`, `x_faces[N] = 1`.
+- `faces`: A length-`N` strictly increasing vector of face coordinates on `[-1, 1]` with symmetry
+           `faces[i] = - faces[N+1-i]`, and end-points `faces[1] = -1`, `faces[N] = 1`.
 """
 function exponential_spacing(N, k₀ByN)
     k₀ = k₀ByN * N
-    x_faces = zeros(N)
+    faces = zeros(N)
 
     if isodd(N)
-        M = round(Int, (N + 1)/2)
+        M = round(Int, (N+1)/2)
 
         A = [exp(1/k₀) 1
              exp(M/k₀) 1]
@@ -106,15 +107,13 @@ function exponential_spacing(N, k₀ByN)
 
         coefficients = A \ b
 
-        x_faces[M:N] = coefficients[1] * exp.((1:M)/k₀) .+ coefficients[2]
+        faces[M:N] = coefficients[1] * exp.((1:M)/k₀) .+ coefficients[2]
 
         for i in 1:M-1
-            x_faces[i] = -x_faces[N+1-i]
+            faces[i] = -faces[N+1-i]
         end
 
-        x_faces[1] = -1
-        x_faces[M] = 0
-        x_faces[N] = 1
+        faces[M] = 0
     else
         M = Int(N/2)
 
@@ -125,23 +124,23 @@ function exponential_spacing(N, k₀ByN)
 
         coefficients = A \ b
 
-        x_faces[M+1:N] = coefficients[1] * exp.((2:M+1)/k₀) .+ coefficients[2]
+        faces[M+1:N] = coefficients[1] * exp.((2:M+1)/k₀) .+ coefficients[2]
 
         for i in 1:M
-            x_faces[i] = -x_faces[N+1-i]
+            faces[i] = -faces[N+1-i]
         end
-
-        x_faces[1] = -1
-        x_faces[N] = 1
     end
 
-    return x_faces
+    faces[1] = -1
+    faces[N] = 1
+
+    return faces
 end
 
 """
     conformal_cubed_sphere_coordinates(Nx, Ny;
                                        non_uniform_spacing=false,
-                                       spacing_type="geometric",
+                                       spacing=GeometricSpacing(),
                                        ratio_raised_to_Nx_minus_one=10.5,
                                        k₀ByNx=0.45)
 
@@ -152,13 +151,13 @@ sphere panel.
 
 If `non_uniform_spacing == false`, `x` and `y` have uniform spacing (equal increments), so their tensor product defines
 a uniform grid on `[-1, 1] × [-1, 1]`. If `true`, symmetric graded spacing is applied on both axes:
-- `spacing_type == "geometric"`: uses `geometric_spacing(N, ratio_raised_to_Nx_minus_one)` for each axis.
-- `spacing_type == "exponential"`: uses `exponential_spacing(N, k₀ByNx)` for each axis.
+- `spacing = GeometricSpacing()`: uses `geometric_spacing(N, ratio_raised_to_Nx_minus_one)` for each axis.
+- `spacing = ExponentialSpacing()`: uses `exponential_spacing(N, k₀ByNx)` for each axis.
 
 # Arguments
 - `Nx, Ny`: Number of grid vertices along the `x` and `y` directions (≥ 2).
 - `non_uniform_spacing`: Enable graded (non-uniform) spacing on both axes.
-- `spacing_type`: Either `"geometric"` or `"exponential"` (used only when `non_uniform_spacing` is true).
+- `spacing`: Either `GeometricSpacing()` or `ExponentialSpacing()` (used only when `non_uniform_spacing` is true).
 - `ratio_raised_to_Nx_minus_one`: Geometric grading control, interpreted as `r^(Nx-1)`.
 - `k₀ByNx`: Exponential grading control used as `k₀ = k₀ByNx * Nx`.
 
@@ -169,19 +168,19 @@ a uniform grid on `[-1, 1] × [-1, 1]`. If `true`, symmetric graded spacing is a
 """
 function conformal_cubed_sphere_coordinates(Nx, Ny;
                                             non_uniform_spacing = false,
-                                            spacing_type = "geometric",
+                                            spacing = GeometricSpacing(),
                                             ratio_raised_to_Nx_minus_one = 10.5,
                                             k₀ByNx = 0.45)
     x = range(-1, 1, length = Nx)
     y = range(-1, 1, length = Ny)
 
     if non_uniform_spacing
-        if spacing_type == "geometric"
+        if spacing isa GeometricSpacing
             # For Nx = Ny = 32 + 1, setting ratio = 1.0775 increases the minimum cell width by a factor of 1.92.
             # For Nx = Ny = 1024 + 1, setting ratio = 1.0042 increases the minimum cell width by a factor of 3.25.
             x = geometric_spacing(Nx, ratio_raised_to_Nx_minus_one)
             y = geometric_spacing(Ny, ratio_raised_to_Nx_minus_one)
-        elseif spacing_type == "exponential"
+        elseif spacing isa ExponentialSpacing
             # For Nx = Ny = 32 + 1, setting k₀ByNx = 15 increases the minimum cell width by a factor of 1.84.
             # For Nx = Ny = 1024 + 1, setting k₀ByNx = 10 increases the minimum cell width by a factor of 2.58.
             x = exponential_spacing(Nx, k₀ByNx)
@@ -201,71 +200,66 @@ function conformal_cubed_sphere_coordinates(Nx, Ny;
 end
 
 """
-    specify_parameters(spacing_type)
+    specify_parameters(spacing)
 
-Return a vector containing the initial guess for the spacing parameters used to build non-uniform conformal cubed sphere
-panels. The parameterization depends on `spacing_type`:
+Return a one-element vector `[θ]` containing the initial guess for the spacing parameters
+used to build non-uniform conformal cubed sphere panels for different `spacing`s.
 
-- `"geometric"`: uses a single parameter interpreted downstream as `ratio^(N-1)` for geometric grading.
-- `"exponential"`: uses a single parameter interpreted downstream as `k₀/N` for exponential grading.
-
-Returns a one-element vector `[θ]` (a single parameter in this implementation).
+- `GeometricSpacing()`: uses a single parameter interpreted downstream as `ratio^(N-1)`
+   for geometric grading.
+- `ExponentialSpacing()`: uses a single parameter interpreted downstream as `k₀/N`
+  for exponential grading.
 """
-function specify_parameters(spacing_type)
-    θ = 0
-    if spacing_type == "geometric"
-        ratio_raised_to_N = 1.0775
-        θ = ratio_raised_to_N
-    elseif spacing_type == "exponential"
-        k₀ByN = 15
-        θ = k₀ByN
-    end
-    return [θ]
-end
+specify_parameters(::UniformSpacing) = nothing
+specify_parameters(::GeometricSpacing) = [1.0775]
+specify_parameters(::ExponentialSpacing) = [15]
+
 
 """
-    specify_parameter_limits(spacing_type)
+    specify_parameter_limits(spacing)
 
-Return the lower and upper bounds for the single spacing parameter as a **2-element vector** `[min, max]`. For a
-consistent interface with possible multi-parameter extensions, this vector is returned wrapped in a one-element array:
-`[[min, max]]`. The bounds depend on `spacing_type`:
+Return the lower and upper bounds for the single spacing parameter as a **2-element vector** `[min, max]`.
+For a consistent interface with possible multi-parameter extensions, this vector is returned
+wrapped in a one-element array: `[[min, max]]`. The bounds depend on `spacing`:
 
-- `"geometric"`: returns `[[min, max]]` for `ratio^(N-1)`.
-- `"exponential"`: returns `[[min, max]]` for `k₀/N`.
+- `GeometricSpacing()` returns `[[min, max]]` for `ratio^(N-1)`.
+- `ExponentialSpacing()` returns `[[min, max]]` for `k₀/N`.
 
 Returns `[θ_limits]` where `θ_limits == [min, max]` for the single parameter in this implementation.
 """
-function specify_parameter_limits(spacing_type)
+function specify_parameter_limits(::GeometricSpacing)
     θ_limits = zeros(2)
-    if spacing_type == "geometric"
-        ratio_raised_to_N_limits = [5, 15]
-        θ_limits[1] = ratio_raised_to_N_limits[1]
-        θ_limits[2] = ratio_raised_to_N_limits[2]
-    elseif spacing_type == "exponential"
-        k₀ByN_limits = [0.4, 0.5]
-        θ_limits[1] = k₀ByN_limits[1]
-        θ_limits[2] = k₀ByN_limits[2]
-    end
+    ratio_raised_to_N_limits = [5, 15]
+    θ_limits[1] = ratio_raised_to_N_limits[1]
+    θ_limits[2] = ratio_raised_to_N_limits[2]
+    return [θ_limits]
+end
+function specify_parameter_limits(::ExponentialSpacing)
+    θ_limits = zeros(2)
+    k₀ByN_limits = [0.4, 0.5]
+    θ_limits[1] = k₀ByN_limits[1]
+    θ_limits[2] = k₀ByN_limits[2]
     return [θ_limits]
 end
 
 """
-    specify_random_parameters(nEnsemble, spacing_type)
+    specify_random_parameters(nEnsemble, spacing)
 
-Draw an ensemble of random parameter vectors within the limits from `specify_parameter_limits(spacing_type)`. Each
-ensemble member is sampled uniformly within its parameter bounds.
+Draw an ensemble of random parameter vectors within the limits from
+`specify_parameter_limits(spacing)`. Each ensemble member is sampled
+uniformly within its parameter bounds.
 
 # Arguments
 - `nEnsemble`: Number of ensemble members to generate.
-- `spacing_type`: `"geometric"` or `"exponential"`.
+- `spacing`: `GeometricSpacing()` or `ExponentialSpacing()`.
 
 # Returns
 - A vector of length `nEnsemble`, where each element is a one-element parameter vector `[θ]` (a single parameter in this
   implementation).
 """
-function specify_random_parameters(nEnsemble, spacing_type)
-    θ = specify_parameters(spacing_type)
-    θ_limits = specify_parameter_limits(spacing_type)
+function specify_random_parameters(nEnsemble, spacing)
+    θ = specify_parameters(spacing)
+    θ_limits = specify_parameter_limits(spacing)
 
     θᵣ = [[θ_limits[j][1] + (θ_limits[j][2] - θ_limits[j][1]) * rand() for j in 1:lastindex(θ)] for i in 1:nEnsemble]
 
@@ -275,8 +269,9 @@ end
 """
     specify_weights_for_model_diagnostics()
 
-Return the weights applied to the model diagnostics used by the objective function. The two diagnostics are, in order:
-`(1) normalized minimum cell width`, `(2) deviation from isotropy`.
+Return the weights applied to the model diagnostics used by the objective function.
+The two diagnostics are, in order: `(1) normalized minimum cell width`,
+`(2) deviation from isotropy`.
 
 # Returns
 - A 2-element vector of weights, e.g., `[10, 1]`.
@@ -336,27 +331,28 @@ function compute_weighted_model_diagnostics(model_diagnostics)
 end
 
 """
-    forward_map(Nx, Ny, spacing_type, θ)
+    forward_map(Nx, Ny, spacing, θ)
 
 Evaluate the (weighted) model diagnostics for a non-uniform conformal cubed-sphere panel defined by parameters `θ`. The
 steps are:
-1. Clamp `θ` to parameter limits from `specify_parameter_limits(spacing_type)`.
+1. Clamp `θ` to parameter limits from `specify_parameter_limits(spacing)`.
 2. Build a **reference** uniform grid via `conformal_cubed_sphere_coordinates(Nx, Ny)` and compute
    `minimum_reference_cell_area`.
 3. Build the **non-uniform** grid via `conformal_cubed_sphere_coordinates(Nx, Ny; non_uniform_spacing=true, ...)`,
-   passing the parameters in `θ` according to `spacing_type`.
+   passing the parameters in `θ` according to `spacing`.
 4. Compute model diagnostics and then apply weights.
 
 # Arguments
 - `Nx, Ny`: Number of grid vertices along the panel coordinates.
-- `spacing_type`: `"geometric"` (interprets `θ[1]` as `ratio^(Nx-1)`) or `"exponential"` (interprets `θ[1]` as `k₀/Nx`).
+- `spacing`: `GeometricSpacing()` (interprets `θ[1]` as `ratio^(Nx-1)`) or
+             `ExponentialSpacing()` (interprets `θ[1]` as `k₀/Nx`).
 - `θ`: Parameter vector (one element in this implementation).
 
 # Returns
 - A 2-element vector of **weighted** model diagnostics.
 """
-function forward_map(Nx, Ny, spacing_type, θ)
-    θ_limits = specify_parameter_limits(spacing_type)
+function forward_map(Nx, Ny, spacing, θ)
+    θ_limits = specify_parameter_limits(spacing)
 
     for i in 1:lastindex(θ)
         θ[i] = clamp(θ[i], θ_limits[i][1], θ_limits[i][2])
@@ -369,7 +365,7 @@ function forward_map(Nx, Ny, spacing_type, θ)
     x, y, X, Y, Z = (
     conformal_cubed_sphere_coordinates(Nx, Ny;
                                        non_uniform_spacing = true,
-                                       spacing_type,
+                                       spacing,
                                        ratio_raised_to_Nx_minus_one = θ[1],
                                        k₀ByNx = θ[1]))
 
@@ -404,7 +400,7 @@ function specify_ideal_weighted_model_diagnostics()
 end
 
 """
-    optimize!(Nx, Ny, spacing_type, θ; nIterations=10, Δt=1)
+    optimize!(Nx, Ny, spacing, θ; nIterations=10, Δt=1)
 
 Run an Ensemble Kalman Inversion (EKI) to tune the spacing parameter(s) for a non-uniform conformal cubed sphere panel.
 An ensemble of parameter vectors `θ` is iteratively updated so that the **weighted** model diagnostics produced by
@@ -412,7 +408,7 @@ An ensemble of parameter vectors `θ` is iteratively updated so that the **weigh
 
 At each iteration:
 1. **Forward evaluations (parallelized):** For each ensemble member `θ[n]`, compute the predicted diagnostics
-   `G[n] = forward_map(Nx, Ny, spacing_type, θ[n])`.
+   `G[n] = forward_map(Nx, Ny, spacing, θ[n])`.
 2. **Ensemble statistics:** Form means `θ̄ = mean(θ)` and `G̅ = mean(G)`, then compute
    - Cross-covariance `Cᵘᵖ = cov(θ, G)` (shape: nθ × ndata), and
    - Data covariance `Cᵖᵖ = cov(G, G)` (shape: ndata × ndata),
@@ -431,7 +427,7 @@ after each iteration.
 
 # Arguments
 - `Nx, Ny`: Number of grid vertices along the panel coordinates.
-- `spacing_type`: `"geometric"` or `"exponential"`.
+- `spacing`: `GeometricSpacing()` or `ExponentialSpacing()`.
 - `θ`: Initial ensemble — a vector of one-element parameter vectors `[θ]` (length `nEnsemble`).
 - `nIterations`: Number of EKI iterations.
 - `Δt`: Pseudo-time step that sets both the observation perturbation scale and the implicit damping
@@ -441,12 +437,12 @@ after each iteration.
 - `θ_series`: A length `nIterations + 1` vector; each entry is a **snapshot** of the full ensemble (index 1 is the
   initial ensemble; the last is the final ensemble). The input `θ` is also mutated to the final state.
 """
-function optimize!(Nx, Ny, spacing_type, θ;
+function optimize!(Nx, Ny, spacing, θ;
                    nIterations = 10,
                    Δt = 1,
                    verbose = false)
     ideal_data = specify_ideal_weighted_model_diagnostics()
-    model_data = forward_map(Nx, Ny, spacing_type, mean(θ))
+    model_data = forward_map(Nx, Ny, spacing, mean(θ))
 
     nData = length(ideal_data)
     nEnsemble = length(θ)
@@ -469,7 +465,7 @@ function optimize!(Nx, Ny, spacing_type, θ;
         # the model nEnsemble times. For the moment our model is simple, but imagine doing this with a full climate
         # model! Luckily this step is embarassingly parallelizeable.
         Threads.@threads for n in 1:nEnsemble
-			G[n] .= forward_map(Nx, Ny, spacing_type, θ[n]) # Error handling needs to go here.
+			G[n] .= forward_map(Nx, Ny, spacing, θ[n]) # Error handling needs to go here.
 		end
 
 		# The ensemble mean output of the models
@@ -511,7 +507,7 @@ function optimize!(Nx, Ny, spacing_type, θ;
 end
 
 """
-    optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing_type)
+    optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing)
 
 High-level driver that uses EKI to optimize the non-uniform spacing parameter for a conformal cubed sphere panel, then
 builds and returns the corresponding grid.
@@ -526,14 +522,14 @@ For `"geometric"`, the parameter is `ratio^(Nx-1)`; for `"exponential"`, the par
 
 # Arguments
 - `Nx, Ny`: Number of grid vertices along panel coordinates.
-- `spacing_type`: `"geometric"` or `"exponential"`.
+- `spacing`: `GeometricSpacing()` or `ExponentialSpacing()`.
 
 # Returns
 - `x, y`: Computational-space coordinates of lengths `Nx` and `Ny`.
 - `X, Y, Z`: `(Nx, Ny)` Cartesian coordinates of the vertices of the **optimized** non-uniform conformal cubed sphere
   panel.
 """
-function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing_type;
+function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing;
                                                                   verbose = false)
     nEnsemble = 40 # Choose nEnsemble to be at least 4 times the number of parameters.
 
@@ -543,16 +539,15 @@ function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacin
 
     begin
         Random.seed!(123)
-        θᵣ = specify_random_parameters(nEnsemble, spacing_type)
+        θᵣ = specify_random_parameters(nEnsemble, spacing)
         θᵢ = deepcopy(θᵣ)
 
-        θ_series = optimize!(Nx, Ny, spacing_type, θᵣ;
-                             nIterations = 10)
+        θ_series = optimize!(Nx, Ny, spacing, θᵣ; nIterations = 10)
     end
 
-    if spacing_type == "geometric"
+    if spacing isa GeometricSpacing
         θ_name = "ratio_raised_to_Nx_minus_one"
-    elseif spacing_type == "exponential"
+    elseif spacing isa ExponentialSpacing
         θ_name = "k₀ByNx"
     end
 
@@ -564,7 +559,7 @@ function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacin
     x, y, X, Y, Z = (
     conformal_cubed_sphere_coordinates(Nx, Ny;
                                        non_uniform_spacing = true,
-                                       spacing_type,
+                                       spacing,
                                        ratio_raised_to_Nx_minus_one = mean(θᵣ)[1],
                                        k₀ByNx = mean(θᵣ)[1]))
 
@@ -590,8 +585,8 @@ and then returns the Euclidean norm of these deviations over the entire grid.
   computation.
 
 # Returns
-- A nonnegative scalar quantifying the overall deviation from isotropy in the grid. Larger values correspond to more
-  anisotropic grids.
+- A non-negative scalar quantifying the overall deviation from isotropy in the grid.
+  Larger values correspond to more anisotropic grids.
 
 # Notes
 - When `radius = 1`, the measure corresponds to purely angular differences between cell edge lengths.
