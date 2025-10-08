@@ -214,7 +214,6 @@ specify_parameters(::UniformSpacing) = nothing
 specify_parameters(::GeometricSpacing) = [1.0775]
 specify_parameters(::ExponentialSpacing) = [15]
 
-
 """
     specify_parameter_limits(spacing)
 
@@ -554,31 +553,27 @@ end
 """
     compute_deviation_from_isotropy(X, Y, Z; radius = 1)
 
-Compute a scalar measure of the deviation from isotropy for a spherical grid (e.g., a conformal cubed-sphere panel),
-defined by the Cartesian coordinate arrays `X`, `Y`, and `Z`. Each of `X`, `Y`, and `Z` is a 2D array of size `(Nx, Ny)`
-holding the Cartesian coordinates of the grid vertices on the sphere, such that the point at `(i, j)` corresponds to
-`(X[i, j], Y[i, j], Z[i, j])`. The grid therefore contains `(Nx−1) × (Ny−1)` spherical quadrilateral cells.
+Compute a scalar measure of the deviation from isotropy for a spherical grid (e.g., a conformal
+cubed-sphere panel), defined by the Cartesian coordinate arrays `X`, `Y`, and `Z`. Each of
+`X`, `Y`, and `Z` is a 2D array of size `(Nx, Ny)` holding the Cartesian coordinates of
+the grid vertices on the sphere, such that the point at `(i, j)` corresponds to
+`(X[i, j], Y[i, j], Z[i, j])`. The grid therefore contains `(Nx−1) × (Ny−1)` spherical
+quadrilateral cells.
 
-For each quadrilateral cell, the function computes the lengths of its four edges on the sphere (using great-circle
-distances), evaluates the sum of absolute differences between consecutive edge lengths as a measure of cell anisotropy,
-and then returns the Euclidean norm of these deviations over the entire grid.
+For each quadrilateral cell, the function computes the great-circle distances of its four edges
+on the sphere, evaluates the sum of absolute differences between consecutive edge lengths as a
+measure of cell anisotropy, and then returns the Euclidean norm of these deviations over the
+entire grid.
 
 # Arguments
 - `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates of grid vertices on the sphere.
-- `radius`: Sphere radius (optional). Default is `1`. If `radius ≠ 1`, physical edge lengths are used in the
-  computation.
+- `radius`: Sphere radius (optional). Default is `1`.
 
 # Returns
 - A non-negative scalar quantifying the overall deviation from isotropy in the grid.
   Larger values correspond to more anisotropic grids.
 
-# Notes
-- When `radius = 1`, the measure corresponds to purely angular differences between cell edge lengths.
-- When `radius ≠ 1`, the differences are computed in physical units (e.g., meters).
-- This metric is useful for evaluating the quality of spherical grids (e.g., assessing how close cells are to being
-  isotropic squares in length).
-
-# Examples
+# Example
 ```jldoctest 1
 julia> using CubedSphere, CubedSphere.SphericalGeometry
 
