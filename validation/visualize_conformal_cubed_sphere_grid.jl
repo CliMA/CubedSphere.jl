@@ -1,5 +1,6 @@
 using Rotations
 using CubedSphere
+using CubedSphere.SphericalGeometry
 using DelimitedFiles
 using CairoMakie
 
@@ -590,7 +591,7 @@ function minimum_cell_width_variation_with_resolution(spacing_type, optimized;
     write_output_to_file_1D(output_directory, resolutions, normalized_minimum_cell_widths, file_name)
 end
 
-compute_minimum_cell_width_variation_with_resolution = false
+compute_minimum_cell_width_variation_with_resolution = true
 
 if compute_minimum_cell_width_variation_with_resolution
     for spacing_type in ["geometric", "exponential"]
@@ -602,7 +603,7 @@ if compute_minimum_cell_width_variation_with_resolution
     end
 end
 
-plot_minimum_cell_width_variation_with_resolution = false
+plot_minimum_cell_width_variation_with_resolution = true
 
 if plot_minimum_cell_width_variation_with_resolution
     plot_size = (750, 750)
