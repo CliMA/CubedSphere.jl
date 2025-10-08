@@ -196,7 +196,7 @@ multiple_line_or_scatter_plots_example()
 
 function visualize_conformal_cubed_sphere_panel_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, color;
                                                    figure_padding = (0, 5, 0, 0)) # (left, right, bottom, top)
-    x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
+    X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny)
 
     fig = Figure(size = (750, 750), figure_padding = figure_padding)
 
@@ -209,7 +209,7 @@ end
 
 function visualize_conformal_cubed_sphere_panel_3D(Nx, Ny, axis_kwargs_3D, hide_decorations, color;
                                                    figure_padding = (25, 0, 35, 50)) # (left, right, bottom, top)
-    x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
+    X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny)
 
     fig = Figure(size = (750, 750), figure_padding = figure_padding)
 
@@ -222,7 +222,7 @@ function visualize_conformal_cubed_sphere_panel_3D(Nx, Ny, axis_kwargs_3D, hide_
 end
 
 function visualize_conformal_cubed_sphere_panel_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwargs_3D, hide_decorations, color)
-    x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
+    X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny)
 
     fig = Figure(size = (1500, 750))
 
@@ -243,7 +243,7 @@ end
 function visualize_conformal_cubed_sphere_2D(Nx, Ny, axis_kwargs_2D, hide_decorations, colors;
                                              figure_padding = (25, 100, 0, 0), # (left, right, bottom, top)
                                              title = "Conformal Cubed Sphere: 2D Projection")
-    x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
+    X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny)
 
     fig = Figure(size = (700, 750), figure_padding = figure_padding)
 
@@ -314,7 +314,7 @@ end
 function visualize_conformal_cubed_sphere_3D(Nx, Ny, axis_kwargs_3D, hide_decorations, colors, alphas;
                                              figure_padding = (25, 0, 0, 50), # (left, right, bottom, top)
                                              title = "Conformal Cubed Sphere: 3D View")
-    x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
+    X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny)
 
     fig = Figure(size = (750, 750), figure_padding = figure_padding)
 
@@ -379,7 +379,7 @@ function visualize_conformal_cubed_sphere_2D_3D(Nx, Ny, axis_kwargs_2D, axis_kwa
                                                 alphas;
                                                 title_2D = "Conformal Cubed Sphere: 2D Projection",
                                                 title_3D = "Conformal Cubed Sphere: 3D View")
-    x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
+    X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny)
 
     fig = Figure(size = (1500, 750))
 
@@ -486,7 +486,7 @@ end
 conformal_cubed_sphere_2D_3D_visualization_example()
 
 function visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing = GeometricSpacing(), optimized = false)
-    x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
+    X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny)
     visualize_conformal_cubed_sphere_2D(X, Y, Z, "conformal_cubed_sphere_2D.pdf")
     visualize_conformal_cubed_sphere_3D(X, Y, Z, "conformal_cubed_sphere_3D.pdf";
                                         figure_padding = (25, 0, 35, 50))
@@ -495,9 +495,9 @@ function visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing 
     reference_minimum_cell_area = minimum(cell_areas)
 
     if optimized
-        x, y, X, Y, Z = optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing)
+        X, Y, Z, x, y = optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing)
     else
-        x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny; spacing)
+        X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny; spacing)
     end
 
     if optimized
@@ -556,13 +556,13 @@ function minimum_cell_width_variation_with_resolution(spacing, optimized;
     for (i, resolution) in enumerate(resolutions)
         Nx, Ny = resolution + 1, resolution + 1
         @info "  Computing minimum cell width for conformal cubed sphere grid with resolution Nx = Ny = $resolution"
-        x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
+        X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny)
         cell_areas = compute_cell_areas(X, Y, Z)
         minimum_reference_cell_area = minimum(cell_areas)
         if optimized
-            x, y, X, Y, Z = optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing)
+            X, Y, Z, x, y = optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing)
         else
-            x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny; spacing)
+            X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny; spacing)
         end
         cell_areas = compute_cell_areas(X, Y, Z)
         minimum_cell_area = minimum(cell_areas)
