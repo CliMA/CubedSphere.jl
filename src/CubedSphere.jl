@@ -1,7 +1,6 @@
 module CubedSphere
 
 export sn, cn, conformal_cubed_sphere_mapping, conformal_cubed_sphere_inverse_mapping
-export compute_deviation_from_isotropy
 export conformal_cubed_sphere_coordinates, optimized_non_uniform_conformal_cubed_sphere_coordinates
 export UniformSpacing, GeometricSpacing, ExponentialSpacing
 
