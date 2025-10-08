@@ -5,10 +5,6 @@ using LinearAlgebra
 using Statistics
 using Random
 
-struct UniformSpacing end
-struct GeometricSpacing end
-struct ExponentialSpacing end
-
 """
     geometric_spacing(N, ratio_raised_to_N_minus_one)
 
@@ -170,7 +166,8 @@ so their tensor product defines a uniform grid on `[-1, 1] × [-1, 1]`. Otherwis
 """
 function conformal_cubed_sphere_coordinates(Nx, Ny;
                                             spacing = UniformSpacing(),
-                                            spacing_parameters = (; ratio_raised_to_Nx_minus_one = 10.5, k₀ByNx = 0.45))
+                                            spacing_parameters = (; ratio_raised_to_Nx_minus_one = 10.5,
+                                                                    k₀ByNx = 0.45))
 
     x, y = get_square_domain_coordinates(spacing, Nx, Ny, params=spacing_parameters)
 
@@ -333,9 +330,9 @@ end
 Evaluate the (weighted) model diagnostics for a non-uniform conformal cubed-sphere panel defined by parameters `θ`. The
 steps are:
 1. Clamp `θ` to parameter limits from `specify_parameter_limits(spacing)`.
-2. Build a **reference** uniform grid via `conformal_cubed_sphere_coordinates(Nx, Ny, UniformSpacing())` and compute
+2. Build a **reference** uniform grid via `conformal_cubed_sphere_coordinates(Nx, Ny; spacing=UniformSpacing())` and compute
    `minimum_reference_cell_area`.
-3. Build the **non-uniform** grid via `conformal_cubed_sphere_coordinates(Nx, Ny, spacing; ...)`,
+3. Build the **non-uniform** grid via `conformal_cubed_sphere_coordinates(Nx, Ny; spacing, ...)`,
    passing the parameters in `θ` according to `spacing`.
 4. Compute model diagnostics and then apply weights.
 
@@ -355,17 +352,14 @@ function forward_map(Nx, Ny, spacing, θ)
         θ[i] = clamp(θ[i], θ_limits[i][1], θ_limits[i][2])
     end
 
-    x_reference, y_reference, X_reference, Y_reference, Z_reference = (
-    conformal_cubed_sphere_coordinates(Nx, Ny;
-                                       spacing = UniformSpacing()))
+    x_reference, y_reference, X_reference, Y_reference, Z_reference =
+        conformal_cubed_sphere_coordinates(Nx, Ny; spacing = UniformSpacing())
+
     cell_areas = compute_cell_areas(X_reference, Y_reference, Z_reference)
     minimum_reference_cell_area = minimum(cell_areas)
 
-    x, y, X, Y, Z = (
-    conformal_cubed_sphere_coordinates(Nx, Ny;
-                                       spacing,
-                                       spacing_parameters = (; ratio_raised_to_Nx_minus_one = θ[1],
-                                                               k₀ByNx = θ[1])))
+    spacing_parameters = (; ratio_raised_to_Nx_minus_one = θ[1], k₀ByNx = θ[1])
+    x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny; spacing, spacing_parameters)
 
     model_diagnostics = compute_model_diagnostics(X, Y, Z, minimum_reference_cell_area)
 

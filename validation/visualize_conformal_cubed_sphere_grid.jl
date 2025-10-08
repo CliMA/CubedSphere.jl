@@ -485,26 +485,6 @@ end
 
 conformal_cubed_sphere_2D_3D_visualization_example()
 
-function spacing_type_lower_case(spacing)
-    if spacing == UniformSpacing()
-        return "uniform"
-    elseif spacing == GeometricSpacing()
-        return "geometric"
-    elseif spacing == ExponentialSpacing()
-        return "exponential"
-    end
-end
-
-function spacing_type_camel_case(spacing)
-    if spacing == UniformSpacing()
-        return "Uniform"
-    elseif spacing == GeometricSpacing()
-        return "Geometric"
-    elseif spacing == ExponentialSpacing()
-        return "Exponential"
-    end
-end
-
 function visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing = GeometricSpacing(), optimized = false)
     x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny)
     visualize_conformal_cubed_sphere_2D(X, Y, Z, "conformal_cubed_sphere_2D.pdf")
@@ -522,22 +502,22 @@ function visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing 
 
     if optimized
         file_name_suffix = "_optimized"
-        title_2D = ("Conformal Cubed Sphere with $(spacing_type_camel_case(spacing)) Spacing\nand Optimized with EKI: "
+        title_2D = ("Conformal Cubed Sphere with $(string(typeof(spacing))) Spacing\nand Optimized with EKI: "
                     * "2D Projection")
-        title_3D = ("Conformal Cubed Sphere with $(spacing_type_camel_case(spacing)) Spacing\nand Optimized with EKI: "
+        title_3D = ("Conformal Cubed Sphere with $(string(typeof(spacing))) Spacing\nand Optimized with EKI: "
                     * "3D View")
     else
         file_name_suffix = "_unoptimized"
-        title_2D = "Conformal Cubed Sphere with $(spacing_type_camel_case(spacing)) Spacing:\n2D Projection"
-        title_3D = "Conformal Cubed Sphere with $(spacing_type_camel_case(spacing)) Spacing:\n3D View"
+        title_2D = "Conformal Cubed Sphere with $(string(typeof(spacing))) Spacing:\n2D Projection"
+        title_3D = "Conformal Cubed Sphere with $(string(typeof(spacing))) Spacing:\n3D View"
     end
-    spacing_type = spacing_type_lower_case(spacing)
+
     visualize_conformal_cubed_sphere_2D(
-    X, Y, Z, "non_uniform_conformal_cubed_sphere_2D_" * spacing_type * file_name_suffix * ".pdf"; title = title_2D)
+    X, Y, Z, "non_uniform_conformal_cubed_sphere_2D_" * lowercase(string(typeof(spacing))) * file_name_suffix * ".pdf"; title = title_2D)
     visualize_conformal_cubed_sphere_3D(
-    X, Y, Z, "non_uniform_conformal_cubed_sphere_3D_" * spacing_type * file_name_suffix * ".pdf"; title = title_3D)
+    X, Y, Z, "non_uniform_conformal_cubed_sphere_3D_" * lowercase(string(typeof(spacing))) * file_name_suffix * ".pdf"; title = title_3D)
     visualize_conformal_cubed_sphere_2D_3D(
-    X, Y, Z, "non_uniform_conformal_cubed_sphere_2D_3D_" * spacing_type * file_name_suffix * ".pdf";
+    X, Y, Z, "non_uniform_conformal_cubed_sphere_2D_3D_" * lowercase(string(typeof(spacing))) * file_name_suffix * ".pdf";
     title_2D = title_2D, title_3D = title_3D)
 
     cell_areas = compute_cell_areas(X, Y, Z)
@@ -548,7 +528,7 @@ end
 
 for optimized in [false, true]
     for spacing in [GeometricSpacing(), ExponentialSpacing()]
-        spacing_type = spacing_type_lower_case(spacing)
+        spacing_type = lowercase(string(typeof(spacing)))
         @info ("Visualizing non-uniform conformal cubed sphere for spacing = $spacing_type and optimized = $optimized")
         N = 16
         Nx, Ny = N + 1, N + 1
@@ -556,28 +536,13 @@ for optimized in [false, true]
     end
 end
 
-function specify_title(spacing)
-    if spacing == GeometricSpacing()
-        title = "Conformal Cubed Sphere with Geometric Spacing"
-    elseif spacing == ExponentialSpacing()
-        title = "Conformal Cubed Sphere with Exponential Spacing"
-    end
-    return title
-end
+specify_title(spacing) = "Conformal Cubed Sphere with " * string(typeof(spacing))
+
+specify_file_name_suffixes(spacing, optimized)
 
 function specify_file_name_suffixes(spacing, optimized)
-    if spacing == GeometricSpacing()
-        file_name_suffix_1 = "_Geometric"
-    elseif spacing == ExponentialSpacing()
-        file_name_suffix_1 = "_Exponential"
-    end
-
-    if optimized
-        file_name_suffix_2 = "_Optimized"
-    else
-        file_name_suffix_2 = "_Unoptimized"
-    end
-
+    file_name_suffix_1 = "_" * string(typeof(spacing))[1:end-7]
+    file_name_suffix_2 = optimized ? "_Optimized" : "_Unoptimized"
     return file_name_suffix_1, file_name_suffix_2
 end
 
@@ -612,7 +577,7 @@ compute_minimum_cell_width_variation_with_resolution = true
 
 if compute_minimum_cell_width_variation_with_resolution
     for spacing in [GeometricSpacing(), ExponentialSpacing()]
-        spacing_type = spacing_type_lower_case(spacing)
+        spacing_type = lowercase(string(typeof(spacing)))
         for optimized in [false, true]
             @info ("Computing minimum cell width variation with resolution for spacing = $spacing_type and "
                    * "optimized = $optimized")
@@ -637,7 +602,7 @@ if plot_minimum_cell_width_variation_with_resolution
                      labels = ["Unoptimized", "Optimized with EKI"])
 
     for spacing in [GeometricSpacing(), ExponentialSpacing()]
-        spacing_type = spacing_type_lower_case(spacing)
+        spacing_type = lowercase(string(typeof(spacing)))
         title = specify_title(spacing) * ":\nNormalized Minimum Cell Width versus Resolution"
 
         resolutions_2 = Vector{Float64}()
