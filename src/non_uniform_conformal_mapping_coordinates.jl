@@ -135,7 +135,7 @@ end
 
 """
     conformal_cubed_sphere_coordinates(Nx, Ny;
-                                       spacing=UniformSpacing(),
+                                       spacing = UniformSpacing(),
                                        spacing_parameters = (; ratio_raised_to_Nx_minus_one = 10.5,
                                                                k₀ByNx = 0.45))
 
@@ -169,27 +169,21 @@ function conformal_cubed_sphere_coordinates(Nx, Ny;
                                             spacing_parameters = (; ratio_raised_to_Nx_minus_one = 10.5,
                                                                     k₀ByNx = 0.45))
 
-    x, y = get_square_domain_coordinates(spacing, Nx, Ny, params=spacing_parameters)
+    x, y = cube_face_coordinates(spacing, Nx, Ny, params=spacing_parameters)
 
-    X = zeros(length(x), length(y))
-    Y = zeros(length(x), length(y))
-    Z = zeros(length(x), length(y))
+    X, Y, Z = cube_to_sphere(x, y)
 
-    for (j, y′) in enumerate(y), (i, x′) in enumerate(x)
-        X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x′, y′)
-    end
-
-    return x, y, X, Y, Z
+    return X, Y, Z, x, y
 end
 
-function get_square_domain_coordinates(::UniformSpacing, Nx, Ny; params=nothing)
+function cube_face_coordinates(::UniformSpacing, Nx, Ny; params=nothing)
     x = range(-1, 1, length = Nx)
     y = range(-1, 1, length = Ny)
 
     return x, y
 end
 
-function get_square_domain_coordinates(::GeometricSpacing, Nx, Ny; params)
+function cube_face_coordinates(::GeometricSpacing, Nx, Ny; params)
     # For Nx = Ny = 32 + 1, setting ratio = 1.0775 increases the minimum cell width by a factor of 1.92.
     # For Nx = Ny = 1024 + 1, setting ratio = 1.0042 increases the minimum cell width by a factor of 3.25.
     x = geometric_spacing(Nx, params.ratio_raised_to_Nx_minus_one)
@@ -197,7 +191,7 @@ function get_square_domain_coordinates(::GeometricSpacing, Nx, Ny; params)
     return x, y
 end
 
-function get_square_domain_coordinates(::ExponentialSpacing, Nx, Ny; params)
+function cube_face_coordinates(::ExponentialSpacing, Nx, Ny; params)
     # For Nx = Ny = 32 + 1, setting k₀ByNx = 15 increases the minimum cell width by a factor of 1.84.
     # For Nx = Ny = 1024 + 1, setting k₀ByNx = 10 increases the minimum cell width by a factor of 2.58.
     x = exponential_spacing(Nx, params.k₀ByNx)
@@ -359,7 +353,7 @@ function forward_map(Nx, Ny, spacing, θ)
     minimum_reference_cell_area = minimum(cell_areas)
 
     spacing_parameters = (; ratio_raised_to_Nx_minus_one = θ[1], k₀ByNx = θ[1])
-    x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny; spacing, spacing_parameters)
+    X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny; spacing, spacing_parameters)
 
     model_diagnostics = compute_model_diagnostics(X, Y, Z, minimum_reference_cell_area)
 
@@ -548,12 +542,12 @@ function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacin
         println("\nThe optimized parameters are: $θ_name = $(round(mean(θᵣ)[1], digits=2))\n")
     end
 
-    x, y, X, Y, Z = (
-    conformal_cubed_sphere_coordinates(Nx, Ny;
-                                       spacing,
-                                       spacing_parameters = (; ratio_raised_to_Nx_minus_one = mean(θᵣ)[1],
-                                                               k₀ByNx = mean(θᵣ)[1])))
-    return x, y, X, Y, Z
+    spacing_parameters = (; ratio_raised_to_Nx_minus_one = mean(θᵣ)[1],
+                            k₀ByNx = mean(θᵣ)[1])
+    X, Y, Z, x, y =
+        conformal_cubed_sphere_coordinates(Nx, Ny; spacing, spacing_parameters)
+
+    return X, Y, Z, x, y
 end
 
 

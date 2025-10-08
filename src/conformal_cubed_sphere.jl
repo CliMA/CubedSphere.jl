@@ -143,3 +143,24 @@ function conformal_cubed_sphere_inverse_mapping(X, Y, Z; Z_map=Z_Rancic)
 
     return x, y
 end
+
+"""
+    cube_to_sphere(x, y)
+
+Maps the coordinates ``(x, y) ∈ [-1, 1] × [-1, 1]`` of the face of a cube to the
+3D coordinates ``X, Y, Z`` on the sphere via [`conformal_cubed_sphere_mapping`](@raf),
+that is:
+
+    X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x[i], y[j])
+"""
+function cube_to_sphere(x, y)
+    X = zeros(length(x), length(y))
+    Y = zeros(length(x), length(y))
+    Z = zeros(length(x), length(y))
+
+    for (j, y′) in enumerate(y), (i, x′) in enumerate(x)
+        X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x′, y′)
+    end
+
+    return X, Y, Z
+end
