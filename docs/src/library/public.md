@@ -10,3 +10,10 @@ See the Internals section of the manual for internal package docs covering all s
 Modules = [CubedSphere]
 Private = false
 ```
+
+## CubedSphere.SphericalGeometry
+
+```@autodocs
+Modules = [CubedSphere.SphericalGeometry]
+Private = false
+```

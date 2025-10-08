@@ -8,3 +8,10 @@ Documentation for `CubedSphere.jl`'s internal interface.
 Modules = [CubedSphere]
 Public = false
 ```
+
+## CubedSphere.SphericalGeometry
+
+```@autodocs
+Modules = [CubedSphere.SphericalGeometry]
+Public = false
+```
