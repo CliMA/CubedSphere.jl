@@ -148,7 +148,7 @@ end
     cube_to_sphere(x, y)
 
 Maps the coordinates ``(x, y) ∈ [-1, 1] × [-1, 1]`` of the face of a cube to the
-3D coordinates ``X, Y, Z`` on the sphere via [`conformal_cubed_sphere_mapping`](@raf),
+3D coordinates ``X, Y, Z`` on the sphere via [`conformal_cubed_sphere_mapping`](@ref),
 that is:
 
     X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x[i], y[j])
