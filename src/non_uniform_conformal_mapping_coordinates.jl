@@ -573,19 +573,47 @@ entire grid.
 - A non-negative scalar quantifying the overall deviation from isotropy in the grid.
   Larger values correspond to more anisotropic grids.
 
-# Example
+# Examples
+
+A regular latitude-longitude grid:
+
 ```jldoctest 1
-julia> using CubedSphere, CubedSphere.SphericalGeometry
+using CubedSphere: compute_deviation_from_isotropy
 
-julia> Nx, Ny = 3, 3;
-       lons = range(-π/4, π/4, length = Nx);
-       lats = range(-π/6, π/6, length = Ny);
-       X = [cos(φ)*cos(λ) for λ in lons, φ in lats];
-       Y = [cos(φ)*sin(λ) for λ in lons, φ in lats];
-       Z = [sin(φ)        for λ in lons, φ in lats];
+Nx, Ny = 3, 3
+lons = range(-π/4, π/4, length = Nx)
+lats = range(-π/6, π/6, length = Ny)
 
-julia> compute_deviation_from_isotropy(X, Y, Z)
+X = [cos(φ) * cos(λ) for λ in lons, φ in lats]
+Y = [cos(φ) * sin(λ) for λ in lons, φ in lats]
+Z = [sin(φ)          for λ in lons, φ in lats]
+
+compute_deviation_from_isotropy(X, Y, Z)
+
+#output
+
 1.6552138747243959
+```
+
+The vertices of a tetrahedron:
+
+```jldoctest
+using CubedSphere: compute_deviation_from_isotropy
+
+V = [   0     0     1 ;
+     2√2/3    0   -1/3;
+     -√2/3  √6/3  -1/3;
+     -√2/3 -√6/3  -1/3]
+
+X = reshape(V[:, 1], 2, 2)
+Y = reshape(V[:, 2], 2, 2)
+Z = reshape(V[:, 3], 2, 2)
+
+isapprox(compute_deviation_from_isotropy(X, Y, Z), 0, atol=1e-14)
+
+# output
+
+true
 ```
 """
 function compute_deviation_from_isotropy(X, Y, Z; radius=1)
