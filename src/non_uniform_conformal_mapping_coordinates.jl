@@ -355,7 +355,9 @@ function forward_map(Nx, Ny, spacing, θ)
         θ[i] = clamp(θ[i], θ_limits[i][1], θ_limits[i][2])
     end
 
-    x_reference, y_reference, X_reference, Y_reference, Z_reference = conformal_cubed_sphere_coordinates(Nx, Ny, UniformSpacing())
+    x_reference, y_reference, X_reference, Y_reference, Z_reference = (
+    conformal_cubed_sphere_coordinates(Nx, Ny;
+                                       spacing = UniformSpacing()))
     cell_areas = compute_cell_areas(X_reference, Y_reference, Z_reference)
     minimum_reference_cell_area = minimum(cell_areas)
 
