@@ -139,27 +139,29 @@ end
 
 """
     conformal_cubed_sphere_coordinates(Nx, Ny;
-                                       non_uniform_spacing=false,
-                                       spacing=GeometricSpacing(),
-                                       ratio_raised_to_Nx_minus_one=10.5,
-                                       k₀ByNx=0.45)
+                                       spacing=UniformSpacing(),
+                                       spacing_parameters = (; ratio_raised_to_Nx_minus_one = 10.5,
+                                                               k₀ByNx = 0.45))
 
-Generate computational-space coordinates `x` and `y` on `[-1, 1] × [-1, 1]` and map them to Cartesian coordinates
-`(X, Y, Z)` on the sphere using `conformal_cubed_sphere_mapping`. The arrays `X`, `Y`, and `Z` are of size `(Nx, Ny)`
-and correspond to `Nx × Ny` grid vertices, defining `(Nx-1) × (Ny-1)` spherical quadrilateral cells of a conformal cubed
-sphere panel.
+Generate computational-space coordinates `x` and `y` on `[-1, 1] × [-1, 1]` and map them
+to Cartesian coordinates `(X, Y, Z)` on the sphere using `conformal_cubed_sphere_mapping`.
+The arrays `X`, `Y`, and `Z` are of size `(Nx, Ny)` and correspond to `Nx × Ny` grid vertices,
+defining `(Nx-1) × (Ny-1)` spherical quadrilateral cells of a conformal cubed sphere panel.
 
-If `non_uniform_spacing == false`, `x` and `y` have uniform spacing (equal increments), so their tensor product defines
-a uniform grid on `[-1, 1] × [-1, 1]`. If `true`, symmetric graded spacing is applied on both axes:
+If `spacing = UniformSpacing()` then `x` and `y` have uniform spacing (equal increments),
+so their tensor product defines a uniform grid on `[-1, 1] × [-1, 1]`. Otherwise,
+`x` and `y` both have a symmetric graded spacing. Specifically:
 - `spacing = GeometricSpacing()`: uses `geometric_spacing(N, ratio_raised_to_Nx_minus_one)` for each axis.
 - `spacing = ExponentialSpacing()`: uses `exponential_spacing(N, k₀ByNx)` for each axis.
 
 # Arguments
 - `Nx, Ny`: Number of grid vertices along the `x` and `y` directions (≥ 2).
-- `non_uniform_spacing`: Enable graded (non-uniform) spacing on both axes.
-- `spacing`: Either `GeometricSpacing()` or `ExponentialSpacing()` (used only when `non_uniform_spacing` is true).
-- `ratio_raised_to_Nx_minus_one`: Geometric grading control, interpreted as `r^(Nx-1)`.
-- `k₀ByNx`: Exponential grading control used as `k₀ = k₀ByNx * Nx`.
+- `spacing`: Either `UniformSpacing()` (default), `GeometricSpacing()`, or `ExponentialSpacing()`.
+- `spacing_parameters`: Parameters required for various spacings.
+                        Default: `(; ratio_raised_to_Nx_minus_one = 10.5, k₀ByNx = 0.45)`.
+                        For `GeometricSpacing()`, `ratio_raised_to_Nx_minus_one` is interpreted
+                        as `r^(Nx-1)`; for `ExponentialSpacing()`, `k₀ByNx` is used
+                        as `k₀ = k₀ByNx * Nx`.
 
 # Returns
 - `x`, `y`: Computational-space vertex coordinates of lengths `Nx` and `Ny`.
@@ -167,8 +169,7 @@ a uniform grid on `[-1, 1] × [-1, 1]`. If `true`, symmetric graded spacing is a
   `X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x[i], y[j])`.
 """
 function conformal_cubed_sphere_coordinates(Nx, Ny;
-                                            non_uniform_spacing = false,
-                                            spacing = GeometricSpacing(),
+                                            spacing = UniformSpacing(),
                                             spacing_parameters = (; ratio_raised_to_Nx_minus_one = 10.5, k₀ByNx = 0.45))
 
     x, y = get_square_domain_coordinates(spacing, Nx, Ny, params=spacing_parameters)
@@ -235,20 +236,8 @@ wrapped in a one-element array: `[[min, max]]`. The bounds depend on `spacing`:
 
 Returns `[θ_limits]` where `θ_limits == [min, max]` for the single parameter in this implementation.
 """
-function specify_parameter_limits(::GeometricSpacing)
-    θ_limits = zeros(2)
-    ratio_raised_to_N_limits = [5, 15]
-    θ_limits[1] = ratio_raised_to_N_limits[1]
-    θ_limits[2] = ratio_raised_to_N_limits[2]
-    return [θ_limits]
-end
-function specify_parameter_limits(::ExponentialSpacing)
-    θ_limits = zeros(2)
-    k₀ByN_limits = [0.4, 0.5]
-    θ_limits[1] = k₀ByN_limits[1]
-    θ_limits[2] = k₀ByN_limits[2]
-    return [θ_limits]
-end
+specify_parameter_limits(::GeometricSpacing) = [[5, 15]]
+specify_parameter_limits(::ExponentialSpacing) = [[0.4, 0.5]]
 
 """
     specify_random_parameters(nEnsemble, spacing)
@@ -344,9 +333,9 @@ end
 Evaluate the (weighted) model diagnostics for a non-uniform conformal cubed-sphere panel defined by parameters `θ`. The
 steps are:
 1. Clamp `θ` to parameter limits from `specify_parameter_limits(spacing)`.
-2. Build a **reference** uniform grid via `conformal_cubed_sphere_coordinates(Nx, Ny)` and compute
+2. Build a **reference** uniform grid via `conformal_cubed_sphere_coordinates(Nx, Ny, UniformSpacing())` and compute
    `minimum_reference_cell_area`.
-3. Build the **non-uniform** grid via `conformal_cubed_sphere_coordinates(Nx, Ny; non_uniform_spacing=true, ...)`,
+3. Build the **non-uniform** grid via `conformal_cubed_sphere_coordinates(Nx, Ny, spacing; ...)`,
    passing the parameters in `θ` according to `spacing`.
 4. Compute model diagnostics and then apply weights.
 
@@ -366,16 +355,15 @@ function forward_map(Nx, Ny, spacing, θ)
         θ[i] = clamp(θ[i], θ_limits[i][1], θ_limits[i][2])
     end
 
-    x_reference, y_reference, X_reference, Y_reference, Z_reference = conformal_cubed_sphere_coordinates(Nx, Ny)
+    x_reference, y_reference, X_reference, Y_reference, Z_reference = conformal_cubed_sphere_coordinates(Nx, Ny, UniformSpacing())
     cell_areas = compute_cell_areas(X_reference, Y_reference, Z_reference)
     minimum_reference_cell_area = minimum(cell_areas)
 
     x, y, X, Y, Z = (
     conformal_cubed_sphere_coordinates(Nx, Ny;
-                                       non_uniform_spacing = true,
                                        spacing,
-                                       ratio_raised_to_Nx_minus_one = θ[1],
-                                       k₀ByNx = θ[1]))
+                                       spacing_parameters = (; ratio_raised_to_Nx_minus_one = θ[1],
+                                                               k₀ByNx = θ[1])))
 
     model_diagnostics = compute_model_diagnostics(X, Y, Z, minimum_reference_cell_area)
 
@@ -418,14 +406,14 @@ At each iteration:
 1. **Forward evaluations (parallelized):** For each ensemble member `θ[n]`, compute the predicted diagnostics
    `G[n] = forward_map(Nx, Ny, spacing, θ[n])`.
 2. **Ensemble statistics:** Form means `θ̄ = mean(θ)` and `G̅ = mean(G)`, then compute
-   - Cross-covariance `Cᵘᵖ = cov(θ, G)` (shape: nθ × ndata), and
-   - Data covariance `Cᵖᵖ = cov(G, G)` (shape: ndata × ndata),
+   - Cross-covariance `Cᵘᵖ = cov(θ, G)` (shape: `nθ × ndata`), and
+   - Data covariance `Cᵖᵖ = cov(G, G)` (shape: `ndata × ndata`),
    using the unbiased `(nEnsemble-1)` denominator.
 3. **Perturbed observations:** For each member, build `y[n] = ideal + Δt * η[n]` where `η[n] ~ N(0, I)`. Here `Δt` sets
    the **perturbation magnitude** of the observations.
 4. **Residuals:** `r[n] = y[n] - G[n]`.
-5. **Implicit update (Kalman-like step):** Update each parameter vector via θ[n] ← θ[n] + K * r[n], with
-   K = Cᵘᵖ * (Cᵖᵖ + I/Δt)⁻¹, implemented by solving the linear system with a Cholesky factorization of `Cᵖᵖ + I/Δt`. The
+5. **Implicit update (Kalman-like step):** Update each parameter vector via `θ[n] ← θ[n] + K * r[n]`, with
+   `K = Cᵘᵖ * (Cᵖᵖ + I/Δt)⁻¹`, implemented by solving the linear system with a Cholesky factorization of `Cᵖᵖ + I/Δt`. The
    same `Δt` also acts as an **implicit damping/step-size control**: smaller `Δt` ⇒ stronger regularization and smaller
    updates; larger `Δt` ⇒ weaker regularization and larger, noisier updates.
 6. **Monitoring:** Report `error = ‖mean(r)‖` and store a snapshot of the ensemble.
@@ -523,7 +511,7 @@ builds and returns the corresponding grid.
 Procedure:
 1. Create a random ensemble of parameters within limits (`nEnsemble = 40`, reproducible seed).
 2. Run `optimize!` to fit the **weighted** diagnostics to their ideal targets.
-3. Build the optimized grid with `conformal_cubed_sphere_coordinates(Nx, Ny; non_uniform_spacing=true, ...)` using the
+3. Build the optimized grid with `conformal_cubed_sphere_coordinates(Nx, Ny; spacing, ...)` using the
    mean optimized parameter.
 
 For `"geometric"`, the parameter is `ratio^(Nx-1)`; for `"exponential"`, the parameter is `k₀/Nx`.
@@ -566,11 +554,9 @@ function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacin
 
     x, y, X, Y, Z = (
     conformal_cubed_sphere_coordinates(Nx, Ny;
-                                       non_uniform_spacing = true,
                                        spacing,
-                                       ratio_raised_to_Nx_minus_one = mean(θᵣ)[1],
-                                       k₀ByNx = mean(θᵣ)[1]))
-
+                                       spacing_parameters = (; ratio_raised_to_Nx_minus_one = mean(θᵣ)[1],
+                                                               k₀ByNx = mean(θᵣ)[1])))
     return x, y, X, Y, Z
 end
 
@@ -624,8 +610,8 @@ function compute_deviation_from_isotropy(X, Y, Z; radius=1)
     for j in 1:Ny-1, i in 1:Nx-1
         a₁, a₂, a₃, a₄ = spherical_quadrilateral_vertices(X, Y, Z, i, j)
 
-        # Compute the arc lengths (distances) between the points a₁ and a₂, a₂ and a₃, a₃ and a₄, and a₄ and a₁ on the
-        # sphere.
+        # Compute the arc lengths (distances) between the points a₁ and a₂,
+        # a₂ and a₃, a₃ and a₄, and a₄ and a₁ on the sphere.
         d₁ = spherical_distance(a₁, a₂; radius)
         d₂ = spherical_distance(a₂, a₃; radius)
         d₃ = spherical_distance(a₃, a₄; radius)
