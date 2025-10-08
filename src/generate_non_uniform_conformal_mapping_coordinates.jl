@@ -169,24 +169,9 @@ a uniform grid on `[-1, 1] × [-1, 1]`. If `true`, symmetric graded spacing is a
 function conformal_cubed_sphere_coordinates(Nx, Ny;
                                             non_uniform_spacing = false,
                                             spacing = GeometricSpacing(),
-                                            ratio_raised_to_Nx_minus_one = 10.5,
-                                            k₀ByNx = 0.45)
-    x = range(-1, 1, length = Nx)
-    y = range(-1, 1, length = Ny)
+                                            spacing_parameters = (; ratio_raised_to_Nx_minus_one = 10.5, k₀ByNx = 0.45))
 
-    if non_uniform_spacing
-        if spacing isa GeometricSpacing
-            # For Nx = Ny = 32 + 1, setting ratio = 1.0775 increases the minimum cell width by a factor of 1.92.
-            # For Nx = Ny = 1024 + 1, setting ratio = 1.0042 increases the minimum cell width by a factor of 3.25.
-            x = geometric_spacing(Nx, ratio_raised_to_Nx_minus_one)
-            y = geometric_spacing(Ny, ratio_raised_to_Nx_minus_one)
-        elseif spacing isa ExponentialSpacing
-            # For Nx = Ny = 32 + 1, setting k₀ByNx = 15 increases the minimum cell width by a factor of 1.84.
-            # For Nx = Ny = 1024 + 1, setting k₀ByNx = 10 increases the minimum cell width by a factor of 2.58.
-            x = exponential_spacing(Nx, k₀ByNx)
-            y = exponential_spacing(Ny, k₀ByNx)
-        end
-    end
+    x, y = get_square_domain_coordinates(spacing, Nx, Ny, params=spacing_parameters)
 
     X = zeros(length(x), length(y))
     Y = zeros(length(x), length(y))
@@ -197,6 +182,29 @@ function conformal_cubed_sphere_coordinates(Nx, Ny;
     end
 
     return x, y, X, Y, Z
+end
+
+function get_square_domain_coordinates(::UniformSpacing, Nx, Ny; params=nothing)
+    x = range(-1, 1, length = Nx)
+    y = range(-1, 1, length = Ny)
+
+    return x, y
+end
+
+function get_square_domain_coordinates(::GeometricSpacing, Nx, Ny; params)
+    # For Nx = Ny = 32 + 1, setting ratio = 1.0775 increases the minimum cell width by a factor of 1.92.
+    # For Nx = Ny = 1024 + 1, setting ratio = 1.0042 increases the minimum cell width by a factor of 3.25.
+    x = geometric_spacing(Nx, params.ratio_raised_to_Nx_minus_one)
+    y = geometric_spacing(Ny, params.ratio_raised_to_Nx_minus_one)
+    return x, y
+end
+
+function get_square_domain_coordinates(::ExponentialSpacing, Nx, Ny; params)
+    # For Nx = Ny = 32 + 1, setting k₀ByNx = 15 increases the minimum cell width by a factor of 1.84.
+    # For Nx = Ny = 1024 + 1, setting k₀ByNx = 10 increases the minimum cell width by a factor of 2.58.
+    x = exponential_spacing(Nx, params.k₀ByNx)
+    y = exponential_spacing(Ny, params.k₀ByNx)
+    return x, y
 end
 
 """
