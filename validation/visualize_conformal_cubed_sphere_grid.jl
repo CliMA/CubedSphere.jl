@@ -523,16 +523,17 @@ function visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing 
     cell_areas = compute_cell_areas(X, Y, Z)
     minimum_cell_area = minimum(cell_areas)
 
-    is_optimized = optimized ? "optimized" : "non-optimized"
-
-    print("The normalized minimum cell width of the non-uniform conformal cubed sphere for $is_optimized $(typeof(spacing)) " *
+    spacing_type = optimized ? "optimized" : "non-optimized"
+    spacing_type *= " $(string(typeof(spacing)))"
+    print("The normalized minimum cell width of the non-uniform conformal cubed sphere for $spacing_type " *
           "is $(sqrt(minimum_cell_area/reference_minimum_cell_area))\n")
 end
 
 for optimized in [false, true]
     for spacing in [GeometricSpacing(), ExponentialSpacing()]
-        is_optimized = optimized ? "optimized" : "non-optimized"
-        @info "Visualizing non-uniform conformal cubed sphere for $is_optimized $(typeof(spacing))"
+        spacing_type = optimized ? "optimized" : "non-optimized"
+        spacing_type *= " $(string(typeof(spacing)))"
+        @info "Visualizing non-uniform conformal cubed sphere for $spacing_type"
         N = 16
         Nx, Ny = N + 1, N + 1
         visualize_optimized_non_uniform_conformal_cubed_sphere(Nx, Ny; spacing, optimized)
@@ -579,8 +580,9 @@ compute_minimum_cell_width_variation_with_resolution = true
 if compute_minimum_cell_width_variation_with_resolution
     for spacing in [GeometricSpacing(), ExponentialSpacing()]
         for optimized in [false, true]
-            is_optimized = optimized ? "optimized" : "non-optimized"
-            @info "Computing minimum cell width variation with resolution for $is_optimized $(string(typeof(spacing)))"
+            spacing_type = optimized ? "optimized" : "non-optimized"
+            spacing_type *= " $(string(typeof(spacing)))"
+            @info "Computing minimum cell width variation with resolution for $spacing_type"
             minimum_cell_width_variation_with_resolution(spacing, optimized)
         end
     end
@@ -609,8 +611,9 @@ if plot_minimum_cell_width_variation_with_resolution
         normalized_minimum_cell_widths_unoptimized = Vector{Float64}()
 
         for optimized in [false, true]
-            is_optimized = optimized ? "optimized" : "non-optimized"
-            @info "Plotting minimum cell width variation with resolution for $is_optimized $(string(typeof(spacing)))"
+            spacing_type = optimized ? "optimized" : "non-optimized"
+            spacing_type *= " $(string(typeof(spacing)))"
+            @info "Plotting minimum cell width variation with resolution for $spacing_type"
 
             file_name_suffix_1, file_name_suffix_2 = specify_file_name_suffixes(spacing, optimized)
 
