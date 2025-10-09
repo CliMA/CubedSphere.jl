@@ -610,7 +610,6 @@ if plot_minimum_cell_width_variation_with_resolution
 
         for optimized in [false, true]
             is_optimized = optimized ? "optimized" : "non-optimized"
-
             @info "Plotting minimum cell width variation with resolution for $is_optimized $(string(typeof(spacing)))"
 
             file_name_suffix_1, file_name_suffix_2 = specify_file_name_suffixes(spacing, optimized)
