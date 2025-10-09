@@ -160,9 +160,9 @@ so their tensor product defines a uniform grid on `[-1, 1] × [-1, 1]`. Otherwis
                         as `k₀ = k₀ByNx * Nx`.
 
 # Returns
-- `x`, `y`: Computational-space vertex coordinates of lengths `Nx` and `Ny`.
 - `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates on the sphere, with
   `X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x[i], y[j])`.
+- `x`, `y`: Computational-space vertex coordinates of lengths `Nx` and `Ny`.
 """
 function conformal_cubed_sphere_coordinates(Nx, Ny;
                                             spacing = UniformSpacing(),
@@ -173,7 +173,7 @@ function conformal_cubed_sphere_coordinates(Nx, Ny;
 
     X, Y, Z = cube_to_sphere(x, y)
 
-    return X, Y, Z, x, y
+    return x, y, X, Y, Z
 end
 
 function cube_face_coordinates(::UniformSpacing, Nx, Ny; params=nothing)
@@ -352,7 +352,7 @@ function forward_map(Nx, Ny, spacing, θ)
     minimum_reference_cell_area = minimum(cell_areas)
 
     spacing_parameters = (; ratio_raised_to_Nx_minus_one = θ[1], k₀ByNx = θ[1])
-    X, Y, Z, x, y = conformal_cubed_sphere_coordinates(Nx, Ny; spacing, spacing_parameters)
+    x, y, X, Y, Z = conformal_cubed_sphere_coordinates(Nx, Ny; spacing, spacing_parameters)
 
     model_diagnostics = compute_model_diagnostics(X, Y, Z, minimum_reference_cell_area)
 
@@ -510,9 +510,9 @@ For `"geometric"`, the parameter is `ratio^(Nx-1)`; for `"exponential"`, the par
 - `spacing`: `GeometricSpacing()` or `ExponentialSpacing()`.
 
 # Returns
+- `X, Y, Z`: `(Nx, Ny)` Cartesian coordinates of the vertices of the **optimized** non-uniform
+             conformal cubed sphere panel.
 - `x, y`: Computational-space coordinates of lengths `Nx` and `Ny`.
-- `X, Y, Z`: `(Nx, Ny)` Cartesian coordinates of the vertices of the **optimized** non-uniform conformal cubed sphere
-  panel.
 """
 function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing;
                                                                   verbose = false)
@@ -543,10 +543,10 @@ function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacin
 
     spacing_parameters = (; ratio_raised_to_Nx_minus_one = mean(θᵣ)[1],
                             k₀ByNx = mean(θᵣ)[1])
-    X, Y, Z, x, y =
+    x, y, X, Y, Z =
         conformal_cubed_sphere_coordinates(Nx, Ny; spacing, spacing_parameters)
 
-    return X, Y, Z, x, y
+    return x, y, X, Y, Z
 end
 
 
@@ -590,7 +590,7 @@ Z = [sin(φ)          for λ in lons, φ in lats]
 
 compute_deviation_from_isotropy(X, Y, Z)
 
-#output
+# output
 
 1.6552138747243959
 ```
