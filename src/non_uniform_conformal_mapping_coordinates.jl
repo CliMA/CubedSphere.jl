@@ -152,6 +152,8 @@ so their tensor product defines a uniform grid on `[-1, 1] × [-1, 1]`. Otherwis
 
 # Arguments
 - `Nx, Ny`: Number of grid vertices along the `x` and `y` directions (≥ 2).
+
+# Keyword arguments
 - `spacing`: Either `UniformSpacing()` (default), `GeometricSpacing()`, or `ExponentialSpacing()`.
 - `spacing_parameters`: Parameters required for various spacings.
                         Default: `(; ratio_raised_to_Nx_minus_one = 10.5, k₀ByNx = 0.45)`.
@@ -160,9 +162,9 @@ so their tensor product defines a uniform grid on `[-1, 1] × [-1, 1]`. Otherwis
                         as `k₀ = k₀ByNx * Nx`.
 
 # Returns
-- `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates on the sphere, with
-  `X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x[i], y[j])`.
 - `x`, `y`: Computational-space vertex coordinates of lengths `Nx` and `Ny`.
+- `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates on the sphere, with
+                 `X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x[i], y[j])`.
 """
 function conformal_cubed_sphere_coordinates(Nx, Ny;
                                             spacing = UniformSpacing(),
@@ -230,25 +232,25 @@ specify_parameter_limits(::GeometricSpacing) = [[5, 15]]
 specify_parameter_limits(::ExponentialSpacing) = [[0.4, 0.5]]
 
 """
-    specify_random_parameters(nEnsemble, spacing)
+    specify_random_parameters(N_ensemble, spacing)
 
 Draw an ensemble of random parameter vectors within the limits from
 `specify_parameter_limits(spacing)`. Each ensemble member is sampled
 uniformly within its parameter bounds.
 
 # Arguments
-- `nEnsemble`: Number of ensemble members to generate.
+- `N_ensemble`: Number of ensemble members to generate.
 - `spacing`: `GeometricSpacing()` or `ExponentialSpacing()`.
 
 # Returns
-- A vector of length `nEnsemble`, where each element is a one-element parameter vector `[θ]` (a single parameter in this
+- A vector of length `N_ensemble`, where each element is a one-element parameter vector `[θ]` (a single parameter in this
   implementation).
 """
-function specify_random_parameters(nEnsemble, spacing)
+function specify_random_parameters(N_ensemble, spacing)
     θ = specify_parameters(spacing)
     θ_limits = specify_parameter_limits(spacing)
 
-    θᵣ = [[θ_limits[j][1] + (θ_limits[j][2] - θ_limits[j][1]) * rand() for j in 1:lastindex(θ)] for i in 1:nEnsemble]
+    θᵣ = [[θ_limits[j][1] + (θ_limits[j][2] - θ_limits[j][1]) * rand() for j in 1:lastindex(θ)] for i in 1:N_ensemble]
 
     return θᵣ
 end
@@ -320,13 +322,13 @@ end
 """
     forward_map(Nx, Ny, spacing, θ)
 
-Evaluate the (weighted) model diagnostics for a non-uniform conformal cubed-sphere panel defined by parameters `θ`. The
-steps are:
+Evaluate the (weighted) model diagnostics for a non-uniform conformal cubed-sphere panel defined by
+parameters `θ`. The steps are:
 1. Clamp `θ` to parameter limits from `specify_parameter_limits(spacing)`.
-2. Build a **reference** uniform grid via `conformal_cubed_sphere_coordinates(Nx, Ny; spacing=UniformSpacing())` and compute
-   `minimum_reference_cell_area`.
+2. Build a **reference** uniform grid via `conformal_cubed_sphere_coordinates(Nx, Ny; spacing=UniformSpacing())`
+   and compute the `minimum_reference_cell_area`.
 3. Build the **non-uniform** grid via `conformal_cubed_sphere_coordinates(Nx, Ny; spacing, ...)`,
-   passing the parameters in `θ` according to `spacing`.
+   passing the parameters in `θ` according to `spacing` type.
 4. Compute model diagnostics and then apply weights.
 
 # Arguments
@@ -364,9 +366,9 @@ end
 """
     specify_ideal_weighted_model_diagnostics()
 
-Return the target (ideal) values for the **weighted** model diagnostics used by the inversion. By default, the target
-normalized minimum cell width is `4` and the target deviation from isotropy is `0`, then weights are applied in the same
-order.
+Return the target (ideal) values for the **weighted** model diagnostics used by the inversion.
+By default, the target normalized minimum cell width is `4` and the target deviation from
+isotropy is `0`, then weights are applied in the same order.
 
 # Returns
 - A 2-element vector of target **weighted** diagnostics.
@@ -385,11 +387,12 @@ function specify_ideal_weighted_model_diagnostics()
 end
 
 """
-    optimize!(Nx, Ny, spacing, θ; nIterations=10, Δt=1)
+    optimize!(Nx, Ny, spacing, θ; N_iterations=10, Δt=1)
 
-Run an Ensemble Kalman Inversion (EKI) to tune the spacing parameter(s) for a non-uniform conformal cubed sphere panel.
-An ensemble of parameter vectors `θ` is iteratively updated so that the **weighted** model diagnostics produced by
-`forward_map` match the ideal targets from `specify_ideal_weighted_model_diagnostics()`.
+Run an Ensemble Kalman Inversion (EKI) to tune the spacing parameter(s) for a non-uniform conformal
+cubed sphere panel. An ensemble of parameter vectors `θ` is iteratively updated so that the
+**weighted** model diagnostics produced by `forward_map` match the ideal targets from
+`specify_ideal_weighted_model_diagnostics()`.
 
 At each iteration:
 1. **Forward evaluations (parallelized):** For each ensemble member `θ[n]`, compute the predicted diagnostics
@@ -397,14 +400,15 @@ At each iteration:
 2. **Ensemble statistics:** Form means `θ̄ = mean(θ)` and `G̅ = mean(G)`, then compute
    - Cross-covariance `Cᵘᵖ = cov(θ, G)` (shape: `nθ × ndata`), and
    - Data covariance `Cᵖᵖ = cov(G, G)` (shape: `ndata × ndata`),
-   using the unbiased `(nEnsemble-1)` denominator.
-3. **Perturbed observations:** For each member, build `y[n] = ideal + Δt * η[n]` where `η[n] ~ N(0, I)`. Here `Δt` sets
-   the **perturbation magnitude** of the observations.
+   using the unbiased `(N_ensemble-1)` denominator.
+3. **Perturbed observations:** For each member, build `y[n] = ideal + Δt * η[n]` where `η[n] ~ N(0, I)`.
+   Here `Δt` sets the **perturbation magnitude** of the observations.
 4. **Residuals:** `r[n] = y[n] - G[n]`.
 5. **Implicit update (Kalman-like step):** Update each parameter vector via `θ[n] ← θ[n] + K * r[n]`, with
-   `K = Cᵘᵖ * (Cᵖᵖ + I/Δt)⁻¹`, implemented by solving the linear system with a Cholesky factorization of `Cᵖᵖ + I/Δt`. The
-   same `Δt` also acts as an **implicit damping/step-size control**: smaller `Δt` ⇒ stronger regularization and smaller
-   updates; larger `Δt` ⇒ weaker regularization and larger, noisier updates.
+   `K = Cᵘᵖ * (Cᵖᵖ + I/Δt)⁻¹`, implemented by solving the linear system with a Cholesky factorization of
+   `Cᵖᵖ + I/Δt`. The same `Δt` also acts as an **implicit damping/step-size control**:
+   smaller `Δt` ⇒ stronger regularization and smaller updates;
+   larger `Δt` ⇒ weaker regularization and larger, noisier updates.
 6. **Monitoring:** Report `error = ‖mean(r)‖` and store a snapshot of the ensemble.
 
 This function **mutates** the input ensemble `θ` in place (it becomes the final ensemble) and records the full ensemble
@@ -413,24 +417,27 @@ after each iteration.
 # Arguments
 - `Nx, Ny`: Number of grid vertices along the panel coordinates.
 - `spacing`: `GeometricSpacing()` or `ExponentialSpacing()`.
-- `θ`: Initial ensemble — a vector of one-element parameter vectors `[θ]` (length `nEnsemble`).
-- `nIterations`: Number of EKI iterations.
+- `θ`: Initial ensemble — a vector of one-element parameter vectors `[θ]` (length `N_ensemble`).
+
+# Keyword Arguments
+- `N_iterations`: Number of EKI iterations. Default: 10
 - `Δt`: Pseudo-time step that sets both the observation perturbation scale and the implicit damping
         in the linear solve `(Cᵖᵖ + I/Δt)`.
 
 # Returns
-- `θ_series`: A length `nIterations + 1` vector; each entry is a **snapshot** of the full ensemble (index 1 is the
-  initial ensemble; the last is the final ensemble). The input `θ` is also mutated to the final state.
+- `θ_series`: A length `N_iterations + 1` vector; each entry is a **snapshot** of the full ensemble
+  (index 1 is the initial ensemble; the last is the final ensemble). The input `θ` is also mutated
+  to the final state.
 """
 function optimize!(Nx, Ny, spacing, θ;
-                   nIterations = 10,
+                   N_iterations = 10,
                    Δt = 1,
                    verbose = false)
     ideal_data = specify_ideal_weighted_model_diagnostics()
     model_data = forward_map(Nx, Ny, spacing, mean(θ))
 
     nData = length(ideal_data)
-    nEnsemble = length(θ)
+    N_ensemble = length(θ)
 
     θ_series = [copy(θ)]
 
@@ -440,16 +447,16 @@ function optimize!(Nx, Ny, spacing, θ;
         @info("\nIteration 0 with error $error")
     end
 
-    G = [copy(model_data) for i in 1:nEnsemble]
+    G = [copy(model_data) for i in 1:N_ensemble]
 
     # EKI iteration is equivalent to a time step of the above equation.
-    @inbounds for i in 1:nIterations
+    @inbounds for i in 1:N_iterations
         θ̄ = mean(θ)
 
         # Evaluating the forward map for all ensemble members. This is the most expensive step because it needs to run
-        # the model nEnsemble times. For the moment our model is simple, but imagine doing this with a full climate
+        # the model N_ensemble times. For the moment our model is simple, but imagine doing this with a full climate
         # model! Luckily this step is embarassingly parallelizeable.
-        Threads.@threads for n in 1:nEnsemble
+        Threads.@threads for n in 1:N_ensemble
             G[n] .= forward_map(Nx, Ny, spacing, θ[n]) # Error handling needs to go here.
         end
 
@@ -460,16 +467,16 @@ function optimize!(Nx, Ny, spacing, θ;
         Cᵘᵖ = (θ[1] - θ̄) * (G[1] - G̅)'
         Cᵖᵖ = (G[1] - G̅) * (G[1] - G̅)'
 
-        for j = 2:nEnsemble
+        for j = 2:N_ensemble
             Cᵘᵖ += (θ[j] - θ̄) * (G[j] - G̅)'
             Cᵖᵖ += (G[j] - G̅) * (G[j] - G̅)'
         end
 
-        Cᵘᵖ *= 1 / (nEnsemble - 1)
-        Cᵖᵖ *= 1 / (nEnsemble - 1)
+        Cᵘᵖ *= 1 / (N_ensemble - 1)
+        Cᵖᵖ *= 1 / (N_ensemble - 1)
 
         # Ensemblize the data (adding the random noise η).
-        y = [ideal_data + Δt * randn(nData) for i in 1:nEnsemble]
+        y = [ideal_data + Δt * randn(nData) for i in 1:N_ensemble]
 
         # The residual from our observations
         r = y - G
@@ -477,7 +484,7 @@ function optimize!(Nx, Ny, spacing, θ;
         # Update the parameters using implicit pseudo-time-stepping, which involves solving a linear system.
         Cᵖᵖ_factorized = cholesky(Symmetric(Cᵖᵖ + 1 / Δt * LinearAlgebra.I))
 
-        for j in 1:nEnsemble
+        for j in 1:N_ensemble
             θ[j] .+= Cᵘᵖ * (Cᵖᵖ_factorized \ r[j])
         end
 
@@ -494,29 +501,29 @@ end
 """
     optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing)
 
-High-level driver that uses EKI to optimize the non-uniform spacing parameter for a conformal cubed sphere panel, then
-builds and returns the corresponding grid.
+High-level driver that uses EKI to optimize the non-uniform spacing parameter for a conformal
+cubed sphere panel, then builds and returns the corresponding grid.
 
 Procedure:
-1. Create a random ensemble of parameters within limits (`nEnsemble = 40`, reproducible seed).
+1. Create a random ensemble of parameters within limits (`N_ensemble = 40`, reproducible seed).
 2. Run `optimize!` to fit the **weighted** diagnostics to their ideal targets.
 3. Build the optimized grid with `conformal_cubed_sphere_coordinates(Nx, Ny; spacing, ...)` using the
    mean optimized parameter.
 
-For `"geometric"`, the parameter is `ratio^(Nx-1)`; for `"exponential"`, the parameter is `k₀/Nx`.
+For `GeometricSpacing()`, the parameter is `ratio^(Nx-1)`; for `ExponentialSpacing()`, the parameter is `k₀/Nx`.
 
 # Arguments
 - `Nx, Ny`: Number of grid vertices along panel coordinates.
 - `spacing`: `GeometricSpacing()` or `ExponentialSpacing()`.
 
 # Returns
+- `x, y`: Computational-space coordinates of lengths `Nx` and `Ny`.
 - `X, Y, Z`: `(Nx, Ny)` Cartesian coordinates of the vertices of the **optimized** non-uniform
              conformal cubed sphere panel.
-- `x, y`: Computational-space coordinates of lengths `Nx` and `Ny`.
 """
 function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacing;
                                                                   verbose = false)
-    nEnsemble = 40 # Choose nEnsemble to be at least 4 times the number of parameters.
+    N_ensemble = 40 # Choose N_ensemble to be at least 4 times the number of parameters.
 
     if verbose
         @info "Optimize non-uniform conformal cubed sphere for Nx = $Nx and Ny = $Ny"
@@ -524,10 +531,10 @@ function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacin
 
     begin
         Random.seed!(123)
-        θᵣ = specify_random_parameters(nEnsemble, spacing)
+        θᵣ = specify_random_parameters(N_ensemble, spacing)
         θᵢ = deepcopy(θᵣ)
 
-        θ_series = optimize!(Nx, Ny, spacing, θᵣ; nIterations = 10)
+        θ_series = optimize!(Nx, Ny, spacing, θᵣ; N_iterations = 10)
     end
 
     if spacing isa GeometricSpacing
@@ -549,7 +556,6 @@ function optimized_non_uniform_conformal_cubed_sphere_coordinates(Nx, Ny, spacin
     return x, y, X, Y, Z
 end
 
-
 """
     compute_deviation_from_isotropy(X, Y, Z; radius = 1)
 
@@ -567,7 +573,9 @@ entire grid.
 
 # Arguments
 - `X`, `Y`, `Z`: `(Nx, Ny)` arrays of Cartesian coordinates of grid vertices on the sphere.
-- `radius`: Sphere radius (optional). Default is `1`.
+
+# Keyword Arguments
+- `radius`: Sphere radius. Default: 1.
 
 # Returns
 - A non-negative scalar quantifying the overall deviation from isotropy in the grid.
