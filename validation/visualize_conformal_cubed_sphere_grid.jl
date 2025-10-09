@@ -578,10 +578,9 @@ compute_minimum_cell_width_variation_with_resolution = true
 
 if compute_minimum_cell_width_variation_with_resolution
     for spacing in [GeometricSpacing(), ExponentialSpacing()]
-        spacing_type = lowercase(string(typeof(spacing)))
         for optimized in [false, true]
             is_optimized = optimized ? "optimized" : "non-optimized"
-            @info "Computing minimum cell width variation with resolution for $is_optimized $spacing_type"
+            @info "Computing minimum cell width variation with resolution for $is_optimized $(string(typeof(spacing)))"
             minimum_cell_width_variation_with_resolution(spacing, optimized)
         end
     end
@@ -603,7 +602,6 @@ if plot_minimum_cell_width_variation_with_resolution
                      labels = ["Unoptimized", "Optimized with EKI"])
 
     for spacing in [GeometricSpacing(), ExponentialSpacing()]
-        spacing_type = lowercase(string(typeof(spacing)))
         title = specify_title(spacing) * ":\nNormalized Minimum Cell Width versus Resolution"
 
         resolutions_2 = Vector{Float64}()
@@ -611,8 +609,9 @@ if plot_minimum_cell_width_variation_with_resolution
         normalized_minimum_cell_widths_unoptimized = Vector{Float64}()
 
         for optimized in [false, true]
-            @info ("Plotting minimum cell width variation with resolution for spacing = $spacing_type and "
-                   * "optimized = $optimized")
+            is_optimized = optimized ? "optimized" : "non-optimized"
+
+            @info "Plotting minimum cell width variation with resolution for $is_optimized $(string(typeof(spacing)))"
 
             file_name_suffix_1, file_name_suffix_2 = specify_file_name_suffixes(spacing, optimized)
 
