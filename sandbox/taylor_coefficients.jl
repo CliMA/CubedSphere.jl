@@ -88,11 +88,11 @@ maximum_coefficients = 128
 
 Ncoefficients = Int(Nφ/2) - 2 > maximum_coefficients ? maximum_coefficients : Int(Nφ/2) - 2
 
-Niterations = 30
+N_iterations = 30
 
-A, B = find_taylor_coefficients(r; maximum_coefficients, Niterations)
+A, B = find_taylor_coefficients(r; maximum_coefficients, N_iterations)
 
-@info "After $Niterations iterations we have:"
+@info "After $N_iterations iterations we have:"
 
 for (k, Aₖ) in enumerate(A[1:30])
     @printf("k = %2i, A ≈ %+.14f, A_Rancic = %+.14f, |A - A_Rancic| = %.2e \n", k, real(Aₖ), CubedSphere.A_Rancic[k+1], abs(CubedSphere.A_Rancic[k+1] - real(Aₖ)))

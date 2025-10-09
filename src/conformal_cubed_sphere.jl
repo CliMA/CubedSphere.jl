@@ -1,4 +1,3 @@
-
 W_Rancic(Z) = sum(A_Rancic[k] * Z^(k-1) for k in length(A_Rancic):-1:1)
 Z_Rancic(W) = sum(B_Rancic[k] * W^(k-1) for k in length(B_Rancic):-1:1)
 
@@ -45,7 +44,6 @@ julia> conformal_cubed_sphere_mapping(1, 1)
 * [Rancic-etal-1996](@cite) Rančić et al., *Q. J. R. Meteorol.*, (1996).
 """
 function conformal_cubed_sphere_mapping(x, y; W_map=W_Rancic)
-
     (abs(x) > 1 || abs(y) > 1) && throw(ArgumentError("(x, y) must lie within [-1, 1] x [-1, 1]"))
 
     X = xᶜ = abs(x)
@@ -144,4 +142,25 @@ function conformal_cubed_sphere_inverse_mapping(X, Y, Z; Z_map=Z_Rancic)
     y = yf
 
     return x, y
+end
+
+"""
+    cube_to_sphere(x, y)
+
+Maps the coordinates ``(x, y) ∈ [-1, 1] × [-1, 1]`` of the face of a cube to the
+3D coordinates ``X, Y, Z`` on the sphere via [`conformal_cubed_sphere_mapping`](@ref),
+that is:
+
+    X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x[i], y[j])
+"""
+function cube_to_sphere(x, y)
+    X = zeros(length(x), length(y))
+    Y = zeros(length(x), length(y))
+    Z = zeros(length(x), length(y))
+
+    for (j, y′) in enumerate(y), (i, x′) in enumerate(x)
+        X[i, j], Y[i, j], Z[i, j] = conformal_cubed_sphere_mapping(x′, y′)
+    end
+
+    return X, Y, Z
 end

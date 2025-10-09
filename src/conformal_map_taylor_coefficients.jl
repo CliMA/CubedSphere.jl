@@ -104,7 +104,7 @@ end
 
 """
     find_taylor_coefficients(r = 1 - 1e-7;
-                             Niterations = 30,
+                             N_iterations = 30,
                              maximum_coefficients = 256,
                              Nevaluations = find_N(r; decimals=15))
 
@@ -133,7 +133,7 @@ Arguments
 
 * `maximum_coefficients` (keyword): the truncation for the Taylor series; default: 256.
 
-* `Niterations` (keyword): the number of update iterations we perform on the
+* `N_iterations` (keyword): the number of update iterations we perform on the
   Taylor coefficients ``A_k``; default: 30.
 
 * `Nevaluations` (keyword): the number of function evaluations in over the circle of radius `r`;
@@ -174,7 +174,7 @@ julia> A[1:10]
 * [Rancic-etal-1996](@cite) Rančić et al., *Q. J. R. Meteorol.*, (1996).
 """
 function find_taylor_coefficients(r = 1 - 1e-7;
-                                  Niterations = 30,
+                                  N_iterations = 30,
                                   maximum_coefficients = 256,
                                   Nevaluations = find_N(r; decimals=15))
 
@@ -191,7 +191,7 @@ function find_taylor_coefficients(r = 1 - 1e-7;
     A_coefficients[1:min(maximum_coefficients, 30)] = CubedSphere.A_Rancic[2:min(maximum_coefficients, 30)+1]
     A_coefficients_old = deepcopy(A_coefficients)
 
-    for iteration in ProgressBar(1:Niterations)
+    for iteration in ProgressBar(1:N_iterations)
         _update_coefficients!(A_coefficients, r, Nevaluations)
 
         rel_error = (abs.(A_coefficients - A_coefficients_old) ./ abs.(A_coefficients))[1:maximum_coefficients]
