@@ -67,7 +67,7 @@ Convert Cartesian coordinates `(x, y, z)` to longitude (in degrees) on the spher
 cartesian_to_longitude(x, y, z) = atand(y, x)
 
 """
-    lat_lon_to_cartesian(φ, λ; radius = 1)
+lat_lon_to_cartesian(φ, λ; radius = 1, check_latitude_bounds = true)
 
 Convert `(latitude, longitude)` coordinates (in degrees) to Cartesian coordinates `(x, y, z)` on the sphere.
 
@@ -75,6 +75,7 @@ Convert `(latitude, longitude)` coordinates (in degrees) to Cartesian coordinate
 - `φ`: Latitude in degrees.
 - `λ`: Longitude in degrees.
 - `radius`: Sphere radius (optional). Default is `1`.
+- `check_latitude_bounds`: If `true`, raises an error when `|φ| > 90`. Set to `false` to disable this validation.
 
 # Returns
 - `(x, y, z)`: Cartesian coordinates on the sphere.
@@ -95,8 +96,8 @@ julia> lat_lon_to_cartesian(0, 90)
 (0.0, 1.0, 0.0)
 ```
 """
-function lat_lon_to_cartesian(φ, λ; radius = 1)
-    abs(φ) > 90 && error("Latitude φ must be within -90 ≤ φ ≤ 90 degrees.")
+function lat_lon_to_cartesian(φ, λ; radius = 1, check_latitude_bounds = true)
+    check_latitude_bounds && abs(φ) > 90 && error("Latitude φ must be within -90 ≤ φ ≤ 90 degrees.")
     return (lat_lon_to_x(φ, λ; radius), lat_lon_to_y(φ, λ; radius), lat_lon_to_z(φ; radius))
 end
 
