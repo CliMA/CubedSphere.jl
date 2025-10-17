@@ -57,7 +57,7 @@ end
 
 Convert Cartesian coordinates `(x, y, z)` to latitude (in degrees) on the sphere.
 """
-cartesian_to_latitude(x, y, z) = atand(z, hypot(x, y))
+cartesian_to_latitude(x, y, z) = atand(z, sqrt(x*x + y*y))
 
 """
     cartesian_to_longitude(x, y, z)
