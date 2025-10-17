@@ -42,7 +42,7 @@ julia> cartesian_to_lat_lon(√2/4, -√2/4, √3/2)
 (59.99999999999999, -45.0)
 
 julia> cartesian_to_lat_lon(-√6/4, √2/4, -√2/2)
-(-45.00000000000001, 150.0)
+(-45.0, 150.0)
 ```
 """
 cartesian_to_lat_lon(x, y, z) = cartesian_to_latitude(x, y, z), cartesian_to_longitude(x, y, z)
