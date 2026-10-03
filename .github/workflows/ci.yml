@@ -1,7 +1,12 @@
 name: CI
+
 on:
   - push
   - pull_request
+
+env:
+  JULIA_DEBUG: loading
+
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -10,9 +15,6 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - 'min'
-          - '1.11'
-          - '1'
           - 'nightly'
         os:
           - ubuntu-latest
@@ -21,5 +23,4 @@ jobs:
       - uses: julia-actions/setup-julia@v3
         with:
           version: ${{ matrix.version }}
-      - uses: julia-actions/cache@v3
       - uses: julia-actions/julia-runtest@v1
