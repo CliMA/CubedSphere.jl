@@ -1,7 +1,7 @@
 # Coefficients taken from Table B1 of Rančić et al., (1996): Quarterly Journal of the Royal Meteorological Society,
 #   A global shallow-water model using an expanded spherical cube - Gnomonic versus conformal coordinates
 
-A_Rancic = [
+const A_Rancic = [
     +0.00000000000000,
     +1.47713062600964,
     -0.38183510510174,
@@ -35,6 +35,6 @@ A_Rancic = [
     -0.00009725109376
 ]
 
-A_series = Taylor1(A_Rancic)
-B_series = inverse(A_series) # This is the inverse Taylor series.
-B_Rancic = B_series.coeffs
+const A_series = Taylor1(A_Rancic)
+const B_series = inverse(A_series) # This is the inverse Taylor series.
+const B_Rancic = B_series.coeffs
