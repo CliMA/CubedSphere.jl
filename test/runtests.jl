@@ -4,8 +4,9 @@ using CubedSphere.SphericalGeometry
 using Documenter
 using StaticArrays: SVector
 
-# Bytes allocated by `f(args...)`, after compiling it
-allocations(f, args...) = (f(args...); @allocated f(args...))
+# Bytes allocated by `f(args...)`, after compiling it. `F` and `N` force specializing on the function
+# and its arguments: without them, Julia v1.10 and v1.11 box the result of `f`
+allocations(f::F, args::Vararg{Any, N}) where {F, N} = (f(args...); @allocated f(args...))
 
 B_Rancic_correct = [
     0.00000000000000,
