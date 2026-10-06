@@ -6,6 +6,7 @@ export lat_lon_to_x, lat_lon_to_y, lat_lon_to_z, lat_lon_to_cartesian, cartesian
 
 using Distances
 using LinearAlgebra
+using StaticArrays: SVector
 
 """
     cartesian_to_lat_lon(x, y, z)
@@ -268,7 +269,7 @@ julia> spherical_area_triangle(a₁ .* 6.371e6, a₂ .* 6.371e6, a₃ .* 6.371e6
 ```
 """
 function spherical_area_triangle(a₁, a₂, a₃; radius=1)
-    a₁, a₂, a₃ = collect(a₁), collect(a₂), collect(a₃)
+    a₁, a₂, a₃ = SVector{3}(a₁), SVector{3}(a₂), SVector{3}(a₃)
     r1, r2, r3 = sqrt(sum(a₁.^2)), sqrt(sum(a₂.^2)), sqrt(sum(a₃.^2))
     (r1 ≈ r2 && r2 ≈ r3) || error("a₁, a₂, a₃ must lie on the same sphere")
 
@@ -343,22 +344,10 @@ holding the Cartesian coordinates of grid vertices on the sphere, such that the 
 - `(a₁, a₂, a₃, a₄)`: The four 3-element Cartesian vertex vectors at `(i, j)`, `(i+1, j)`, `(i+1, j+1)`, and `(i, j+1)`.
 """
 function spherical_quadrilateral_vertices(X, Y, Z, i, j)
-    x₁ = X[i, j]
-    y₁ = Y[i, j]
-    z₁ = Z[i, j]
-    a₁ = [x₁, y₁, z₁]
-    x₂ = X[i+1, j]
-    y₂ = Y[i+1, j]
-    z₂ = Z[i+1, j]
-    a₂ = [x₂, y₂, z₂]
-    x₃ = X[i+1, j+1]
-    y₃ = Y[i+1, j+1]
-    z₃ = Z[i+1, j+1]
-    a₃ = [x₃, y₃, z₃]
-    x₄ = X[i, j+1]
-    y₄ = Y[i, j+1]
-    z₄ = Z[i, j+1]
-    a₄ = [x₄, y₄, z₄]
+    a₁ = SVector(X[i, j],     Y[i, j],     Z[i, j])
+    a₂ = SVector(X[i+1, j],   Y[i+1, j],   Z[i+1, j])
+    a₃ = SVector(X[i+1, j+1], Y[i+1, j+1], Z[i+1, j+1])
+    a₄ = SVector(X[i, j+1],   Y[i, j+1],   Z[i, j+1])
 
     return a₁, a₂, a₃, a₄
 end

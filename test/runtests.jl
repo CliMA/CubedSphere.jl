@@ -1,6 +1,11 @@
 using Test
 using CubedSphere
+using CubedSphere.SphericalGeometry
 using Documenter
+using StaticArrays: SVector
+
+# Bytes allocated by `f(args...)`, after compiling it
+allocations(f, args...) = (f(args...); @allocated f(args...))
 
 B_Rancic_correct = [
     0.00000000000000,
@@ -60,6 +65,33 @@ B_Rancic_correct = [
 
     @test_throws ArgumentError conformal_cubed_sphere_mapping(2, 0.5)
     @test_throws ArgumentError conformal_cubed_sphere_mapping(0.5, -2)
+
+    @testset "Spherical geometry" begin
+        a₁, a₂, a₃, a₄ = (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0), (1 / √2, 1 / √2, 0.0)
+
+        @testset "Same areas for tuples, Vectors and SVectors" begin
+            for vertex in (identity, collect, SVector)
+                @test spherical_area_triangle(vertex.((a₁, a₂, a₃))...) ≈ π / 2
+                @test spherical_area_quadrilateral(vertex.((a₁, a₂, a₃, a₄))...) ≈ π / 2
+            end
+        end
+
+        @testset "Areas don't allocate" begin
+            @test allocations(spherical_area_triangle, a₁, a₂, a₃) == 0
+            @test allocations(spherical_area_quadrilateral, a₁, a₂, a₃, a₄) == 0
+            @test allocations(spherical_area_quadrilateral, SVector.((a₁, a₂, a₃, a₄))...) == 0
+        end
+
+        @testset "Quadrilateral vertices are SVectors" begin
+            X = rand(3, 3)
+            Y = rand(3, 3)
+            Z = rand(3, 3)
+            vertices = spherical_quadrilateral_vertices(X, Y, Z, 1, 2)
+            @test vertices isa NTuple{4, SVector{3, Float64}}
+            @test vertices[3] == SVector(X[2, 3], Y[2, 3], Z[2, 3])
+            @test allocations(spherical_quadrilateral_vertices, X, Y, Z, 1, 2) == 0
+        end
+    end
 end
 
 @time @testset "Doctests" begin
