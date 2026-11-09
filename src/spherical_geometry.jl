@@ -293,9 +293,9 @@ function spherical_area_triangle(a₁, a₂, a₃; radius=1)
     denominator = 1 + dot(û₁, û₂) + dot(û₂, û₃) + dot(û₁, û₃)
 
     # two-argument atan picks the correct quadrant when the denominator is negative (Ê > π)
-    E_unit = 2atan(numerator, denominator)
+    Ê = 2atan(numerator, denominator)
 
-    return (radius^2) * E_unit
+    return (radius^2) * Ê
 end
 
 """
