@@ -185,6 +185,9 @@ area is `R² * E`.
   \\frac{\\sqrt{1 - \\cos^2 a - \\cos^2 b - \\cos^2 c + 2 \\cos a \\cos b \\cos c}}{1 + \\cos a + \\cos b + \\cos c}.
   ```
 
+  We evaluate ``E`` with the two-argument arctangent, `E = 2 atan(numerator, denominator)`, so that triangles with
+  ``E > π`` (for which the denominator is negative) are handled correctly.
+
 References
 ==========
 
@@ -207,9 +210,11 @@ julia> spherical_area_triangle(a, b, c; radius = 6371e3)
 function spherical_area_triangle(a::Number, b::Number, c::Number; radius=1)
     cosa, cosb, cosc = cos(a), cos(b), cos(c)
 
-    tan½E = sqrt(1 - cosa^2 - cosb^2 - cosc^2 + 2cosa * cosb * cosc) / (1 + cosa + cosb + cosc)
+    numerator = sqrt(max(0, 1 - cosa^2 - cosb^2 - cosc^2 + 2cosa * cosb * cosc))
+    denominator = 1 + cosa + cosb + cosc
 
-    E_unit = 2atan(tan½E)       # area on unit sphere
+    # two-argument atan picks the correct quadrant when the denominator is negative (E > π)
+    E_unit = 2atan(numerator, denominator)  # area on unit sphere
 
     return (radius^2) * E_unit  # physical area
 end
@@ -241,7 +246,13 @@ the area is `R² * E`.
   P = |𝐚₁ ⋅ (𝐚₂ × 𝐚₃)|
   ```
   where `a`, `b`, and `c` are the side lengths of the spherical triangle formed by the vertices `a₁`, `a₂`, and `a₃`.
-  The above formula was first derived by Eriksson (1990).
+  The resulting expression,
+  ```math
+  \\tan\\frac{E}{2} = \\frac{|𝐚₁ ⋅ (𝐚₂ × 𝐚₃)|}{1 + 𝐚₁ ⋅ 𝐚₂ + 𝐚₂ ⋅ 𝐚₃ + 𝐚₁ ⋅ 𝐚₃},
+  ```
+  for unit vectors `𝐚₁`, `𝐚₂`, `𝐚₃`, was first derived by Eriksson (1990); this is the formula used here.
+  We evaluate ``E`` with the two-argument arctangent so that triangles with ``E > π`` (for which the
+  denominator is negative) are handled correctly.
 
 - The inputs `a₁`, `a₂`, and `a₃` must have the same norm.
 
@@ -275,8 +286,11 @@ function spherical_area_triangle(a₁, a₂, a₃; radius=1)
 
     # Use only directions to compute unit-sphere area (scale later)
     û₁, û₂, û₃ = a₁/r1, a₂/r2, a₃/r3
-    tan½E = abs(dot(û₁, cross(û₂, û₃))) / (1 + dot(û₁, û₂) + dot(û₂, û₃) + dot(û₁, û₃))
-    E_unit = 2atan(tan½E)
+    numerator = abs(dot(û₁, cross(û₂, û₃)))
+    denominator = 1 + dot(û₁, û₂) + dot(û₂, û₃) + dot(û₁, û₃)
+
+    # two-argument atan picks the correct quadrant when the denominator is negative (E > π)
+    E_unit = 2atan(numerator, denominator)
 
     return (radius^2) * E_unit
 end

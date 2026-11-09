@@ -77,6 +77,22 @@ B_Rancic_correct = [
             end
         end
 
+        @testset "Triangles with spherical excess larger than π" begin
+            # equilateral triangle with vertices just south of the equator; its area is just under 2π
+            φ = -0.1
+            vertices = [SVector(cos(φ) * cos(λ), cos(φ) * sin(λ), sin(φ)) for λ in (0, 2π/3, 4π/3)]
+            south_pole = SVector(0.0, 0.0, -1.0)
+
+            # split into three smaller triangles (each with E < π) that share the south pole
+            expected_area = sum(spherical_area_triangle(south_pole, vertices[i], vertices[mod1(i+1, 3)]) for i in 1:3)
+            @test π < expected_area < 2π
+
+            @test spherical_area_triangle(vertices...) ≈ expected_area
+
+            side = spherical_distance(vertices[1], vertices[2])
+            @test spherical_area_triangle(side, side, side) ≈ expected_area
+        end
+
         @testset "Areas don't allocate" begin
             @test allocations(spherical_area_triangle, a₁, a₂, a₃) == 0
             @test allocations(spherical_area_quadrilateral, a₁, a₂, a₃, a₄) == 0
