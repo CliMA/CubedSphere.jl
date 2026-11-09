@@ -210,13 +210,14 @@ julia> spherical_area_triangle(a, b, c; radius = 6371e3)
 function spherical_area_triangle(a::Number, b::Number, c::Number; radius=1)
     cosa, cosb, cosc = cos(a), cos(b), cos(c)
 
+    # tan(½Ê) = numerator / denominator; Ê = spherical excess on the unit sphere
     numerator = sqrt(max(0, 1 - cosa^2 - cosb^2 - cosc^2 + 2cosa * cosb * cosc))
     denominator = 1 + cosa + cosb + cosc
 
-    # two-argument atan picks the correct quadrant when the denominator is negative (E > π)
-    E_unit = 2atan(numerator, denominator)  # area on unit sphere
+    # two-argument atan picks the correct quadrant when the denominator is negative (Ê > π)
+    Ê = 2atan(numerator, denominator)  # area on unit sphere
 
-    return (radius^2) * E_unit  # physical area
+    return (radius^2) * Ê  # physical area
 end
 
 """
@@ -286,10 +287,12 @@ function spherical_area_triangle(a₁, a₂, a₃; radius=1)
 
     # Use only directions to compute unit-sphere area (scale later)
     û₁, û₂, û₃ = a₁/r1, a₂/r2, a₃/r3
+
+    # tan(½Ê) = numerator / denominator; Ê = spherical excess on the unit sphere
     numerator = abs(dot(û₁, cross(û₂, û₃)))
     denominator = 1 + dot(û₁, û₂) + dot(û₂, û₃) + dot(û₁, û₃)
 
-    # two-argument atan picks the correct quadrant when the denominator is negative (E > π)
+    # two-argument atan picks the correct quadrant when the denominator is negative (Ê > π)
     E_unit = 2atan(numerator, denominator)
 
     return (radius^2) * E_unit
